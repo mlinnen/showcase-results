@@ -1,17 +1,17 @@
 /**
- * index.ts — Bilbo
- * Entry point: read all four spreadsheets, parse, validate, write results.json.
+ * index.js — Bilbo
+ * Reads all four spreadsheets from data/input/, normalises the data per ADR-002,
+ * validates against schema/results.schema.json, and writes data/output/results.json.
  *
- * Usage: node src/parse/index.js   (after tsc)
- *    or: npx ts-node src/parse/index.ts
+ * Usage: node src/parse/index.js
  */
 
 'use strict';
 
-import * as fs from 'fs';
-import * as path from 'path';
-import * as XLSX from 'xlsx';
-import Ajv from 'ajv';
+const fs   = require('fs');
+const path = require('path');
+const XLSX = require('xlsx');
+const Ajv  = require('ajv');
 
 const INPUT_DIR   = path.resolve(__dirname, '../../data/input');
 const OUTPUT_FILE = path.resolve(__dirname, '../../data/output/results.json');
@@ -23,8 +23,8 @@ const EVENT_YEAR = 2026;
 
 // ─── helpers ────────────────────────────────────────────────────────────────
 
-/** Parse "ID FirstName LastName" → { carver_id, winner } or null */
-function parseCarver(raw: string | null | undefined): { carver_id: number; winner: string } | null {
+/** Parse "ID FirstName LastName" → { carver_id, winner } or null (ADR-002 constraint 2) */
+function parseCarver(raw) {
   if (!raw) return null;
   const s = String(raw).trim();
   const spaceIdx = s.indexOf(' ');
@@ -36,7 +36,7 @@ function parseCarver(raw: string | null | undefined): { carver_id: number; winne
 }
 
 /** Normalize Style: "N", "P", or null — never empty string (ADR-002 constraint 6) */
-function normalizeStyle(val: unknown): 'N' | 'P' | null {
+function normalizeStyle(val) {
   if (!val || typeof val !== 'string' || val.trim() === '') return null;
   const s = val.trim();
   if (s === 'N' || s === 'P') return s;
@@ -44,21 +44,21 @@ function normalizeStyle(val: unknown): 'N' | 'P' | null {
 }
 
 /** Normalize Division: exactly "Intermediate", "Novice", "Open", or null (ADR-002 constraint 7) */
-function normalizeDivision(val: unknown): 'Intermediate' | 'Novice' | 'Open' | null {
+function normalizeDivision(val) {
   if (!val || typeof val !== 'string') return null;
-  const s = val.trim() as 'Intermediate' | 'Novice' | 'Open';
+  const s = val.trim();
   if (s === 'Intermediate' || s === 'Novice' || s === 'Open') return s;
   return null;
 }
 
 /**
  * Read an xlsx file, skipping the merged title row (row 0).
- * Row 1 is treated as the header row; rows 2+ are data.
+ * Row 1 is used as the header row; rows 2+ are data.
  */
-function readSheet(filename: string): Record<string, unknown>[] {
+function readSheet(filename) {
   const wb = XLSX.readFile(path.join(INPUT_DIR, filename));
   const ws = wb.Sheets[wb.SheetNames[0]];
-  return XLSX.utils.sheet_to_json<Record<string, unknown>>(ws, { range: 1, defval: null });
+  return XLSX.utils.sheet_to_json(ws, { range: 1, defval: null });
 }
 
 // ─── parsers ─────────────────────────────────────────────────────────────────
@@ -79,7 +79,7 @@ function parseSpecialPrizes() {
   const prizes = rows
     .filter(r => r['Name'] && r['Carver'] && r['Order'] != null)
     .map(r => {
-      const carver = parseCarver(r['Carver'] as string);
+      const carver = parseCarver(r['Carver']);
       if (!carver) return null;
       return {
         order:        parseInt(String(r['Order']), 10),
@@ -87,62 +87,54 @@ function parseSpecialPrizes() {
         carver_id:    carver.carver_id,
         winner:       carver.winner,
         entry_number: parseInt(String(r['Entry #']), 10),
-        prize:        String(r['Prize']).trim(),   // always a string (ADR-002 constraint 5)
+        prize:        String(r['Prize']).trim(),  // always a string (ADR-002 constraint 5)
       };
     })
-    .filter((x): x is NonNullable<typeof x> => x !== null);
+    .filter(x => x !== null);
 
-  // Sort by order (ADR-002 / schema requirement)
   prizes.sort((a, b) => a.order - b.order);
   return prizes;
-}
-
-interface PlaceEntry {
-  place: number;
-  carver_id: number;
-  winner: string;
-  entry_number: number;
 }
 
 function parseJudging() {
   const rows = readSheet('Judging.xlsx');
 
-  // Duplicate columns in Judging.xlsx are renamed by xlsx:
-  //   "#"   → "#",  "#" (2nd) → "#_1",  "#" (3rd) → "#_2"
-  //   "Prize"→"Prize", "Prize"(2nd)→"Prize_1", "Prize"(3rd)→"Prize_2"
-  const overallResults: Array<{ category: string; places: PlaceEntry[] }> = [];
-  const divisionMap: Record<string, Array<{ name: string; style: 'N' | 'P' | null; places: PlaceEntry[] }>> = {};
+  // The xlsx library renames duplicate column headers:
+  //   "#" (1st) → "#",  "#" (2nd) → "#_1",  "#" (3rd) → "#_2"
+  //   "Prize" (1st) → "Prize", (2nd) → "Prize_1", (3rd) → "Prize_2"
+  const overallResults  = [];
+  const divisionMap     = {};
 
   for (const row of rows) {
-    const places: PlaceEntry[] = [];
+    const places = [];
 
-    const c1 = parseCarver(row['1st'] as string);
+    const c1 = parseCarver(row['1st']);
     if (c1) {
       const en = parseInt(String(row['#']), 10);
       if (en >= 1) {
         places.push({ place: 1, carver_id: c1.carver_id, winner: c1.winner, entry_number: en });
       } else {
-        console.warn(`  WARN: skipping 1st place for "${String(row['Category']).trim()}" (${row['Division']}) — entry# is ${row['#']}`);
+        console.warn(`  WARN: skipping 1st place for "${String(row['Category']).trim()}" (${row['Division']}) — entry# is ${row['#']} (carver ${c1.carver_id} ${c1.winner})`);
       }
     }
 
-    const c2 = parseCarver(row['2nd'] as string);
+    const c2 = parseCarver(row['2nd']);
     if (c2) {
       const en = parseInt(String(row['#_1']), 10);
       if (en >= 1) {
         places.push({ place: 2, carver_id: c2.carver_id, winner: c2.winner, entry_number: en });
       } else {
-        console.warn(`  WARN: skipping 2nd place for "${String(row['Category']).trim()}" (${row['Division']}) — entry# is ${row['#_1']}`);
+        console.warn(`  WARN: skipping 2nd place for "${String(row['Category']).trim()}" (${row['Division']}) — entry# is ${row['#_1']} (carver ${c2.carver_id} ${c2.winner})`);
       }
     }
 
-    const c3 = parseCarver(row['3rd'] as string);
+    const c3 = parseCarver(row['3rd']);
     if (c3) {
       const en = parseInt(String(row['#_2']), 10);
       if (en >= 1) {
         places.push({ place: 3, carver_id: c3.carver_id, winner: c3.winner, entry_number: en });
       } else {
-        console.warn(`  WARN: skipping 3rd place for "${String(row['Category']).trim()}" (${row['Division']}) — entry# is ${row['#_2']}`);
+        console.warn(`  WARN: skipping 3rd place for "${String(row['Category']).trim()}" (${row['Division']}) — entry# is ${row['#_2']} (carver ${c3.carver_id} ${c3.winner})`);
       }
     }
 
@@ -161,7 +153,7 @@ function parseJudging() {
     }
   }
 
-  const DIVISION_ORDER = ['Intermediate', 'Novice', 'Open'] as const;
+  const DIVISION_ORDER = ['Intermediate', 'Novice', 'Open'];
   const divisionResults = DIVISION_ORDER
     .filter(d => divisionMap[d])
     .map(d => ({ division: d, categories: divisionMap[d] }));
@@ -185,7 +177,8 @@ async function main() {
   };
 
   // Validate against approved schema before writing (ADR-002 constraint 1)
-  const ajv = new Ajv({ strict: false });
+  const AjvClass = typeof Ajv === 'function' ? Ajv : Ajv.default;
+  const ajv = new AjvClass({ strict: false });
   const schema = JSON.parse(fs.readFileSync(SCHEMA_FILE, 'utf8'));
   const validate = ajv.compile(schema);
   const valid = validate(results);

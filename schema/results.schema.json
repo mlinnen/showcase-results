@@ -4,8 +4,21 @@
   "title": "ShowcaseResults",
   "description": "Normalized output from Bilbo's spreadsheet parser. Consumed by Frodo's article renderer.",
   "type": "object",
-  "required": ["event", "categories", "competitors"],
+  "required": ["event", "special_prizes", "overall_results", "division_results", "competitors"],
   "additionalProperties": false,
+  "definitions": {
+    "place_entry": {
+      "type": "object",
+      "required": ["place", "carver_id", "winner", "entry_number"],
+      "additionalProperties": false,
+      "properties": {
+        "place":        { "type": "integer", "minimum": 1, "maximum": 3 },
+        "carver_id":    { "type": "integer", "minimum": 1 },
+        "winner":       { "type": "string", "minLength": 1 },
+        "entry_number": { "type": "integer", "minimum": 1 }
+      }
+    }
+  },
   "properties": {
     "event": {
       "type": "object",
@@ -16,26 +29,71 @@
         "year": { "type": "integer", "minimum": 2000 }
       }
     },
-    "categories": {
+    "special_prizes": {
+      "description": "Named awards from Prizes.xlsx — Best of Show, divisional bests, memorial awards, etc.",
       "type": "array",
-      "minItems": 1,
       "items": {
         "type": "object",
-        "required": ["name", "prizes"],
+        "required": ["order", "name", "carver_id", "winner", "entry_number", "prize"],
         "additionalProperties": false,
         "properties": {
-          "name": { "type": "string", "minLength": 1 },
-          "prizes": {
+          "order":        { "type": "integer", "minimum": 1, "description": "Display sort order (Prizes.Order)" },
+          "name":         { "type": "string", "minLength": 1, "description": "Award name (Prizes.Name)" },
+          "carver_id":    { "type": "integer", "minimum": 1, "description": "Parsed from Prizes.Carver leading integer" },
+          "winner":       { "type": "string", "minLength": 1, "description": "Name parsed from Prizes.Carver" },
+          "entry_number": { "type": "integer", "minimum": 1, "description": "Prizes.Entry #" },
+          "prize":        { "type": "string", "minLength": 1, "description": "Dollar amount or descriptive text (always string)" }
+        }
+      }
+    },
+    "overall_results": {
+      "description": "Judging rows where Division is null (e.g. Best of Show, Overall Best of Show Theme).",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["category", "places"],
+        "additionalProperties": false,
+        "properties": {
+          "category": { "type": "string", "minLength": 1 },
+          "places": {
             "type": "array",
+            "minItems": 1,
+            "items": { "$ref": "#/definitions/place_entry" }
+          }
+        }
+      }
+    },
+    "division_results": {
+      "description": "Judging rows grouped by division, then by category/style.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["division", "categories"],
+        "additionalProperties": false,
+        "properties": {
+          "division": {
+            "type": "string",
+            "enum": ["Intermediate", "Novice", "Open"]
+          },
+          "categories": {
+            "type": "array",
+            "minItems": 1,
             "items": {
               "type": "object",
-              "required": ["place", "ribbon", "winner"],
+              "required": ["name", "style", "places"],
               "additionalProperties": false,
               "properties": {
-                "place":  { "type": "integer", "minimum": 1 },
-                "ribbon": { "type": "string", "minLength": 1 },
-                "winner": { "type": "string", "minLength": 1 },
-                "entry":  { "type": "string" }
+                "name": { "type": "string", "minLength": 1, "description": "Judging.Category (trimmed)" },
+                "style": {
+                  "type": ["string", "null"],
+                  "enum": ["N", "P", null],
+                  "description": "N=natural, P=painted/professional, null for Best Of categories"
+                },
+                "places": {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": { "$ref": "#/definitions/place_entry" }
+                }
               }
             }
           }
@@ -43,26 +101,16 @@
       }
     },
     "competitors": {
+      "description": "All registered competitors from Competitor.xlsx. PII fields excluded.",
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["name", "ribbons"],
+        "required": ["carver_id", "first_name", "last_name"],
         "additionalProperties": false,
         "properties": {
-          "name": { "type": "string", "minLength": 1 },
-          "ribbons": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "required": ["category", "place", "ribbon"],
-              "additionalProperties": false,
-              "properties": {
-                "category": { "type": "string", "minLength": 1 },
-                "place":    { "type": "integer", "minimum": 1 },
-                "ribbon":   { "type": "string", "minLength": 1 }
-              }
-            }
-          }
+          "carver_id":  { "type": "integer", "minimum": 1 },
+          "first_name": { "type": "string", "minLength": 1 },
+          "last_name":  { "type": "string", "minLength": 1 }
         }
       }
     }

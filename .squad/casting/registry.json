@@ -1,0 +1,40 @@
+{
+  "agents": {
+    "gandalf": {
+      "created_at": "2026-03-23T01:57:14.701Z",
+      "persistent_name": "Gandalf",
+      "universe": "Lord of the Rings",
+      "status": "active"
+    },
+    "bilbo": {
+      "created_at": "2026-03-23T01:57:14.701Z",
+      "persistent_name": "Bilbo",
+      "universe": "Lord of the Rings",
+      "status": "active"
+    },
+    "frodo": {
+      "created_at": "2026-03-23T01:57:14.701Z",
+      "persistent_name": "Frodo",
+      "universe": "Lord of the Rings",
+      "status": "active"
+    },
+    "aragorn": {
+      "created_at": "2026-03-23T01:57:14.701Z",
+      "persistent_name": "Aragorn",
+      "universe": "Lord of the Rings",
+      "status": "active"
+    },
+    "scribe": {
+      "created_at": "2026-03-23T01:57:14.701Z",
+      "persistent_name": "Scribe",
+      "universe": "Lord of the Rings",
+      "status": "active"
+    },
+    "ralph": {
+      "created_at": "2026-03-23T01:57:14.701Z",
+      "persistent_name": "Ralph",
+      "universe": "Lord of the Rings",
+      "status": "active"
+    }
+  }
+}
