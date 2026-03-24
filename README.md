@@ -84,11 +84,21 @@ Each spreadsheet has a merged title in row 1 (skipped), column headers in row 2,
 
 The generated `article.html` contains:
 
-- An event header (`<h2>` with event name and year)
-- A **Special Prizes** section grouped by prize category
-- A **Ribbon Winners** section organized by category, division, and style
+1. **Event header** — event name and year
+2. **Special Prizes** section — grouped by category; prize name and winner for each award
+3. **Ribbon Winners** section — grouped by category, division, and style; carver name, entry title, and ribbon for each entry
 
 The HTML uses only semantic elements (`<h2>`, `<table>`, etc.) with no inline styles or scripts, making it compatible with Joomla's content editor.
+
+### Publishing to Joomla
+
+1. Open the target article in the Joomla backend editor
+2. Switch to **Source / HTML** view (the `<>` or **Source** button in the toolbar)
+3. Paste the contents of `article.html` into the editor
+4. Switch back to visual mode and review the layout
+5. Save the article
+
+> **Note:** `article.html` is an HTML **fragment** — it does not include `<html>`, `<head>`, or `<body>` tags. Joomla's editor expects fragments.
 
 ## Project structure
 
