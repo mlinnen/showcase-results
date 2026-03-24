@@ -4,6 +4,9 @@ data/input/
 # Project: generated intermediate data (re-created by parse step)
 data/output/
 
+# Project: generated HTML output (re-created by CLI)
+output/article.html
+
 # Project: TypeScript build output
 dist/
 *.js.map
