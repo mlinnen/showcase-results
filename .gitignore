@@ -11,6 +11,22 @@ dist/
 # Dependencies
 node_modules/
 
+# C#: build output
+bin/
+obj/
+
+# C#: user-specific files
+*.user
+*.suo
+.vs/
+
+# C#: NuGet packages
+*.nupkg
+*.snupkg
+
+# C#: publish output
+publish/
+
 # Squad: ignore runtime state (logs, inbox, sessions)
 .squad/orchestration-log/
 .squad/log/
