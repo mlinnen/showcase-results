@@ -272,13 +272,26 @@ public class ArticleRenderer
             var divHtml = "<h2>Division Results</h2>";
             foreach (var (division, entries) in carverDivisions)
             {
-                divHtml += $"\n<h3>{Esc(division)} Division</h3>\n<ul>";
-                foreach (var (category, style, place) in entries)
+                var rows = string.Join("\n", entries.Select(e =>
                 {
-                    var styleStr = style != null ? $" ({StyleLabel(style)})" : "";
-                    divHtml += $"\n  <li>{Esc(category)}{styleStr}: {PlaceName(place.Place)}</li>";
-                }
-                divHtml += "\n</ul>";
+                    var styleStr = e.Style != null ? $" ({StyleLabel(e.Style)})" : "";
+                    var entryNum = e.Place.EntryNumber > 0 ? e.Place.EntryNumber.ToString() : "";
+                    return "  <tr>\n" +
+                           $"    <td>{Esc(e.Category)}{styleStr}</td>\n" +
+                           $"    <td>{PlaceName(e.Place.Place)}</td>\n" +
+                           $"    <td>{entryNum}</td>\n" +
+                           "  </tr>";
+                }));
+
+                divHtml += $"\n<h3>{Esc(division)} Division</h3>\n" +
+                           "<table class=\"cca-carver-division-results\">\n" +
+                           "  <thead>\n" +
+                           "    <tr><th>Category</th><th>Place</th><th>Entry #</th></tr>\n" +
+                           "  </thead>\n" +
+                           "  <tbody>\n" +
+                           rows + "\n" +
+                           "  </tbody>\n" +
+                           "</table>";
             }
             sections.Add(divHtml);
         }
