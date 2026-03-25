@@ -79,7 +79,90 @@ resultsCommand.SetHandler((InvocationContext ctx) =>
     Console.WriteLine($"\u2713 Wrote {output}");
 });
 
+// --- create carver-article ---
+var carverArticleCommand = new Command("carver-article", "Generate a per-carver results article HTML");
+
+var carverIdOption = new Option<int?>(
+    "--carver-id",
+    () => null,
+    "Carver ID to generate article for");
+var carverNameOption = new Option<string?>(
+    "--carver-name",
+    () => null,
+    "Carver full name to generate article for (e.g. \"John Doe\")");
+var carverOutputOption = new Option<string?>(
+    "--output",
+    () => null,
+    "Path for the output HTML file (default: output/carver-{id}.html)");
+
+carverArticleCommand.AddOption(eventNameOption);
+carverArticleCommand.AddOption(yearOption);
+carverArticleCommand.AddOption(competitorsOption);
+carverArticleCommand.AddOption(prizesOption);
+carverArticleCommand.AddOption(judgingOption);
+carverArticleCommand.AddOption(carverIdOption);
+carverArticleCommand.AddOption(carverNameOption);
+carverArticleCommand.AddOption(carverOutputOption);
+
+carverArticleCommand.SetHandler((InvocationContext ctx) =>
+{
+    var eventName   = ctx.ParseResult.GetValueForOption(eventNameOption)!;
+    var year        = ctx.ParseResult.GetValueForOption(yearOption);
+    var competitors = Path.GetFullPath(ctx.ParseResult.GetValueForOption(competitorsOption)!);
+    var prizes      = Path.GetFullPath(ctx.ParseResult.GetValueForOption(prizesOption)!);
+    var judging     = Path.GetFullPath(ctx.ParseResult.GetValueForOption(judgingOption)!);
+    var carverId    = ctx.ParseResult.GetValueForOption(carverIdOption);
+    var carverName  = ctx.ParseResult.GetValueForOption(carverNameOption);
+    var outputPath  = ctx.ParseResult.GetValueForOption(carverOutputOption);
+
+    if (!carverId.HasValue && string.IsNullOrWhiteSpace(carverName))
+    {
+        Console.Error.WriteLine("Error: must specify --carver-id or --carver-name");
+        ctx.ExitCode = 1;
+        return;
+    }
+
+    Console.WriteLine($"Parsing spreadsheets for {eventName} {year}...");
+
+    var parser = new SpreadsheetParser(competitors, prizes, judging);
+
+    var competitorList = parser.ParseCompetitors();
+    var specialPrizes  = parser.ParseSpecialPrizes();
+    var (overallResults, divisionResults) = parser.ParseJudging();
+
+    var data = new ShowcaseResultsData(
+        new EventInfo(eventName, year),
+        specialPrizes,
+        overallResults,
+        divisionResults,
+        competitorList);
+
+    var renderer = new ArticleRenderer();
+    var result = renderer.RenderCarverArticle(data, carverId, carverName);
+
+    if (result == null)
+    {
+        var lookup = carverId.HasValue ? $"ID {carverId.Value}" : $"\"{carverName}\"";
+        Console.Error.WriteLine($"Error: carver {lookup} not found in competitors list.");
+        ctx.ExitCode = 1;
+        return;
+    }
+
+    if (!result.HasResults)
+        Console.WriteLine($"Warning: No results found for {result.FullName}.");
+
+    var outFile = !string.IsNullOrWhiteSpace(outputPath)
+        ? Path.GetFullPath(outputPath)
+        : Path.GetFullPath(Path.Join("output", $"carver-{result.CarverId}.html"));
+
+    Directory.CreateDirectory(Path.GetDirectoryName(outFile)!);
+    File.WriteAllText(outFile, result.Html, System.Text.Encoding.UTF8);
+
+    Console.WriteLine($"\u2713 Wrote {outFile}");
+});
+
 createCommand.AddCommand(resultsCommand);
+createCommand.AddCommand(carverArticleCommand);
 rootCommand.AddCommand(createCommand);
 
 return await rootCommand.InvokeAsync(args);
