@@ -49,14 +49,32 @@ class HtmlView extends BaseHtmlView
         $app = Factory::getApplication();
         $input = $app->input;
 
-        // Get query parameters
-        $name = $input->getString('name', '');
-        $carver_id = $input->getInt('carver_id', 0);
-        $year = $input->getInt('year', 0);
+        // Get raw query parameters
+        $nameRaw = $input->getString('name', '');
+        $carverIdRaw = $input->getString('carver_id', '');
+        $yearRaw = $input->getString('year', '');
 
-        // Load data via ResultsService
-        $service = new ResultsService();
-        $this->carverData = $service->lookup($name, $carver_id, $year);
+        // Validate and sanitize inputs
+        $validation = $this->validateParameters($nameRaw, $carverIdRaw, $yearRaw);
+
+        if ($validation['error'])
+        {
+            $this->carverData = [
+                'error' => $validation['error'],
+                'error_message' => $validation['message'],
+                'results' => []
+            ];
+        }
+        else
+        {
+            // Load data via ResultsService
+            $service = new ResultsService();
+            $this->carverData = $service->lookup(
+                $validation['name'],
+                $validation['carver_id'],
+                $validation['year']
+            );
+        }
 
         // Set page title
         if (!empty($this->carverData['carver_name']))
@@ -69,5 +87,91 @@ class HtmlView extends BaseHtmlView
         }
 
         parent::display($tpl);
+    }
+
+    /**
+     * Validate and sanitize input parameters
+     *
+     * @param   string  $nameRaw       Raw name parameter
+     * @param   string  $carverIdRaw   Raw carver_id parameter
+     * @param   string  $yearRaw       Raw year parameter
+     *
+     * @return  array   Validation result with error or sanitized values
+     */
+    private function validateParameters(string $nameRaw, string $carverIdRaw, string $yearRaw): array
+    {
+        $name = trim($nameRaw);
+        $carver_id = 0;
+        $year = 0;
+
+        // Check if no parameters provided
+        if (empty($name) && empty($carverIdRaw) && empty($yearRaw))
+        {
+            return [
+                'error' => 'no_parameters',
+                'message' => 'No search parameters provided.',
+                'name' => '',
+                'carver_id' => 0,
+                'year' => 0
+            ];
+        }
+
+        // Validate carver_id if provided
+        if (!empty($carverIdRaw))
+        {
+            if (!is_numeric($carverIdRaw))
+            {
+                return [
+                    'error' => 'invalid_carver_id',
+                    'message' => 'Carver ID must be a number.',
+                    'name' => '',
+                    'carver_id' => 0,
+                    'year' => 0
+                ];
+            }
+            $carver_id = (int) $carverIdRaw;
+        }
+
+        // Validate year if provided
+        if (!empty($yearRaw))
+        {
+            if (!is_numeric($yearRaw))
+            {
+                return [
+                    'error' => 'invalid_year',
+                    'message' => 'Year must be a valid number.',
+                    'name' => '',
+                    'carver_id' => 0,
+                    'year' => 0
+                ];
+            }
+            $year = (int) $yearRaw;
+        }
+
+        // Validate carver_id requires year
+        if ($carver_id > 0 && $year === 0)
+        {
+            return [
+                'error' => 'carver_id_requires_year',
+                'message' => 'A year is required when looking up by carver ID, because carver IDs differ between events. Try adding &year=2024 or search by name instead.',
+                'name' => '',
+                'carver_id' => 0,
+                'year' => 0
+            ];
+        }
+
+        // Name takes precedence over carver_id (no error, just ignore carver_id)
+        if (!empty($name) && $carver_id > 0)
+        {
+            $carver_id = 0;
+        }
+
+        return [
+            'error' => false,
+            'message' => '',
+            'name' => $name,
+            'carver_id' => $carver_id,
+            'year' => $year
+        ];
     }
 }

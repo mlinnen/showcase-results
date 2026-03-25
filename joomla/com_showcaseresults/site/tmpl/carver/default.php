@@ -33,14 +33,36 @@ function ordinal(int $n): string
     return $n . $suffix;
 }
 
+/**
+ * Helper function to HTML-escape strings
+ *
+ * @param   string  $str  String to escape
+ *
+ * @return  string  Escaped string
+ */
+function esc(string $str): string
+{
+    return htmlspecialchars($str, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+}
+
 ?>
 <div class="showcaseresults-carver">
     <?php if (isset($this->carverData['error'])): ?>
-        <div class="alert alert-warning">
-            <p><strong>Error:</strong> <?php echo htmlspecialchars($this->carverData['error']); ?></p>
-        </div>
-    <?php elseif (isset($this->carverData['found']) && $this->carverData['found'] === false): ?>
-        <p>No results found for the specified carver.</p>
+        <?php if ($this->carverData['error'] === 'no_parameters'): ?>
+            <div class="cca-usage">
+                <h2>How to use this page</h2>
+                <p>Search for a carver's results using one of these methods:</p>
+                <ul>
+                    <li>By name: <code>?name=John+Doe</code></li>
+                    <li>By name and year: <code>?name=John+Doe&amp;year=2024</code></li>
+                    <li>By carver ID and year: <code>?carver_id=16&amp;year=2024</code></li>
+                </ul>
+            </div>
+        <?php else: ?>
+            <div class="cca-error">
+                <p><?php echo esc($this->carverData['error_message']); ?></p>
+            </div>
+        <?php endif; ?>
     <?php elseif (!empty($this->carverData['results'])): ?>
         
         <?php
@@ -52,7 +74,7 @@ function ordinal(int $n): string
         if ($year > 0 && count($this->carverData['results']) === 1)
         {
             $event = $this->carverData['results'][0];
-            $subtitle = 'Results for ' . htmlspecialchars($event['event_name']) . ' ' . $event['event_year'];
+            $subtitle = 'Results for ' . esc($event['event_name']) . ' ' . $event['event_year'];
         }
         else
         {
@@ -61,13 +83,13 @@ function ordinal(int $n): string
         ?>
         
         <div class="cca-carver-header">
-            <h1><?php echo htmlspecialchars($this->carverData['carver_name']); ?></h1>
+            <h1><?php echo esc($this->carverData['carver_name']); ?></h1>
             <p><?php echo $subtitle; ?></p>
         </div>
         
         <?php foreach ($this->carverData['results'] as $event): ?>
             <section class="cca-event-section">
-                <h2><?php echo htmlspecialchars($event['event_name']); ?> <?php echo $event['event_year']; ?></h2>
+                <h2><?php echo esc($event['event_name']); ?> <?php echo $event['event_year']; ?></h2>
                 
                 <?php if (!empty($event['special_prizes'])): ?>
                     <div class="cca-special-prizes">
@@ -83,11 +105,11 @@ function ordinal(int $n): string
                             <tbody>
                                 <?php foreach ($event['special_prizes'] as $prize): ?>
                                     <tr>
-                                        <td><?php echo htmlspecialchars($prize['award'] ?? ''); ?></td>
-                                        <td><?php echo htmlspecialchars($prize['prize'] ?? ''); ?></td>
+                                        <td><?php echo esc($prize['award'] ?? ''); ?></td>
+                                        <td><?php echo esc($prize['prize'] ?? ''); ?></td>
                                         <td>
                                             <?php if (!empty($prize['entry_number']) && $prize['entry_number'] > 0): ?>
-                                                <?php echo htmlspecialchars($prize['entry_number']); ?>
+                                                <?php echo esc($prize['entry_number']); ?>
                                             <?php endif; ?>
                                         </td>
                                     </tr>
@@ -112,11 +134,11 @@ function ordinal(int $n): string
                                 <?php foreach ($event['overall_results'] as $category): ?>
                                     <?php foreach ($category['places'] as $place): ?>
                                         <tr>
-                                            <td><?php echo htmlspecialchars($category['category']); ?></td>
+                                            <td><?php echo esc($category['category']); ?></td>
                                             <td><?php echo ordinal($place['place'] ?? 0); ?></td>
                                             <td>
                                                 <?php if (!empty($place['entry_number']) && $place['entry_number'] > 0): ?>
-                                                    <?php echo htmlspecialchars($place['entry_number']); ?>
+                                                    <?php echo esc($place['entry_number']); ?>
                                                 <?php endif; ?>
                                             </td>
                                         </tr>
@@ -131,7 +153,7 @@ function ordinal(int $n): string
                     <div class="cca-division-results">
                         <h3>Division Results</h3>
                         <?php foreach ($event['division_results'] as $division): ?>
-                            <h4><?php echo htmlspecialchars($division['division']); ?></h4>
+                            <h4><?php echo esc($division['division']); ?></h4>
                             <table>
                                 <thead>
                                     <tr>
@@ -145,7 +167,7 @@ function ordinal(int $n): string
                                     <?php foreach ($division['categories'] as $category): ?>
                                         <?php foreach ($category['places'] as $place): ?>
                                             <tr>
-                                                <td><?php echo htmlspecialchars($category['name']); ?></td>
+                                                <td><?php echo esc($category['name']); ?></td>
                                                 <td>
                                                     <?php 
                                                     if ($category['style'] === 'N') {
@@ -158,7 +180,7 @@ function ordinal(int $n): string
                                                 <td><?php echo ordinal($place['place'] ?? 0); ?></td>
                                                 <td>
                                                     <?php if (!empty($place['entry_number']) && $place['entry_number'] > 0): ?>
-                                                        <?php echo htmlspecialchars($place['entry_number']); ?>
+                                                        <?php echo esc($place['entry_number']); ?>
                                                     <?php endif; ?>
                                                 </td>
                                             </tr>
