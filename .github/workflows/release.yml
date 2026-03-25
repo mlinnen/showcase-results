@@ -1,0 +1,95 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+env:
+  PROJECT: src/ShowcaseResults.Cli/ShowcaseResults.Cli.csproj
+
+jobs:
+  build:
+    name: Build ${{ matrix.runtime }}
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        runtime:
+          - win-x64
+          - win-x86
+          - win-arm64
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Publish ${{ matrix.runtime }}
+        run: |
+          dotnet publish ${{ env.PROJECT }} `
+            -c Release `
+            -r ${{ matrix.runtime }} `
+            --self-contained true `
+            -p:PublishSingleFile=true `
+            -p:PublishTrimmed=false `
+            -o publish/${{ matrix.runtime }}
+
+      - name: Rename executable
+        run: |
+          $src = "publish/${{ matrix.runtime }}/showcase-results.exe"
+          $dst = "publish/${{ matrix.runtime }}/showcase-results-${{ matrix.runtime }}.exe"
+          Move-Item -Path $src -Destination $dst
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: showcase-results-${{ matrix.runtime }}
+          path: publish/${{ matrix.runtime }}/showcase-results-${{ matrix.runtime }}.exe
+          if-no-files-found: error
+
+  release:
+    name: Create Release
+    runs-on: windows-latest
+    needs: build
+
+    steps:
+      - name: Generate tag
+        id: tag
+        run: |
+          $tag = "v$(Get-Date -Format 'yyyy.MM.dd')-${{ github.run_number }}"
+          echo "TAG=$tag" >> $env:GITHUB_OUTPUT
+
+      - name: Download win-x64
+        uses: actions/download-artifact@v4
+        with:
+          name: showcase-results-win-x64
+          path: artifacts
+
+      - name: Download win-x86
+        uses: actions/download-artifact@v4
+        with:
+          name: showcase-results-win-x86
+          path: artifacts
+
+      - name: Download win-arm64
+        uses: actions/download-artifact@v4
+        with:
+          name: showcase-results-win-arm64
+          path: artifacts
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.tag.outputs.TAG }}
+          name: Release ${{ steps.tag.outputs.TAG }}
+          files: |
+            artifacts/showcase-results-win-x64.exe
+            artifacts/showcase-results-win-x86.exe
+            artifacts/showcase-results-win-arm64.exe
