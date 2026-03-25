@@ -53,15 +53,6 @@ class ResultsService
      */
     public function lookup(string $name = '', int $carver_id = 0, int $year = 0): array
     {
-        // Validate: carver_id requires year
-        if ($carver_id > 0 && $year === 0)
-        {
-            return [
-                'error' => 'carver_id_requires_year',
-                'results' => []
-            ];
-        }
-
         // Mode 1: Name cross-event
         if (!empty($name) && $year === 0)
         {
@@ -80,7 +71,7 @@ class ResultsService
             return $this->lookupByCarverIdAndYear($carver_id, $year);
         }
 
-        // No valid lookup parameters
+        // Should not reach here due to validation in HtmlView
         return [
             'error' => 'no_lookup_parameters',
             'results' => []
@@ -101,7 +92,8 @@ class ResultsService
         if (empty($files))
         {
             return [
-                'error' => 'no_data',
+                'error' => 'no_data_files',
+                'error_message' => 'No competition data is currently available. Please check back later.',
                 'results' => []
             ];
         }
@@ -159,9 +151,20 @@ class ResultsService
             return $b['event_year'] - $a['event_year'];
         });
 
+        // Check if name was not found in any event
+        if (empty($allResults))
+        {
+            return [
+                'error' => 'name_not_found',
+                'error_message' => "No results found for '" . $name . "'. Please check the spelling and try again.",
+                'search_name' => $name,
+                'results' => []
+            ];
+        }
+
         return [
             'carver_name' => $carverName,
-            'found' => !empty($allResults),
+            'found' => true,
             'results' => $allResults
         ];
     }
@@ -180,8 +183,14 @@ class ResultsService
 
         if (!file_exists($filepath))
         {
+            // Get available years
+            $availableYears = $this->getAvailableYears();
+            $yearsList = empty($availableYears) ? 'none' : implode(', ', $availableYears);
+
             return [
-                'found' => false,
+                'error' => 'year_not_found',
+                'error_message' => "No data available for {$year}. Available years: {$yearsList}.",
+                'search_year' => $year,
                 'results' => []
             ];
         }
@@ -192,7 +201,8 @@ class ResultsService
         {
             return [
                 'error' => 'data_load_error',
-                'found' => false,
+                'error_message' => "Data for {$year} is temporarily unavailable.",
+                'search_year' => $year,
                 'results' => []
             ];
         }
@@ -203,7 +213,10 @@ class ResultsService
         if ($carverId === null)
         {
             return [
-                'found' => false,
+                'error' => 'name_not_found_in_year',
+                'error_message' => "No results found for '{$name}' in {$year}. They may have competed in a different year.",
+                'search_name' => $name,
+                'search_year' => $year,
                 'results' => []
             ];
         }
@@ -224,11 +237,25 @@ class ResultsService
             }
         }
 
+        // Check if carver is registered but has no results
+        $hasResults = !empty($eventResults['special_prizes']) || 
+                      !empty($eventResults['overall_results']) || 
+                      !empty($eventResults['division_results']);
+
+        if (!$hasResults)
+        {
+            return [
+                'error' => 'no_results_for_carver',
+                'error_message' => "{$carverName} is a registered competitor in {$year} but has no recorded results.",
+                'carver_name' => $carverName,
+                'search_year' => $year,
+                'results' => []
+            ];
+        }
+
         return [
             'carver_name' => $carverName,
-            'found' => !empty($eventResults['special_prizes']) || 
-                       !empty($eventResults['overall_results']) || 
-                       !empty($eventResults['division_results']),
+            'found' => true,
             'results' => [
                 [
                     'event_name' => $data['event']['name'] ?? '',
@@ -255,8 +282,14 @@ class ResultsService
 
         if (!file_exists($filepath))
         {
+            // Get available years
+            $availableYears = $this->getAvailableYears();
+            $yearsList = empty($availableYears) ? 'none' : implode(', ', $availableYears);
+
             return [
-                'found' => false,
+                'error' => 'year_not_found',
+                'error_message' => "No data available for {$year}. Available years: {$yearsList}.",
+                'search_year' => $year,
                 'results' => []
             ];
         }
@@ -267,15 +300,15 @@ class ResultsService
         {
             return [
                 'error' => 'data_load_error',
-                'found' => false,
+                'error_message' => "Data for {$year} is temporarily unavailable.",
+                'search_year' => $year,
                 'results' => []
             ];
         }
 
-        // Extract results for this carver
-        $eventResults = $this->extractCarverResults($data, $carver_id);
-
+        // Check if carver_id exists in competitors
         $carverName = '';
+        $carverExists = false;
         if (isset($data['competitors']))
         {
             foreach ($data['competitors'] as $comp)
@@ -283,16 +316,45 @@ class ResultsService
                 if ($comp['carver_id'] === $carver_id)
                 {
                     $carverName = trim($comp['first_name'] . ' ' . $comp['last_name']);
+                    $carverExists = true;
                     break;
                 }
             }
         }
 
+        if (!$carverExists)
+        {
+            return [
+                'error' => 'carver_id_not_found',
+                'error_message' => "Carver #{$carver_id} was not found in the {$year} results.",
+                'search_carver_id' => $carver_id,
+                'search_year' => $year,
+                'results' => []
+            ];
+        }
+
+        // Extract results for this carver
+        $eventResults = $this->extractCarverResults($data, $carver_id);
+
+        // Check if carver is registered but has no results
+        $hasResults = !empty($eventResults['special_prizes']) || 
+                      !empty($eventResults['overall_results']) || 
+                      !empty($eventResults['division_results']);
+
+        if (!$hasResults)
+        {
+            return [
+                'error' => 'no_results_for_carver',
+                'error_message' => "{$carverName} is a registered competitor in {$year} but has no recorded results.",
+                'carver_name' => $carverName,
+                'search_year' => $year,
+                'results' => []
+            ];
+        }
+
         return [
             'carver_name' => $carverName,
-            'found' => !empty($eventResults['special_prizes']) || 
-                       !empty($eventResults['overall_results']) || 
-                       !empty($eventResults['division_results']),
+            'found' => true,
             'results' => [
                 [
                     'event_name' => $data['event']['name'] ?? '',
@@ -361,6 +423,29 @@ class ResultsService
         rsort($files);
 
         return $files;
+    }
+
+    /**
+     * Helper: get list of available years from results files
+     *
+     * @return  array  Array of years (integers), sorted descending
+     */
+    private function getAvailableYears(): array
+    {
+        $files = $this->getResultsFiles();
+        $years = [];
+
+        foreach ($files as $filepath)
+        {
+            // Extract year from filename: results-2024.json -> 2024
+            if (preg_match('/results-(\d{4})\.json$/', basename($filepath), $matches))
+            {
+                $years[] = (int) $matches[1];
+            }
+        }
+
+        rsort($years);
+        return $years;
     }
 
     /**
