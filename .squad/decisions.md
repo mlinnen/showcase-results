@@ -32,6 +32,9 @@ article.html passed all 6 validation checks: Fix #2 confirmed, no regression on 
 ### Carver Article — Division Results as Table (2026-03-25, Frodo)
 Changed the Division Results section in the carver article from a <ul>/<li> list to a <table> per division, with three columns: Category, Place, Entry #. Table structure: `<h3>{Division} Division</h3><table class="cca-carver-division-results"><thead><tr><th>Category</th><th>Place</th><th>Entry #</th></tr></thead><tbody>...`. Rationale: list format obscured entry numbers; table aligns with main article's tabular rendering style; CSS class follows naming convention; Entry # renders empty when EntryNumber is 0 — consistent with other entry handling.
 
+### Issue #7 Decomposition into Sub-Issues (2026-03-25, Gandalf)
+Decomposed issue #7 ("Feature: Joomla component for dynamic per-carver results across all events") into 6 independently implementable sub-issues (#8–#13): CLI JSON export (#8), Joomla component scaffolding (#9), data layer (#10), carver view rendering (#11), error handling & edge cases (#12), testing & verification (#13). Key architectural decision: carver_id is per-event only (privacy constraint); name is the only cross-event lookup key. Dependency graph allows #8 (C# CLI) and #9 (PHP boilerplate) to proceed in parallel. Data layer (#10) separated from view (#11) following MVC; error handling (#12) isolated to keep happy-path code clean. #13 depends on all others. Rationale: parallel development across stacks, independent review of concerns, verification not an afterthought.
+
 ## Governance
 - All meaningful changes require team consensus
 - Document architectural decisions here
