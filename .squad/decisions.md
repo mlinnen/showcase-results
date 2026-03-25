@@ -29,6 +29,9 @@ Special prizes entry numbers: `<span class="cca-entry">(#N)</span>` wrapped in p
 ### Article Validation APPROVED (2026-03-25, Aragorn)
 article.html passed all 6 validation checks: Fix #2 confirmed, no regression on category results, event title correct, null/zero entry handling clean, Joomla compliance verified, 33 special prizes count matches. APPROVED for production.
 
+### Carver Article — Division Results as Table (2026-03-25, Frodo)
+Changed the Division Results section in the carver article from a <ul>/<li> list to a <table> per division, with three columns: Category, Place, Entry #. Table structure: `<h3>{Division} Division</h3><table class="cca-carver-division-results"><thead><tr><th>Category</th><th>Place</th><th>Entry #</th></tr></thead><tbody>...`. Rationale: list format obscured entry numbers; table aligns with main article's tabular rendering style; CSS class follows naming convention; Entry # renders empty when EntryNumber is 0 — consistent with other entry handling.
+
 ## Governance
 - All meaningful changes require team consensus
 - Document architectural decisions here

@@ -30,6 +30,13 @@
 - **Special prizes entry format fix:** Changed entry numbers from bare text `#N` to `<span class="cca-entry">(#N)</span>`, matching the format used in category results tables. Entry number 0 or null/undefined renders as empty `<td></td>`.
 - **Spot-checks passed:** Title reads "Showcase of Woodcarvings — Showcase Results" (will read "CCA Showcase 2026 — Showcase Results" once JSON updated); special prizes table uses correct `<span class="cca-entry">(#N)</span>` format; no literal "null" text; no entry #0 displayed.
 
+### Division Results Table in Carver Article (2026-03-25)
+- **Status:** Complete. `RenderCarverArticle()` division results block changed from `<ul>/<li>` to a `<table>` per division.
+- **Table columns:** Category (name + style suffix when present), Place (e.g., "1st Place"), Entry # (entry number, empty when 0).
+- **CSS class:** `cca-carver-division-results` applied to each division table.
+- **Scope:** Only the carver article's division results block was modified — `RenderDivisionResults()` (main article), overall results, and special prizes were untouched.
+- **Build:** Passed with 0 errors (2 pre-existing NU1903 warnings only).
+
 ### Special Prizes Prize Column Enhancement (2026-03-23)
 - **Status:** Enhanced special prizes table with new Prize column. `renderSpecialPrizes()` updated, article regenerated.
 - **Table structure:** Column order now: Name | Prize | Winner | Entry (was: Prize | Winner | Entry). First column header changed from "Prize" to "Name" to reflect that it displays the award name (e.g., "Best of Show").
