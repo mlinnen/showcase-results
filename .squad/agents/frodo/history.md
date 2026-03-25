@@ -52,3 +52,39 @@
 - **Placeholders:** Controller and view are minimal skeletons. Business logic (data loading) comes in #10, rendering enhancement in #11, error handling (carver_id without year) in #12.
 - **Joomla compliance:** Manifest compatible with Joomla 4.x and 5.x, PHP 8.1+ requirement, follows modern component structure with service providers and DI container registration.
 
+### Joomla Data Layer — ResultsService (2026-03-25)
+- **Status:** Complete. Implemented PHP ResultsService class. PR #16 opened to squad/9-joomla-scaffold.
+- **Files created:** `site/src/Service/ResultsService.php` (504 lines, 9 methods)
+- **Files updated:** `HtmlView.php` (instantiates service, sets page title), `default.php` (displays carverData with var_dump)
+- **Three lookup modes implemented:**
+  1. **Name cross-event:** `?name=John+Doe` — scans all results-*.json files, groups by event, sorts by year descending
+  2. **Name single-event:** `?name=John+Doe&year=2024` — scans one file
+  3. **ID single-event:** `?carver_id=16&year=2024` — scans one file
+- **Critical design constraint:** carver_id is per-event only (privacy feature) — CANNOT be used to correlate across events. Only name works cross-event.
+- **Edge cases handled:** carver_id without year (error), name not found (found=false), no JSON files (error=no_data), malformed JSON (skip with warning)
+- **Data path:** `JPATH_ROOT . '/media/com_showcaseresults/data'` (expects results-{year}.json from CLI JSON export)
+- **Return structure:** Array with carver_name, found flag, results array (event_name, event_year, special_prizes, overall_results, division_results)
+- **Helper methods:** loadResultsFile(), getResultsFiles(), extractCarverResults(), findCarverIdByName()
+- **Template rendering:** Raw var_dump for now — real HTML rendering comes in #11
+- **Next:** Issue #11 will replace var_dump with proper HTML table rendering matching the Node.js article renderer's style
+
+### Joomla Template Rendering — Issue #11 (2026-03-25)
+- **Status:** Complete. Full HTML template rendering implemented in default.php. PR #17 opened to squad/10-data-layer.
+- **File modified:** `site/tmpl/carver/default.php` (157 lines added, 13 removed)
+- **ordinal() helper:** Inline function converts place numbers to ordinal text (1st, 2nd, 3rd, 4th...). Handles edge cases: 11th, 12th, 13th (not 11st, 12nd, 13rd).
+- **Data structure from HtmlView:** Template receives `$this->carverData` with keys: carver_name (string), found (bool), error (optional), results (array of event records)
+- **Event record shape:** event_name, event_year, special_prizes (array), overall_results (array with category + places), division_results (array with division + categories array, each category has name, style, places)
+- **Template structure:**
+  - **Page header (cca-carver-header):** Carver name + subtitle (cross-event vs single-event)
+  - **Event sections (cca-event-section):** One per event, already sorted by year descending via ResultsService
+  - **Special Prizes (cca-special-prizes):** 3-column table (Award, Prize, Entry #)
+  - **Overall Results (cca-overall-results):** 3-column table (Category, Place, Entry #)
+  - **Division Results (cca-division-results):** One table per division, 4-column (Category, Style, Place, Entry #)
+- **Empty handling:** Sections with no data are completely skipped (no empty tables rendered)
+- **Entry numbers:** 0 or null render as empty `<td></td>` (no text)
+- **Style values:** N → "Natural", P → "Painted", null → empty cell
+- **Semantic HTML:** Uses `<section>`, `<table>`, `<thead>`, `<tbody>`, `<h1>`-`<h4>` tags. No inline styles, no CSS frameworks, no Joomla article wrappers.
+- **CSS classes:** All use cca-* prefix per team conventions
+- **Subtitle logic:** Single-event (year param present) shows "Results for {Event Name} {Year}", cross-event shows "Results across all events"
+- **Next:** Issue #12 will add error handling and edge cases; issue #13 will add testing/verification
+
