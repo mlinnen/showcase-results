@@ -286,7 +286,7 @@ public class ArticleRenderer
                 divHtml += $"\n<h3>{Esc(division)} Division</h3>\n" +
                            "<table class=\"cca-carver-division-results\">\n" +
                            "  <thead>\n" +
-                           "    <tr><th>Category</th><th>Place</th><th>Entry #</th></tr>\n" +
+                           "    <tr><th style=\"text-align:left\">Category</th><th style=\"text-align:left\">Place</th><th style=\"text-align:left\">Entry #</th></tr>\n" +
                            "  </thead>\n" +
                            "  <tbody>\n" +
                            rows + "\n" +
