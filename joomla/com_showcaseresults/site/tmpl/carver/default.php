@@ -8,30 +8,26 @@
 
 defined('_JEXEC') or die;
 
-// Placeholder template for carver results view
-// This will be enhanced with actual rendering logic in issue #11
-
 ?>
 <div class="showcaseresults-carver">
-    <h2>Showcase Results - Carver View (placeholder)</h2>
+    <h2>Showcase Results - Carver View</h2>
     
-    <?php if (!empty($this->name)): ?>
-        <p><strong>Name:</strong> <?php echo htmlspecialchars($this->name); ?></p>
-    <?php endif; ?>
-    
-    <?php if (!empty($this->carver_id)): ?>
-        <p><strong>Carver ID:</strong> <?php echo (int) $this->carver_id; ?></p>
-    <?php endif; ?>
-    
-    <?php if (!empty($this->year)): ?>
-        <p><strong>Year:</strong> <?php echo (int) $this->year; ?></p>
-    <?php endif; ?>
-    
-    <?php if (!empty($this->carver_id) && empty($this->year)): ?>
+    <?php if (isset($this->carverData['error'])): ?>
         <div class="alert alert-warning">
-            <p><strong>Note:</strong> carver_id requires a year parameter (error handling comes in issue #12)</p>
+            <p><strong>Error:</strong> <?php echo htmlspecialchars($this->carverData['error']); ?></p>
         </div>
     <?php endif; ?>
     
-    <p class="text-muted">Full rendering logic will be implemented in issue #11</p>
+    <?php if (!empty($this->carverData['carver_name'])): ?>
+        <h3><?php echo htmlspecialchars($this->carverData['carver_name']); ?></h3>
+    <?php endif; ?>
+    
+    <?php if (isset($this->carverData['found']) && $this->carverData['found'] === false): ?>
+        <p class="text-muted">No results found for the specified carver.</p>
+    <?php elseif (!empty($this->carverData['results'])): ?>
+        <div class="results-data">
+            <h4>Data Loaded (Raw Output — Rendering Enhancement in Issue #11)</h4>
+            <pre><?php var_dump($this->carverData); ?></pre>
+        </div>
+    <?php endif; ?>
 </div>
