@@ -87,4 +87,3 @@
 - **CSS classes:** All use cca-* prefix per team conventions
 - **Subtitle logic:** Single-event (year param present) shows "Results for {Event Name} {Year}", cross-event shows "Results across all events"
 - **Next:** Issue #12 will add error handling and edge cases; issue #13 will add testing/verification
-
