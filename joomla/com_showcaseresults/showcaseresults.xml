@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension type="component" method="upgrade" namespace="Mlinnen\Component\ShowcaseResults">
+    <name>COM_SHOWCASERESULTS</name>
+    <author>mlinnen</author>
+    <creationDate>2026-03-25</creationDate>
+    <copyright>(C) 2026 mlinnen. All rights reserved.</copyright>
+    <license>GNU General Public License version 2 or later</license>
+    <authorEmail></authorEmail>
+    <authorUrl></authorUrl>
+    <version>1.0.0</version>
+    <description>COM_SHOWCASERESULTS_DESCRIPTION</description>
+
+    <namespace path="src">Mlinnen\Component\ShowcaseResults</namespace>
+
+    <install>
+        <sql>
+            <file driver="mysql" charset="utf8">sql/install.mysql.utf8.sql</file>
+        </sql>
+    </install>
+
+    <uninstall>
+        <sql>
+            <file driver="mysql" charset="utf8">sql/uninstall.mysql.utf8.sql</file>
+        </sql>
+    </uninstall>
+
+    <scriptfile>script.php</scriptfile>
+
+    <files folder="site">
+        <folder>src</folder>
+        <folder>tmpl</folder>
+        <folder>language</folder>
+    </files>
+
+    <media folder="media" destination="com_showcaseresults">
+        <folder>com_showcaseresults</folder>
+    </media>
+
+    <administration>
+        <menu>COM_SHOWCASERESULTS</menu>
+        <files folder="admin">
+            <folder>services</folder>
+            <folder>language</folder>
+        </files>
+    </administration>
+
+    <config>
+        <fields name="params">
+            <fieldset name="basic">
+                <field
+                    name="data_path"
+                    type="text"
+                    label="COM_SHOWCASERESULTS_CONFIG_DATA_PATH_LABEL"
+                    description="COM_SHOWCASERESULTS_CONFIG_DATA_PATH_DESC"
+                    default="media/com_showcaseresults/data"
+                />
+            </fieldset>
+        </fields>
+    </config>
+</extension>
