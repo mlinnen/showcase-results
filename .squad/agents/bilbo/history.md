@@ -10,6 +10,15 @@
 
 <!-- Append learnings below -->
 
+## 2026-03-25 — JSON export added to CLI (Issue #8)
+
+Added `--format` option to `create results` command in `src/ShowcaseResults.Cli/Program.cs`. Key implementation notes:
+- `JsonNamingPolicy.SnakeCaseLower` (available since .NET 8) maps PascalCase C# record properties to snake_case JSON automatically — no manual `[JsonPropertyName]` attributes needed.
+- `Option<string[]>` with `AllowMultipleArgumentsPerToken = true` supports both `--format json` and `--format html --format json` (stretch goal).
+- Output path is `results-{year}.json` in the same directory as the HTML output (derived from `Path.GetDirectoryName(output)`), so it respects the user's `--output` directory choice.
+- The existing `ShowcaseResultsData` record hierarchy maps perfectly to the schema with zero model changes required.
+- `System.Text.Json` is part of .NET — no new package references needed.
+
 ## 2026-03-23 — Spreadsheet analysis & data model
 
 Analyzed all four source spreadsheets in `data/input/`:
