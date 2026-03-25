@@ -12,6 +12,7 @@ defined('_JEXEC') or die;
 
 use Joomla\CMS\MVC\View\HtmlView as BaseHtmlView;
 use Joomla\CMS\Factory;
+use Mlinnen\Component\ShowcaseResults\Site\Service\ResultsService;
 
 /**
  * HTML view for Carver results
@@ -22,7 +23,6 @@ use Joomla\CMS\Factory;
  * - year: Event year (required when using carver_id)
  *
  * Note: carver_id without year is invalid (privacy by design).
- * Data loading logic will be implemented in issue #10.
  * Template rendering will be enhanced in issue #11.
  * Error handling for invalid params will be added in issue #12.
  *
@@ -30,6 +30,13 @@ use Joomla\CMS\Factory;
  */
 class HtmlView extends BaseHtmlView
 {
+    /**
+     * Carver data from ResultsService
+     *
+     * @var array
+     */
+    public $carverData;
+
     /**
      * Display the view
      *
@@ -43,12 +50,23 @@ class HtmlView extends BaseHtmlView
         $input = $app->input;
 
         // Get query parameters
-        $this->name = $input->getString('name', '');
-        $this->carver_id = $input->getInt('carver_id', 0);
-        $this->year = $input->getInt('year', 0);
+        $name = $input->getString('name', '');
+        $carver_id = $input->getInt('carver_id', 0);
+        $year = $input->getInt('year', 0);
 
-        // Business logic placeholder — data loading comes in issue #10
-        // Error handling for carver_id without year comes in issue #12
+        // Load data via ResultsService
+        $service = new ResultsService();
+        $this->carverData = $service->lookup($name, $carver_id, $year);
+
+        // Set page title
+        if (!empty($this->carverData['carver_name']))
+        {
+            $this->document->setTitle($this->carverData['carver_name'] . ' - Showcase Results');
+        }
+        else
+        {
+            $this->document->setTitle('Carver Results');
+        }
 
         parent::display($tpl);
     }

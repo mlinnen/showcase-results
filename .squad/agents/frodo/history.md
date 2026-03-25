@@ -43,3 +43,12 @@
 - **Prize value formatting:** New Prize column (renders `p.prize` field) implements smart formatting: numeric strings (e.g., "450") render as dollar amounts ("$450"), non-numeric strings render as-is (e.g., "Lee S. Dukes Memorial Award Commemorative Plaque"), missing/null/empty values render as empty `<td></td>`.
 - **Verification passed:** Checked output/article.html — `<th>Name</th>` and `<th>Prize</th>` present in correct order, dollar amounts render correctly (e.g., $450, $250), non-numeric prizes display as plain text, regex pattern `/^\d+(\.\d{1,2})?$/` correctly identifies numeric values for currency formatting.
 
+### Joomla Component Scaffold (2026-03-25)
+- **Status:** Complete. Created `com_showcaseresults` Joomla component scaffold. PR #15 opened to dev.
+- **Files created:** 12 files — manifest XML, controller, view, template (placeholder), menu item XML, service providers (site/admin), language files (en-GB), media folder, build script.
+- **Structure:** `joomla/com_showcaseresults/` with site/, admin/, and media/ folders. Namespace `Mlinnen\Component\ShowcaseResults` registered.
+- **Query params:** View accepts `name`, `carver_id`, `year` parameters. Placeholder template displays them for testing.
+- **Build script:** `joomla/build.ps1` creates `com_showcaseresults.zip` (7.25 KB) — tested successfully.
+- **Placeholders:** Controller and view are minimal skeletons. Business logic (data loading) comes in #10, rendering enhancement in #11, error handling (carver_id without year) in #12.
+- **Joomla compliance:** Manifest compatible with Joomla 4.x and 5.x, PHP 8.1+ requirement, follows modern component structure with service providers and DI container registration.
+

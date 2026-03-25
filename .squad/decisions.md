@@ -35,6 +35,12 @@ Changed the Division Results section in the carver article from a <ul>/<li> list
 ### Issue #7 Decomposition into Sub-Issues (2026-03-25, Gandalf)
 Decomposed issue #7 ("Feature: Joomla component for dynamic per-carver results across all events") into 6 independently implementable sub-issues (#8–#13): CLI JSON export (#8), Joomla component scaffolding (#9), data layer (#10), carver view rendering (#11), error handling & edge cases (#12), testing & verification (#13). Key architectural decision: carver_id is per-event only (privacy constraint); name is the only cross-event lookup key. Dependency graph allows #8 (C# CLI) and #9 (PHP boilerplate) to proceed in parallel. Data layer (#10) separated from view (#11) following MVC; error handling (#12) isolated to keep happy-path code clean. #13 depends on all others. Rationale: parallel development across stacks, independent review of concerns, verification not an afterthought.
 
+### JSON Export Output Path Convention (2026-03-25, Bilbo)
+`--format json` writes `results-{year}.json` to the same directory as HTML output (derived from `Path.GetDirectoryName(--output)`). Default: `output/results-{year}.json`. Year comes from `data.Event.Year` (parsed data), not `--year` CLI flag. Rationale: co-located outputs, filename always matches actual data. Multiple years coexist: `results-2024.json`, `results-2025.json`, etc. Joomla component (#10) expects this path structure.
+
+### Joomla Component Structure (2026-03-25, Frodo)
+Issue #9 — com_showcaseresults scaffold created using modern Joomla 4.x/5.x structure. Namespace: `Mlinnen\Component\ShowcaseResults`. Service providers for site/admin with DI container registration. Query parameters: `name` (cross-event), `carver_id` (per-event, requires year), `year` (event year). Data path: media/com_showcaseresults/data (configurable, receives results-{year}.json from CLI). PHP 8.1+, no legacy compatibility. 12 files delivered: controllers, views, service providers, language files, menu config, build script, installable .zip. MVC separation enables issues #10 (data layer), #11 (view rendering), #12 (error handling) to proceed independently. PR #15: squad/9-joomla-scaffold → dev.
+
 ## Governance
 - All meaningful changes require team consensus
 - Document architectural decisions here
