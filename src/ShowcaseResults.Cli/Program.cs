@@ -1,5 +1,6 @@
 using System.CommandLine;
 using System.CommandLine.Invocation;
+using System.Text.Json;
 using ShowcaseResults.Models;
 using ShowcaseResults.Parsing;
 using ShowcaseResults.Rendering;
@@ -34,12 +35,19 @@ var outputOption = new Option<string>(
     () => Path.Join("output", "article.html"),
     "Path for the output article.html");
 
+var formatOption = new Option<string[]>(
+    "--format",
+    () => new[] { "html" },
+    "Output format(s): html, json (can be repeated: --format html --format json)");
+formatOption.AllowMultipleArgumentsPerToken = true;
+
 resultsCommand.AddOption(eventNameOption);
 resultsCommand.AddOption(yearOption);
 resultsCommand.AddOption(competitorsOption);
 resultsCommand.AddOption(prizesOption);
 resultsCommand.AddOption(judgingOption);
 resultsCommand.AddOption(outputOption);
+resultsCommand.AddOption(formatOption);
 
 resultsCommand.SetHandler((InvocationContext ctx) =>
 {
@@ -49,6 +57,9 @@ resultsCommand.SetHandler((InvocationContext ctx) =>
     var prizes      = Path.GetFullPath(ctx.ParseResult.GetValueForOption(prizesOption)!);
     var judging     = Path.GetFullPath(ctx.ParseResult.GetValueForOption(judgingOption)!);
     var output      = Path.GetFullPath(ctx.ParseResult.GetValueForOption(outputOption)!);
+    var formats     = new HashSet<string>(
+        ctx.ParseResult.GetValueForOption(formatOption) ?? new[] { "html" },
+        StringComparer.OrdinalIgnoreCase);
 
     Console.WriteLine($"Parsing spreadsheets for {eventName} {year}...");
 
@@ -70,13 +81,29 @@ resultsCommand.SetHandler((InvocationContext ctx) =>
         divisionResults,
         competitorList);
 
-    var renderer = new ArticleRenderer();
-    var html = renderer.RenderArticle(data);
+    var outputDir = Path.GetDirectoryName(output)!;
+    Directory.CreateDirectory(outputDir);
 
-    Directory.CreateDirectory(Path.GetDirectoryName(output)!);
-    File.WriteAllText(output, html, System.Text.Encoding.UTF8);
+    if (formats.Contains("html"))
+    {
+        var renderer = new ArticleRenderer();
+        var html = renderer.RenderArticle(data);
+        File.WriteAllText(output, html, System.Text.Encoding.UTF8);
+        Console.WriteLine($"\u2713 Wrote {output}");
+    }
 
-    Console.WriteLine($"\u2713 Wrote {output}");
+    if (formats.Contains("json"))
+    {
+        var jsonOptions = new JsonSerializerOptions
+        {
+            WriteIndented = true,
+            PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower
+        };
+        var jsonPath = Path.Join(outputDir, $"results-{data.Event.Year}.json");
+        var json = JsonSerializer.Serialize(data, jsonOptions);
+        File.WriteAllText(jsonPath, json, System.Text.Encoding.UTF8);
+        Console.WriteLine($"\u2713 Wrote {jsonPath}");
+    }
 });
 
 // --- create carver-article ---
