@@ -87,3 +87,27 @@
 - **CSS classes:** All use cca-* prefix per team conventions
 - **Subtitle logic:** Single-event (year param present) shows "Results for {Event Name} {Year}", cross-event shows "Results across all events"
 - **Next:** Issue #12 will add error handling and edge cases; issue #13 will add testing/verification
+
+### Joomla Error Handling — Issue #12 (2026-03-25)
+- **Status:** Complete. Comprehensive error handling and parameter validation. PR #18 opened to squad/11-template-rendering.
+- **Files modified:** `HtmlView.php` (added validateParameters() method, 122 lines), `ResultsService.php` (enhanced error messages, added getAvailableYears()), `default.php` (error display logic, esc() helper)
+- **Parameter validation (HtmlView):** No parameters → usage instructions; non-numeric carver_id/year → friendly errors; carver_id without year → "A year is required..." (explains privacy constraint); name + carver_id → name takes precedence
+- **Not-found states (ResultsService):** Name not found cross-event, name not found in year, carver_id not found, registered but zero results — all with contextual, helpful messages
+- **Data file errors:** No files, year missing (shows available years via getAvailableYears()), malformed JSON (graceful handling)
+- **Security:** HTML escaping via esc() helper using ENT_QUOTES|ENT_HTML5; year validated numeric BEFORE path construction (path traversal prevention)
+- **Error display:** `<div class="cca-usage">` for no-params (instructional), `<div class="cca-error">` for all others
+- **Next:** Issue #13 (testing and verification)
+
+## Issue #7 — Feature Complete (2026-03-25T13:57:52Z)
+
+**Milestone:** All 5 PRs (#15–#19) delivered and validated by Aragorn. Feature is production-ready.
+
+- **Summary:** Joomla `com_showcaseresults` component now fully implemented with data layer, view rendering, error handling, and comprehensive test coverage.
+- **Total contribution:** 5 open PRs, ~800 lines of production PHP code (scaffold, service layer, template, error handling).
+- **Validation status:**
+  - ✅ Code review PASSED (Aragorn audit: security, error handling, edge cases verified)
+  - ✅ Test plan delivered (28 cases, 6 sections)
+  - ✅ Test data specification created (results-2024.json, results-2023.json)
+- **Minor findings:** 2 low-priority maintainability issues identified (year validation, subtitle escaping) — noted in decisions.md for future refactoring.
+- **Awaiting:** PR merge sequence (#14 → #15 → #16 → #17 → #18 → #19).
+

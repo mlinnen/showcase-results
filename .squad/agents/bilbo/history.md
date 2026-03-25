@@ -46,3 +46,12 @@ Key implementation notes:
 
 Data quality issue discovered: 10 rows in Judging.xlsx have entry_number = 0. Of these, 9 have null carver names (phantom zeros — never emitted). 1 row (Novice "21 Busts N", carver 16 Erik Mitchell) has a real winner with entry_number = 0 — that place entry is dropped with a warning. See `.squad/decisions/inbox/bilbo-entry-number-zeros.md`.
 
+## Issue #7 — Feature Complete (2026-03-25T13:57:52Z)
+
+**Milestone:** Issue #7 now feature-complete across all sub-issues. CLI JSON export contribution validated.
+
+- **Summary:** Delivered PR #14 (CLI JSON export with `--format json` and results-{year}.json convention).
+- **Validation:** Test plan (28 cases) and test data spec (results-2024.json, results-2023.json) created by Aragorn. Code review PASSED.
+- **Architecture verified:** results-{year}.json path convention correct, data structure validated, integration with Joomla data layer confirmed.
+- **Awaiting:** PR merge sequence. Feature ready for production deployment once all 6 PRs merged in order.
+
