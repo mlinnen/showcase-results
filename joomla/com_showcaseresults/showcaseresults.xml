@@ -12,19 +12,6 @@
 
     <namespace path="src">Mlinnen\Component\ShowcaseResults</namespace>
 
-    <install>
-        <sql>
-            <file driver="mysql" charset="utf8">sql/install.mysql.utf8.sql</file>
-        </sql>
-    </install>
-
-    <uninstall>
-        <sql>
-            <file driver="mysql" charset="utf8">sql/uninstall.mysql.utf8.sql</file>
-        </sql>
-    </uninstall>
-
-    <scriptfile>script.php</scriptfile>
 
     <files folder="site">
         <folder>src</folder>
@@ -40,6 +27,8 @@
         <menu>COM_SHOWCASERESULTS</menu>
         <files folder="admin">
             <folder>services</folder>
+            <folder>src</folder>
+            <folder>tmpl</folder>
             <folder>language</folder>
         </files>
     </administration>

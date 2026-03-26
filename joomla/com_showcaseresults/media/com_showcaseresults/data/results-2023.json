@@ -1,0 +1,148 @@
+{
+  "event": {
+    "name": "CCA Showcase 2023",
+    "year": 2023
+  },
+  "special_prizes": [
+    {
+      "order": 1,
+      "name": "Best of Show",
+      "carver_id": 12,
+      "winner": "Laura King",
+      "entry_number": 38,
+      "prize": "$500"
+    },
+    {
+      "order": 2,
+      "name": "Best Intermediate",
+      "carver_id": 19,
+      "winner": "Jane Doe",
+      "entry_number": 22,
+      "prize": "$150"
+    },
+    {
+      "order": 3,
+      "name": "People's Choice Award",
+      "carver_id": 25,
+      "winner": "Mike Scott",
+      "entry_number": 41,
+      "prize": "$100"
+    },
+    {
+      "order": 4,
+      "name": "Judge's Choice",
+      "carver_id": 7,
+      "winner": "Charlie Green",
+      "entry_number": 13,
+      "prize": "$75"
+    }
+  ],
+  "overall_results": [
+    {
+      "category": "Best of Show - Wildlife",
+      "places": [
+        { "place": 1, "carver_id": 25, "winner": "Mike Scott",    "entry_number": 41 },
+        { "place": 2, "carver_id": 7,  "winner": "Charlie Green", "entry_number": 13 },
+        { "place": 3, "carver_id": 19, "winner": "Jane Doe",      "entry_number": 22 }
+      ]
+    },
+    {
+      "category": "Best of Show - Theme",
+      "places": [
+        { "place": 1, "carver_id": 12, "winner": "Laura King",  "entry_number": 38 },
+        { "place": 2, "carver_id": 3,  "winner": "Sam White",   "entry_number": 11 }
+      ]
+    }
+  ],
+  "division_results": [
+    {
+      "division": "Novice",
+      "categories": [
+        {
+          "name": "Animals N",
+          "style": "N",
+          "places": [
+            { "place": 1, "carver_id": 19, "winner": "Jane Doe",   "entry_number": 22 },
+            { "place": 2, "carver_id": 3,  "winner": "Sam White",  "entry_number": 11 },
+            { "place": 3, "carver_id": 31, "winner": "Nina Clark", "entry_number": 5  }
+          ]
+        },
+        {
+          "name": "Birds P",
+          "style": "P",
+          "places": [
+            { "place": 1, "carver_id": 9,  "winner": "Paula Adams",  "entry_number": 26 },
+            { "place": 2, "carver_id": 21, "winner": "Quinn Baker",  "entry_number": 35 }
+          ]
+        },
+        {
+          "name": "Best of Novice",
+          "style": null,
+          "places": [
+            { "place": 1, "carver_id": 19, "winner": "Jane Doe", "entry_number": 22 }
+          ]
+        }
+      ]
+    },
+    {
+      "division": "Intermediate",
+      "categories": [
+        {
+          "name": "Figures P",
+          "style": "P",
+          "places": [
+            { "place": 1, "carver_id": 7,  "winner": "Charlie Green", "entry_number": 14 },
+            { "place": 2, "carver_id": 25, "winner": "Mike Scott",    "entry_number": 42 }
+          ]
+        },
+        {
+          "name": "Caricature N",
+          "style": "N",
+          "places": [
+            { "place": 1, "carver_id": 18, "winner": "Oscar Hall",    "entry_number": 19 },
+            { "place": 2, "carver_id": 28, "winner": "Rachel Wright", "entry_number": 30 }
+          ]
+        },
+        {
+          "name": "Best of Intermediate",
+          "style": null,
+          "places": [
+            { "place": 1, "carver_id": 7, "winner": "Charlie Green", "entry_number": 14 }
+          ]
+        }
+      ]
+    },
+    {
+      "division": "Open",
+      "categories": [
+        {
+          "name": "Sculpture N",
+          "style": "N",
+          "places": [
+            { "place": 1, "carver_id": 25, "winner": "Mike Scott", "entry_number": 40 },
+            { "place": 2, "carver_id": 12, "winner": "Laura King", "entry_number": 39 }
+          ]
+        },
+        {
+          "name": "Abstract P",
+          "style": "P",
+          "places": [
+            { "place": 1, "carver_id": 12, "winner": "Laura King", "entry_number": 38 }
+          ]
+        }
+      ]
+    }
+  ],
+  "competitors": [
+    { "carver_id": 3,  "first_name": "Sam",    "last_name": "White"   },
+    { "carver_id": 7,  "first_name": "Charlie", "last_name": "Green"  },
+    { "carver_id": 9,  "first_name": "Paula",  "last_name": "Adams"   },
+    { "carver_id": 12, "first_name": "Laura",  "last_name": "King"    },
+    { "carver_id": 18, "first_name": "Oscar",  "last_name": "Hall"    },
+    { "carver_id": 19, "first_name": "Jane",   "last_name": "Doe"     },
+    { "carver_id": 21, "first_name": "Quinn",  "last_name": "Baker"   },
+    { "carver_id": 25, "first_name": "Mike",   "last_name": "Scott"   },
+    { "carver_id": 28, "first_name": "Rachel", "last_name": "Wright"  },
+    { "carver_id": 31, "first_name": "Nina",   "last_name": "Clark"   }
+  ]
+}
