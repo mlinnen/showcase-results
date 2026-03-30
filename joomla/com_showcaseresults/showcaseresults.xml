@@ -20,7 +20,7 @@
     </files>
 
     <media folder="media" destination="com_showcaseresults">
-        <folder>com_showcaseresults</folder>
+        <folder>data</folder>
     </media>
 
     <administration>
