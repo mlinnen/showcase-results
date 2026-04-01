@@ -88,3 +88,16 @@
 - **Test data design rationale:** Multiple test JSON files (2023, 2024, 2025) enable testing year navigation and multi-year duplicate handling. Intentional XSS payloads (HTML tags in names) catch if escaping is missing. Special characters (apostrophes, ampersands, slashes) verify safe HTML rendering.
 - **Verdict:** Test plan is comprehensive and ready for implementation team. Covers happy path, error states, input validation, sorting requirements, security (XSS), and cross-year data integrity.
 
+## Issue #22 — Carvers List View QA Complete (2026-04-01T02:05:44Z)
+
+**Status:** ✅ COMPLETE and ready for testing.
+
+- **Frodo's implementation:** Commit a354e6a delivered to dev
+  - Schema extended with division field
+  - getCarversList() method implemented
+  - New CarversView and template deployed
+  - Component ZIP regenerated
+- **Aragorn's QA:** Test plan created (19 test cases, 10 primary + 9 edge cases)
+- **Test execution:** Ready for manual testing per `docs/test-plan-carvers-list.md`
+- **Next step:** Execute test plan against dev branch, report results
+

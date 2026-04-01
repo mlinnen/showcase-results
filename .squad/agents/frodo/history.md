@@ -120,3 +120,20 @@
 - **Minor findings:** 2 low-priority maintainability issues identified (year validation, subtitle escaping) — noted in decisions.md for future refactoring.
 - **Awaiting:** PR merge sequence (#14 → #15 → #16 → #17 → #18 → #19).
 
+## Issue #22 — Carvers List View (2026-04-01T02:05:44Z)
+
+**Status:** ✅ COMPLETE and committed to dev.
+
+- **Commit:** a354e6a — feat: add carvers list view (issue #22)
+- **Deliverables:**
+  - Extended results.json schema with `division` field for each competitor
+  - `ResultsService::getCarversList(int $year): array` — returns all carvers for a given year, sorted by last_name then first_name
+  - New `CarversView` controller and `Carvers/HtmlView.php` (site component)
+  - New template `site/tmpl/carvers/default.php` with year-selector and carvers table
+  - Updated component ZIP with all new files
+- **Template features:** Year-selector dropdown (when no year param), carvers table (ID, Name, Division), error handling for missing data, XSS protection via escCarvers() helper
+- **Data model:** Each carver row includes carver_id, first_name, last_name, full_name, division. Division derived from competitor's first appearance in division_results array, or "" if no results.
+- **Navigation:** Carver names linked via Route::_() to carver detail view (?view=carver&name=...)
+- **Build:** ZIP successfully regenerated (31 entries, all new files verified present)
+- **Next:** Ready for Aragorn's QA testing per test plan
+
