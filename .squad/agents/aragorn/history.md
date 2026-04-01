@@ -70,3 +70,21 @@
 - **Architectural review:** Privacy-first design confirmed, separation of concerns verified, semantic HTML compliance confirmed.
 - **Next:** Await PR merge order (#14 → #15 → #16 → #17 → #18 → #19). Feature ready for production deployment once merged.
 
+## Issue #22 — Carvers List View Test Plan (2026-03-26)
+
+**Deliverable:** Comprehensive test plan for new carvers list view feature.
+
+- **Artifact:** `docs/test-plan-carvers-list.md` — 19 test cases (10 primary + 9 edge cases) covering all functionality
+- **Test coverage breakdown:**
+  - **Primary paths (1–10):** Year filtering, year selector, invalid input handling, carver sorting, division display, name linking, XSS escaping, multi-year navigation
+  - **Edge cases (11–19):** Empty data, negative years, non-numeric input, very large years, duplicate names cross-year, special characters, long names, no data files, pagination
+- **Test data specification:** Defined concrete test carvers with names designed to test sorting (mixed first/last names), XSS escaping (`<b>Tagged</b>`), special characters (`O'Brien`), and cross-year duplicates (Alice Brown in both 2023 and 2024 with different IDs)
+- **Key testing principles discovered:**
+  - **Per-year carver_id isolation:** Same carver name can have different IDs in different years (privacy by design) — test must verify no cross-year ID collision
+  - **Registration vs. results distinction:** Carvers in competitors array but with no results must still appear in list (different from carver detail view which errors on zero results)
+  - **Sorting robustness:** Test must verify last_name ASC then first_name ASC with edge cases (initials only, special characters)
+  - **Year selector as fallback:** Whenever year parameter missing or invalid, year selector should be primary UI (no technical errors)
+- **Pattern learned:** List views have different requirements than detail views — carver detail view (issue #7) filters out carvers with no results; carver list view includes all registered competitors regardless of results status. Must verify this distinction during implementation review.
+- **Test data design rationale:** Multiple test JSON files (2023, 2024, 2025) enable testing year navigation and multi-year duplicate handling. Intentional XSS payloads (HTML tags in names) catch if escaping is missing. Special characters (apostrophes, ampersands, slashes) verify safe HTML rendering.
+- **Verdict:** Test plan is comprehensive and ready for implementation team. Covers happy path, error states, input validation, sorting requirements, security (XSS), and cross-year data integrity.
+

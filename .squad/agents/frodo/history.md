@@ -98,6 +98,15 @@
 - **Error display:** `<div class="cca-usage">` for no-params (instructional), `<div class="cca-error">` for all others
 - **Next:** Issue #13 (testing and verification)
 
+### Carvers List View — Issue #22 (2026-03-29)
+- **Status:** Complete. New `carvers` (plural) view delivering a year-filtered list of all competitors.
+- **JSON updated:** Added `"division"` field to every competitor in `results-2024.json` and `results-2023.json`. Division derived from first appearance in `division_results`. Carvers with no results receive `""`.
+- **ResultsService changes:** New public method `getCarversList(int $year): array` returns `event_name`, `event_year`, `carvers[]` (each with `carver_id`, `first_name`, `last_name`, `full_name`, `division`), sorted by last_name then first_name (case-insensitive). `getAvailableYears()` promoted from `private` to `public` (needed by HtmlView year-selector).
+- **New files:** `site/src/View/Carvers/HtmlView.php`, `site/tmpl/carvers/default.php`, `site/tmpl/carvers/default.xml`.
+- **Template:** Year-selector (`cca-year-selector`) when no year param; table (`cca-carvers-list`) with Carver ID, Name (linked to carver detail view via `Route::_()`), Division when year provided; error block (`cca-error`) on data failure.
+- **Build:** ZIP rebuilt successfully — 31 entries (was 28). All new files confirmed present.
+- **Naming note:** Template uses `escCarvers()` helper instead of `esc()` to avoid PHP global function collision if both carver templates ever end up in the same request scope.
+
 ## Issue #7 — Feature Complete (2026-03-25T13:57:52Z)
 
 **Milestone:** All 5 PRs (#15–#19) delivered and validated by Aragorn. Feature is production-ready.

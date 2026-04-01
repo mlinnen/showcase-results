@@ -426,11 +426,85 @@ class ResultsService
     }
 
     /**
-     * Helper: get list of available years from results files
+     * Get list of all competitors for a given event year
+     *
+     * Returns an array with keys: event_name, event_year, carvers (sorted by last_name, first_name).
+     * Each carver entry: carver_id, first_name, last_name, full_name, division.
+     *
+     * @param   int  $year  Event year
+     *
+     * @return  array  Carvers list data, or error array if year/data unavailable
+     */
+    public function getCarversList(int $year): array
+    {
+        $filepath = $this->dataPath . '/results-' . $year . '.json';
+
+        if (!file_exists($filepath))
+        {
+            $availableYears = $this->getAvailableYears();
+            $yearsList = empty($availableYears) ? 'none' : implode(', ', $availableYears);
+
+            return [
+                'error'         => 'year_not_found',
+                'error_message' => "No data available for {$year}. Available years: {$yearsList}.",
+                'search_year'   => $year,
+                'carvers'       => [],
+            ];
+        }
+
+        $data = $this->loadResultsFile($filepath);
+
+        if ($data === null)
+        {
+            return [
+                'error'         => 'data_load_error',
+                'error_message' => "Data for {$year} is temporarily unavailable.",
+                'search_year'   => $year,
+                'carvers'       => [],
+            ];
+        }
+
+        $carvers = [];
+
+        foreach ($data['competitors'] ?? [] as $comp)
+        {
+            $firstName = $comp['first_name'] ?? '';
+            $lastName  = $comp['last_name'] ?? '';
+
+            $carvers[] = [
+                'carver_id'  => $comp['carver_id'] ?? 0,
+                'first_name' => $firstName,
+                'last_name'  => $lastName,
+                'full_name'  => trim($firstName . ' ' . $lastName),
+                'division'   => $comp['division'] ?? '',
+            ];
+        }
+
+        // Sort by last_name, then first_name (case-insensitive)
+        usort($carvers, function (array $a, array $b): int {
+            $last = strcasecmp($a['last_name'], $b['last_name']);
+
+            if ($last !== 0)
+            {
+                return $last;
+            }
+
+            return strcasecmp($a['first_name'], $b['first_name']);
+        });
+
+        return [
+            'event_name'  => $data['event']['name'] ?? '',
+            'event_year'  => $data['event']['year'] ?? $year,
+            'carvers'     => $carvers,
+        ];
+    }
+
+    /**
+     * Get list of available years from results files
      *
      * @return  array  Array of years (integers), sorted descending
      */
-    private function getAvailableYears(): array
+    public function getAvailableYears(): array
     {
         $files = $this->getResultsFiles();
         $years = [];

@@ -49,16 +49,41 @@
     {
       "category": "Best of Show - Theme",
       "places": [
-        { "place": 1, "carver_id": 16, "winner": "John Smith",   "entry_number": 42 },
-        { "place": 2, "carver_id": 27, "winner": "Eve Martinez", "entry_number": 33 },
-        { "place": 3, "carver_id": 42, "winner": "Alice Brown",  "entry_number": 8  }
+        {
+          "place": 1,
+          "carver_id": 16,
+          "winner": "John Smith",
+          "entry_number": 42
+        },
+        {
+          "place": 2,
+          "carver_id": 27,
+          "winner": "Eve Martinez",
+          "entry_number": 33
+        },
+        {
+          "place": 3,
+          "carver_id": 42,
+          "winner": "Alice Brown",
+          "entry_number": 8
+        }
       ]
     },
     {
       "category": "Best of Show - Wildlife",
       "places": [
-        { "place": 1, "carver_id": 30, "winner": "Frank Taylor", "entry_number": 52 },
-        { "place": 2, "carver_id": 23, "winner": "Jane Doe",     "entry_number": 29 }
+        {
+          "place": 1,
+          "carver_id": 30,
+          "winner": "Frank Taylor",
+          "entry_number": 52
+        },
+        {
+          "place": 2,
+          "carver_id": 23,
+          "winner": "Jane Doe",
+          "entry_number": 29
+        }
       ]
     }
   ],
@@ -70,23 +95,48 @@
           "name": "Birds N",
           "style": "N",
           "places": [
-            { "place": 1, "carver_id": 23, "winner": "Jane Doe",       "entry_number": 29 },
-            { "place": 2, "carver_id": 5,  "winner": "Charlie Green",  "entry_number": 15 },
-            { "place": 3, "carver_id": 14, "winner": "Grace Anderson", "entry_number": 6  }
+            {
+              "place": 1,
+              "carver_id": 23,
+              "winner": "Jane Doe",
+              "entry_number": 29
+            },
+            {
+              "place": 2,
+              "carver_id": 5,
+              "winner": "Charlie Green",
+              "entry_number": 15
+            },
+            {
+              "place": 3,
+              "carver_id": 14,
+              "winner": "Grace Anderson",
+              "entry_number": 6
+            }
           ]
         },
         {
           "name": "Wildlife P",
           "style": "P",
           "places": [
-            { "place": 1, "carver_id": 30, "winner": "Frank Taylor", "entry_number": 51 }
+            {
+              "place": 1,
+              "carver_id": 30,
+              "winner": "Frank Taylor",
+              "entry_number": 51
+            }
           ]
         },
         {
           "name": "Best of Novice",
           "style": null,
           "places": [
-            { "place": 1, "carver_id": 23, "winner": "Jane Doe", "entry_number": 29 }
+            {
+              "place": 1,
+              "carver_id": 23,
+              "winner": "Jane Doe",
+              "entry_number": 29
+            }
           ]
         }
       ]
@@ -98,24 +148,54 @@
           "name": "Caricature N",
           "style": "N",
           "places": [
-            { "place": 1, "carver_id": 16, "winner": "John Smith",  "entry_number": 42 },
-            { "place": 2, "carver_id": 42, "winner": "Alice Brown", "entry_number": 7  },
-            { "place": 3, "carver_id": 5,  "winner": "Charlie Green", "entry_number": 18 }
+            {
+              "place": 1,
+              "carver_id": 16,
+              "winner": "John Smith",
+              "entry_number": 42
+            },
+            {
+              "place": 2,
+              "carver_id": 42,
+              "winner": "Alice Brown",
+              "entry_number": 7
+            },
+            {
+              "place": 3,
+              "carver_id": 5,
+              "winner": "Charlie Green",
+              "entry_number": 18
+            }
           ]
         },
         {
           "name": "Landscape P",
           "style": "P",
           "places": [
-            { "place": 1, "carver_id": 11, "winner": "Diana Lee",    "entry_number": 17 },
-            { "place": 2, "carver_id": 27, "winner": "Eve Martinez", "entry_number": 34 }
+            {
+              "place": 1,
+              "carver_id": 11,
+              "winner": "Diana Lee",
+              "entry_number": 17
+            },
+            {
+              "place": 2,
+              "carver_id": 27,
+              "winner": "Eve Martinez",
+              "entry_number": 34
+            }
           ]
         },
         {
           "name": "Best of Intermediate",
           "style": null,
           "places": [
-            { "place": 1, "carver_id": 16, "winner": "John Smith", "entry_number": 42 }
+            {
+              "place": 1,
+              "carver_id": 16,
+              "winner": "John Smith",
+              "entry_number": 42
+            }
           ]
         }
       ]
@@ -127,30 +207,95 @@
           "name": "Abstract P",
           "style": "P",
           "places": [
-            { "place": 1, "carver_id": 30, "winner": "Frank Taylor",  "entry_number": 52 },
-            { "place": 2, "carver_id": 19, "winner": "Henry Thomas",  "entry_number": 44 }
+            {
+              "place": 1,
+              "carver_id": 30,
+              "winner": "Frank Taylor",
+              "entry_number": 52
+            },
+            {
+              "place": 2,
+              "carver_id": 19,
+              "winner": "Henry Thomas",
+              "entry_number": 44
+            }
           ]
         },
         {
           "name": "Portrait N",
           "style": "N",
           "places": [
-            { "place": 1, "carver_id": 27, "winner": "Eve Martinez", "entry_number": 33 }
+            {
+              "place": 1,
+              "carver_id": 27,
+              "winner": "Eve Martinez",
+              "entry_number": 33
+            }
           ]
         }
       ]
     }
   ],
   "competitors": [
-    { "carver_id": 5,  "first_name": "Charlie", "last_name": "Green"    },
-    { "carver_id": 8,  "first_name": "Bob",     "last_name": "Wilson"   },
-    { "carver_id": 11, "first_name": "Diana",   "last_name": "Lee"      },
-    { "carver_id": 14, "first_name": "Grace",   "last_name": "Anderson" },
-    { "carver_id": 16, "first_name": "John",    "last_name": "Smith"    },
-    { "carver_id": 19, "first_name": "Henry",   "last_name": "Thomas"   },
-    { "carver_id": 23, "first_name": "Jane",    "last_name": "Doe"      },
-    { "carver_id": 27, "first_name": "Eve",     "last_name": "Martinez" },
-    { "carver_id": 30, "first_name": "Frank",   "last_name": "Taylor"   },
-    { "carver_id": 42, "first_name": "Alice",   "last_name": "Brown"    }
+    {
+      "carver_id": 5,
+      "first_name": "Charlie",
+      "last_name": "Green",
+      "division": "Novice"
+    },
+    {
+      "carver_id": 8,
+      "first_name": "Bob",
+      "last_name": "Wilson",
+      "division": ""
+    },
+    {
+      "carver_id": 11,
+      "first_name": "Diana",
+      "last_name": "Lee",
+      "division": "Intermediate"
+    },
+    {
+      "carver_id": 14,
+      "first_name": "Grace",
+      "last_name": "Anderson",
+      "division": "Novice"
+    },
+    {
+      "carver_id": 16,
+      "first_name": "John",
+      "last_name": "Smith",
+      "division": "Intermediate"
+    },
+    {
+      "carver_id": 19,
+      "first_name": "Henry",
+      "last_name": "Thomas",
+      "division": "Open"
+    },
+    {
+      "carver_id": 23,
+      "first_name": "Jane",
+      "last_name": "Doe",
+      "division": "Novice"
+    },
+    {
+      "carver_id": 27,
+      "first_name": "Eve",
+      "last_name": "Martinez",
+      "division": "Intermediate"
+    },
+    {
+      "carver_id": 30,
+      "first_name": "Frank",
+      "last_name": "Taylor",
+      "division": "Novice"
+    },
+    {
+      "carver_id": 42,
+      "first_name": "Alice",
+      "last_name": "Brown",
+      "division": "Intermediate"
+    }
   ]
 }
