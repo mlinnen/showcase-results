@@ -137,3 +137,21 @@
 - **Build:** ZIP successfully regenerated (31 entries, all new files verified present)
 - **Next:** Ready for Aragorn's QA testing per test plan
 
+### Joomla Extension User Guide (2026-03-29)
+
+**Status:** ✅ COMPLETE. Markdown user guide written for non-technical Joomla admins.
+
+- **File:** `docs/joomla-extension.md` (12.0 KB)
+- **Sections covered:**
+  1. **Overview** — What the extension does (carvers list + carver detail views, JSON-based data loading)
+  2. **Installation** — 3-step process: download, upload via Joomla admin, verify
+  3. **Adding result data** — File location `media/com_showcaseresults/data/`, naming convention `results-{year}.json`, uploading, caching behavior
+  4. **Setting up menu items** — Step-by-step for Carvers List (with year param) and Carver Detail (blank params for search); year-selector fallback explained
+  5. **URL parameter reference** — Complete parameter tables for both views (cross-event search by name, single-year, carver_id+year), examples, privacy note on per-event carver_id
+  6. **JSON data file format** — Sample JSON structure with field annotations; link to schema/results.schema.json for full spec
+  7. **Generating JSON from spreadsheets** — References CLI tool, quick command example, feature list
+  8. **Troubleshooting** — 6 common issues (file path, cache, name mismatch, division blank, carver_id without year, malformed JSON) with symptoms, causes, fixes
+- **Tone & style:** Plain English, step-by-step where appropriate, headers/tables/code blocks, assumes Joomla basics but not extension knowledge
+- **Security coverage:** Parameter validation, path handling, caching (Joomla cache plugin warning), XSS context (HTML escaping)
+- **Cross-references:** CLI docs, schema, README.md, Joomla menu/extensions UI
+
