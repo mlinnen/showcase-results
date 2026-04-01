@@ -42,11 +42,11 @@ class HtmlView extends BaseHtmlView
     {
         $app   = Factory::getApplication();
         $input = $app->input;
-        $year  = $input->getInt('year', 0);
+        $year  = $input->getString('year', '');
 
         $service = new ResultsService();
 
-        if ($year === 0)
+        if ($year === '')
         {
             // No year supplied — pass available years so template can render selector
             $this->carversData = [

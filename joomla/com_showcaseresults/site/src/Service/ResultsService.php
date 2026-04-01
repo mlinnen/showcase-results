@@ -47,26 +47,26 @@ class ResultsService
      *
      * @param   string  $name       Carver name (first + last)
      * @param   int     $carver_id  Per-event carver identifier
-     * @param   int     $year       Event year
+     * @param   string  $year       Event year
      *
      * @return  array   Lookup results
      */
-    public function lookup(string $name = '', int $carver_id = 0, int $year = 0): array
+    public function lookup(string $name = '', int $carver_id = 0, string $year = ''): array
     {
         // Mode 1: Name cross-event
-        if (!empty($name) && $year === 0)
+        if (!empty($name) && $year === '')
         {
             return $this->lookupByName($name);
         }
 
         // Mode 2: Name single-event
-        if (!empty($name) && $year > 0)
+        if (!empty($name) && !empty($year))
         {
             return $this->lookupByNameAndYear($name, $year);
         }
 
         // Mode 3: ID single-event
-        if ($carver_id > 0 && $year > 0)
+        if ($carver_id > 0 && !empty($year))
         {
             return $this->lookupByCarverIdAndYear($carver_id, $year);
         }
@@ -173,11 +173,11 @@ class ResultsService
      * Scan one results file for a name (single-event)
      *
      * @param   string  $name  Carver name (first + last)
-     * @param   int     $year  Event year
+     * @param   string  $year  Event year
      *
      * @return  array   Results for the specified event
      */
-    private function lookupByNameAndYear(string $name, int $year): array
+    private function lookupByNameAndYear(string $name, string $year): array
     {
         $filepath = $this->dataPath . '/results-' . $year . '.json';
 
@@ -271,12 +271,12 @@ class ResultsService
     /**
      * Scan one results file for a carver_id (single-event only)
      *
-     * @param   int  $carver_id  Per-event carver identifier
-     * @param   int  $year       Event year
+     * @param   int     $carver_id  Per-event carver identifier
+     * @param   string  $year       Event year
      *
      * @return  array   Results for the specified carver
      */
-    private function lookupByCarverIdAndYear(int $carver_id, int $year): array
+    private function lookupByCarverIdAndYear(int $carver_id, string $year): array
     {
         $filepath = $this->dataPath . '/results-' . $year . '.json';
 
@@ -431,11 +431,11 @@ class ResultsService
      * Returns an array with keys: event_name, event_year, carvers (sorted by last_name, first_name).
      * Each carver entry: carver_id, first_name, last_name, full_name, division.
      *
-     * @param   int  $year  Event year
+     * @param   string  $year  Event year
      *
      * @return  array  Carvers list data, or error array if year/data unavailable
      */
-    public function getCarversList(int $year): array
+    public function getCarversList(string $year): array
     {
         $filepath = $this->dataPath . '/results-' . $year . '.json';
 
@@ -502,7 +502,7 @@ class ResultsService
     /**
      * Get list of available years from results files
      *
-     * @return  array  Array of years (integers), sorted descending
+     * @return  array  Array of years (strings), sorted descending
      */
     public function getAvailableYears(): array
     {
@@ -511,10 +511,10 @@ class ResultsService
 
         foreach ($files as $filepath)
         {
-            // Extract year from filename: results-2024.json -> 2024
-            if (preg_match('/results-(\d{4})\.json$/', basename($filepath), $matches))
+            // Extract year from filename: results-2024.json or results-2026T.json -> 2024 or 2026T
+            if (preg_match('/results-([a-zA-Z0-9]+)\.json$/', basename($filepath), $matches))
             {
-                $years[] = (int) $matches[1];
+                $years[] = $matches[1];
             }
         }
 

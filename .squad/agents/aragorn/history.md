@@ -101,3 +101,30 @@
 - **Test execution:** Ready for manual testing per `docs/test-plan-carvers-list.md`
 - **Next step:** Execute test plan against dev branch, report results
 
+## Issue #24 — Year as String Validation (2026-04-01)
+
+**Status:** ❌ INCOMPLETE — 4 critical failures found
+
+- **Context:** Validated changes to support alphanumeric year values (e.g., "2026T") across codebase
+- **Scope:** Schema, C# CLI, Joomla PHP components, JSON data files, documentation
+- **Validation performed:**
+  1. ✅ Build check: `dotnet build` succeeded
+  2. ✅ C# integer references: No remaining `int.*year` patterns in src/
+  3. ❌ PHP integer references: MISSED location in `joomla/.../tmpl/carver/default.php:71` (still uses `getInt('year', 0)`)
+  4. ❌ JSON schema compatibility: 3 files have integer years (violates updated string schema)
+     - `output/results-2026.json` → `"year": 2026` (should be `"2026"`)
+     - `joomla/.../data/results-2024.json` → `"year": 2024` (should be `"2024"`)
+     - `joomla/.../data/results-2023.json` → `"year": 2023` (should be `"2023"`)
+  5. ✅ Documentation: README examples acceptable (numeric years are valid alphanumeric strings)
+  6. ✅ Sort logic: `rsort()` on strings produces correct lexicographic order for alphanumeric years
+- **Critical findings:**
+  - **Code gap:** `default.php:71` uses `getInt('year')` instead of `getString('year')` — will cast "2026T" to 0
+  - **Backward compatibility:** Existing JSON files with integer years FAIL updated schema (breaking change)
+- **Required fixes:**
+  1. Update default.php lines 71, 74 to use `getString()` and `!empty()` checks
+  2. Regenerate all 3 JSON files with string year values
+- **Pattern learned:** When changing a type across multiple languages/layers (C#, PHP, JSON schema), verify ALL input/output boundaries — template files are easy to miss in grep searches if they don't match the expected pattern.
+- **Pattern learned:** Schema changes from `integer` to `string` create backward compatibility issues for existing data files — requires migration plan or regeneration step.
+- **Verdict:** DO NOT MERGE — blocking issues prevent alphanumeric year feature from working
+- **Deliverable:** Comprehensive validation report written to `.squad/decisions/inbox/aragorn-year-validation.md`
+

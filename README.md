@@ -49,6 +49,12 @@ Override the event name and year:
 showcase-results create results --event-name "Spring Invitational" --year 2025
 ```
 
+Use alphanumeric year values for test events:
+
+```bash
+showcase-results create results --event-name "Test Event" --year "2026T"
+```
+
 Provide explicit file paths:
 
 ```bash

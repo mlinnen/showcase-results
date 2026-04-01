@@ -102,7 +102,7 @@ class HtmlView extends BaseHtmlView
     {
         $name = trim($nameRaw);
         $carver_id = 0;
-        $year = 0;
+        $year = '';
 
         // Check if no parameters provided
         if (empty($name) && empty($carverIdRaw) && empty($yearRaw))
@@ -112,7 +112,7 @@ class HtmlView extends BaseHtmlView
                 'message' => 'No search parameters provided.',
                 'name' => '',
                 'carver_id' => 0,
-                'year' => 0
+                'year' => ''
             ];
         }
 
@@ -126,7 +126,7 @@ class HtmlView extends BaseHtmlView
                     'message' => 'Carver ID must be a number.',
                     'name' => '',
                     'carver_id' => 0,
-                    'year' => 0
+                    'year' => ''
                 ];
             }
             $carver_id = (int) $carverIdRaw;
@@ -135,28 +135,28 @@ class HtmlView extends BaseHtmlView
         // Validate year if provided
         if (!empty($yearRaw))
         {
-            if (!is_numeric($yearRaw))
+            if (!preg_match('/^[a-zA-Z0-9]+$/', $yearRaw))
             {
                 return [
                     'error' => 'invalid_year',
-                    'message' => 'Year must be a valid number.',
+                    'message' => 'Year must contain only letters and numbers.',
                     'name' => '',
                     'carver_id' => 0,
-                    'year' => 0
+                    'year' => ''
                 ];
             }
-            $year = (int) $yearRaw;
+            $year = $yearRaw;
         }
 
         // Validate carver_id requires year
-        if ($carver_id > 0 && $year === 0)
+        if ($carver_id > 0 && $year === '')
         {
             return [
                 'error' => 'carver_id_requires_year',
                 'message' => 'A year is required when looking up by carver ID, because carver IDs differ between events. Try adding &year=2024 or search by name instead.',
                 'name' => '',
                 'carver_id' => 0,
-                'year' => 0
+                'year' => ''
             ];
         }
 

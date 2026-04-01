@@ -68,10 +68,10 @@ function esc(string $str): string
         <?php
         // Determine subtitle based on query mode
         $app = Joomla\CMS\Factory::getApplication();
-        $year = $app->input->getInt('year', 0);
+        $year = $app->input->getString('year', '');
         $subtitle = '';
         
-        if ($year > 0 && count($this->carverData['results']) === 1)
+        if (!empty($year) && count($this->carverData['results']) === 1)
         {
             $event = $this->carverData['results'][0];
             $subtitle = 'Results for ' . esc($event['event_name']) . ' ' . $event['event_year'];

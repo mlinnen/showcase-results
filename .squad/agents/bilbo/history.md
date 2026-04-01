@@ -55,3 +55,20 @@ Data quality issue discovered: 10 rows in Judging.xlsx have entry_number = 0. Of
 - **Architecture verified:** results-{year}.json path convention correct, data structure validated, integration with Joomla data layer confirmed.
 - **Awaiting:** PR merge sequence. Feature ready for production deployment once all 6 PRs merged in order.
 
+## Issue #24 — Year Changed from Integer to String (2026-03-25)
+
+**Task:** Support text in year parameter (e.g., `2026T` for test events). Changed year from integer to string throughout the codebase.
+
+**Files modified:**
+1. `schema/results.schema.json` — Changed year type from `integer` with `minimum: 2000` to `string` with `pattern: "^[a-zA-Z0-9]+$"` (prevents path traversal, allows alphanumeric values)
+2. `src/ShowcaseResults.Cli/Models/Results.cs` — Changed `EventInfo` record from `int Year` to `string Year`
+3. `src/ShowcaseResults.Cli/Program.cs` — Changed `yearOption` from `Option<int>` to `Option<string>`, updated default value from `DateTime.Now.Year` to `DateTime.Now.Year.ToString()`, added null-forgiving operators for year variables
+
+**Key findings:**
+- Filename construction `$"results-{data.Event.Year}.json"` works naturally with string interpolation — no changes needed
+- No arithmetic or comparison operations on year found in the codebase
+- Build succeeded with no compilation errors after nullable reference warnings fixed
+
+**Validation:** Built project successfully with `dotnet build src\ShowcaseResults.Cli\ShowcaseResults.Cli.csproj`
+
+- JSON year fields must be strings (alphanumeric: ^[a-zA-Z0-9]+$) per schema update, not integers

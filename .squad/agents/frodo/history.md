@@ -155,3 +155,20 @@
 - **Security coverage:** Parameter validation, path handling, caching (Joomla cache plugin warning), XSS context (HTML escaping)
 - **Cross-references:** CLI docs, schema, README.md, Joomla menu/extensions UI
 
+### Year Parameter Changed to String — Issue #24 (2026-03-29)
+
+**Status:** ✅ COMPLETE. All 5 files updated to support alphanumeric year values like "2026T".
+
+- **Files modified:**
+  1. `site/src/View/Carvers/HtmlView.php` — Changed `getInt('year', 0)` to `getString('year', '')`, updated comparison from `$year === 0` to `$year === ''`
+  2. `site/src/View/Carver/HtmlView.php` — Updated validateParameters() to use alphanumeric regex `/^[a-zA-Z0-9]+$/` instead of `is_numeric()`, changed validation variable `$year` from int to string, updated error message to "Year must contain only letters and numbers.", updated all return statements to use `'year' => ''` instead of `'year' => 0`
+  3. `site/src/Service/ResultsService.php` — Changed method signature `lookup($name, $carver_id, $year)` parameter `$year` from `int` to `string`, updated comparisons from `$year === 0` to `$year === ''` and `$year > 0` to `!empty($year)`, changed `lookupByNameAndYear()` and `lookupByCarverIdAndYear()` signatures to accept `string $year`, updated `getCarversList()` to accept `string $year`, changed `getAvailableYears()` regex from `/results-(\d{4})\.json$/` to `/results-([a-zA-Z0-9]+)\.json$/`, removed int cast `(int) $matches[1]`, updated return type doc to "Array of years (strings)"
+  4. `site/tmpl/carvers/default.xml` — Changed year field type from `type="number"` to `type="text"`
+  5. `site/tmpl/carver/default.xml` — Changed year field type from `type="number"` to `type="text"`
+- **Security:** Alphanumeric regex prevents path traversal (no slashes, dots, or special chars allowed)
+- **Rationale:** Test events use year identifiers like "2026T" to distinguish from production events. Validating with alphanumeric pattern allows flexibility while maintaining security.
+- **Breaking change:** None — existing numeric years (e.g., "2024") still work; this is a compatible extension
+
+### Year Integer Reference Fix in Carver Template (2026-03-30)
+- **Status:** ✅ COMPLETE. Fixed missed year getInt() references in `joomla/com_showcaseresults/site/tmpl/carver/default.php` (lines 71, 74). Line 71 changed from `getInt('year', 0)` to `getString('year', '')`, line 74 changed from `$year > 0` to `!empty($year)`. Aragorn's validation identified this location after Issue #24 conversion. Two-line surgical fix ensures subtitle logic uses string comparison consistently with rest of codebase.
+

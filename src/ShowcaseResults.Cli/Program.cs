@@ -14,9 +14,9 @@ var eventNameOption = new Option<string>(
     "--event-name",
     () => "Showcase of Woodcarvings",
     "Name of the event");
-var yearOption = new Option<int>(
+var yearOption = new Option<string>(
     "--year",
-    () => DateTime.Now.Year,
+    () => DateTime.Now.Year.ToString(),
     "Year of the event");
 var competitorsOption = new Option<string>(
     "--competitors",
@@ -52,7 +52,7 @@ resultsCommand.AddOption(formatOption);
 resultsCommand.SetHandler((InvocationContext ctx) =>
 {
     var eventName   = ctx.ParseResult.GetValueForOption(eventNameOption)!;
-    var year        = ctx.ParseResult.GetValueForOption(yearOption);
+    var year        = ctx.ParseResult.GetValueForOption(yearOption)!;
     var competitors = Path.GetFullPath(ctx.ParseResult.GetValueForOption(competitorsOption)!);
     var prizes      = Path.GetFullPath(ctx.ParseResult.GetValueForOption(prizesOption)!);
     var judging     = Path.GetFullPath(ctx.ParseResult.GetValueForOption(judgingOption)!);
@@ -134,7 +134,7 @@ carverArticleCommand.AddOption(carverOutputOption);
 carverArticleCommand.SetHandler((InvocationContext ctx) =>
 {
     var eventName   = ctx.ParseResult.GetValueForOption(eventNameOption)!;
-    var year        = ctx.ParseResult.GetValueForOption(yearOption);
+    var year        = ctx.ParseResult.GetValueForOption(yearOption)!;
     var competitors = Path.GetFullPath(ctx.ParseResult.GetValueForOption(competitorsOption)!);
     var prizes      = Path.GetFullPath(ctx.ParseResult.GetValueForOption(prizesOption)!);
     var judging     = Path.GetFullPath(ctx.ParseResult.GetValueForOption(judgingOption)!);
