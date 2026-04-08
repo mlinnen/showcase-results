@@ -38,7 +38,7 @@ var outputOption = new Option<string>(
 var formatOption = new Option<string[]>(
     "--format",
     () => new[] { "html" },
-    "Output format(s): html, json (can be repeated: --format html --format json)");
+    "Output format(s): html writes the results article to the --output path; json writes results-{event}.json to the same directory (used by the Joomla data layer). Repeatable: --format html --format json");
 formatOption.AllowMultipleArgumentsPerToken = true;
 
 resultsCommand.AddOption(eventNameOption);

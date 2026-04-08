@@ -105,3 +105,16 @@ Status: ✅ COMPLETED - Both tasks merged and validated.
 **Build result:** `dotnet build src\showcase-results.sln` — succeeded with 0 errors (2 pre-existing NuGet vulnerability warnings, unrelated).
 
 **Key constraint respected:** `DateTime.Now.Year.ToString()` left intact — that is a .NET system call, not the parameter name.
+
+## Session: --format Help Text Improvement (2026-04-01)
+
+**Task:** Review and improve `--format` help text in `create results`.
+
+**Findings:**
+- `create results` has `--format` as `Option<string[]>` with `AllowMultipleArgumentsPerToken = true`. Default `["html"]`. Values: `html` (writes article to `--output` path) and `json` (writes `results-{event}.json` to the same directory for the Joomla data layer).
+- `create carver-article` has NO `--format` option — correct by design; carver-article is HTML-only and produces no JSON variant.
+- Original help text (`"Output format(s): html, json (can be repeated: --format html --format json)"`) said nothing about *what* each format writes or where.
+
+**Change:** Improved `--format` description to: `"Output format(s): html writes the results article to the --output path; json writes results-{event}.json to the same directory (used by the Joomla data layer). Repeatable: --format html --format json"`
+
+**Build:** `dotnet build src\showcase-results.sln` — 0 errors, 2 pre-existing NuGet warnings (unchanged).

@@ -235,18 +235,25 @@ The CLI accepts `.xlsx` (Excel) files and outputs `results-{year}.json`.
 
 See the main **README.md** in the project repository for full CLI documentation and examples.
 
-Quick example:
+Quick example — generate JSON only (required for the Joomla component):
 ```bash
-ShowcaseResults.Cli.exe create results --input competition-2024.xlsx --output output/
+ShowcaseResults.Cli.exe create results --format json --output output/
 ```
 
-This generates `output/results-2024.json`. Upload it to `media/com_showcaseresults/data/` on your Joomla server.
+Generate both HTML article and JSON in one run:
+```bash
+ShowcaseResults.Cli.exe create results --format html --format json --output output/article.html
+```
+
+The `--format` option accepts `html` and `json`. It can be repeated to produce both formats in a single run. The default is `html`.
+
+This generates `output/results-{year}.json`. Upload it to `media/com_showcaseresults/data/` on your Joomla server.
 
 ### CLI Features
 
 - Parses spreadsheet sheets: Competitors, Categories, Judging, Prizes
 - Validates data against the schema
-- Outputs a single, self-contained `results-{year}.json` file
+- Outputs `html` (Joomla article fragment), `json` (component data), or both — controlled by `--format`
 - Supports multiple runs without overwriting previous years (each year is its own file)
 
 ## Troubleshooting

@@ -58,6 +58,9 @@ Architectural decision to support alphanumeric year values (not just integers). 
 ### Solution File Organization (2026-03-26, Gandalf)
 Moved `showcase-results.sln` from repo root to `src/showcase-results.sln`. Updated project reference paths to be relative to the new location. Rationale: solution file co-located with source code; repo root reserved for repo-level concerns (docs, schema, data, output). Build verified: `dotnet build src/showcase-results.sln` succeeded with 0 errors.
 
+### Decision: Rename `year` Parameter to `event` (2026-04-01, Bilbo)
+Renamed the `year` CLI parameter, C# property, and JSON schema field to `event` throughout the codebase. Rationale: The parameter value is an event identifier (alphanumeric per ADR-007, may include suffixes like `2026T`); the name `year` is misleading. Changes: EventInfo.Year → EventInfo.EventId; --year → --event; event.year → event.event in schema. Breaking changes: CLI interface and JSON output schema. Build verified: 0 errors. Joomla component and JSON consumers must be updated to read `event.event` instead of `event.year`.
+
 ## Governance
 - All meaningful changes require team consensus
 - Document architectural decisions here

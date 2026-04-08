@@ -100,3 +100,17 @@ Status: ✅ COMPLETED - Both tasks merged and validated.
 **README.md:** `--year` CLI flag → `--event`
 
 **NOT renamed (intentional):** `data['event']['year']` JSON field access, `event_year` data key in return arrays, `results-{year}.json` filename pattern references (filenames still use year values), prose descriptions of year as a concept, `cca-year-selector` CSS class.
+
+### Session: `--format` option documentation (2026-04-01)
+
+**Task:** Document the `--format` option for `create results` in README and docs.
+
+**Files that document the CLI `create results` command:**
+- `README.md` — primary CLI reference. Options table (§Options) and Examples section (§Examples) are the canonical places for new CLI options.
+- `docs/joomla-extension.md` — §"Generating JSON from spreadsheets" → "CLI Usage" subsection. Audience is Joomla admins; shows the quick path to JSON generation.
+- `docs/test-data-spec.md` — already referenced `--format json` in test commands (no changes needed).
+- `docs/test-plan-issue-7.md` — already referenced `--format json` in test steps (no changes needed).
+
+**Changes made:**
+- `README.md`: Added `--format` row to the options table; added two new examples ("Generate JSON only", "Generate both HTML and JSON").
+- `docs/joomla-extension.md`: Replaced the single quick-example block with two examples (JSON-only, both formats), added a one-line explanation of `--format`, and updated the CLI Features bullet to reflect format control.

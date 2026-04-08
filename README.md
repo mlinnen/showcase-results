@@ -34,6 +34,7 @@ All options are optional. If the spreadsheet paths are omitted the tool looks fo
 | `--prizes` | `data/input/Prizes.xlsx` | Path to the prizes spreadsheet |
 | `--judging` | `data/input/Judging.xlsx` | Path to the judging results spreadsheet |
 | `--output` | `output/article.html` | Path for the generated HTML file |
+| `--format` | `html` | Output format(s): `html`, `json`. Can be repeated to produce both: `--format html --format json` |
 
 ### Examples
 
@@ -53,6 +54,18 @@ Use alphanumeric year values for test events:
 
 ```bash
 showcase-results create results --event-name "Test Event" --event "2026T"
+```
+
+Generate JSON output only (for Joomla component data):
+
+```bash
+showcase-results create results --format json
+```
+
+Generate both HTML and JSON in a single run:
+
+```bash
+showcase-results create results --format html --format json
 ```
 
 Provide explicit file paths:
