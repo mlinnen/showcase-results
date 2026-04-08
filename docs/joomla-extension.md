@@ -39,18 +39,19 @@ Where `[joomla-root]` is your Joomla installation directory (e.g., `/var/www/htm
 
 ### File Naming Convention
 
-Files must be named: **`results-{YEAR}.json`**
+Files must be named: **`results-{event}.json`**
 
 Examples:
 - `results-2024.json` — 2024 competition data
 - `results-2023.json` — 2023 competition data
 - `results-2022.json` — 2022 competition data
+- `results-2026T.json` — 2026 test event data (alphanumeric event identifiers are supported)
 
 ### Shipping and Updating Data
 
 The component **ships with sample JSON files** for years that have data. To add a new year or update existing data:
 
-1. **Generate or prepare** a `results-{year}.json` file (see "Generating JSON from Spreadsheets" below)
+1. **Generate or prepare** a `results-{event}.json` file (see "Generating JSON from Spreadsheets" below)
 2. **Upload** the file to `media/com_showcaseresults/data/` on your server (via SFTP or your hosting file manager)
 3. **No restart needed** — the component reads files on each page load
 
@@ -143,11 +144,13 @@ Visitors and developers can use URL parameters to navigate directly to results. 
 
 If you're manually creating or editing a results file, here's the structure:
 
+**Standard event (numeric year):** `results-2024.json`
+
 ```json
 {
   "event": {
     "name": "41st Showcase of Woodcarvings",
-    "year": 2024
+    "event_id": "2024"
   },
   "competitors": [
     {
@@ -206,10 +209,34 @@ If you're manually creating or editing a results file, here's the structure:
 }
 ```
 
+**Test/alphanumeric event:** `results-2026T.json`
+
+```json
+{
+  "event": {
+    "name": "2026 Test Event",
+    "event_id": "2026T"
+  },
+  "competitors": [
+    {
+      "carver_id": 1,
+      "first_name": "Jane",
+      "last_name": "Doe",
+      "division": "Novice"
+    }
+  ],
+  "special_prizes": [],
+  "overall_results": [],
+  "division_results": []
+}
+```
+
+> **Tip:** Use `2026T` (or any alphanumeric suffix) as a test event identifier. The component treats it identically to numeric years — the `T` suffix keeps it out of real production data when browsing the event list.
+
 ### Key Fields
 
 - **event.name:** The event title (e.g., "41st Showcase of Woodcarvings")
-- **event.year:** Year (numeric, e.g., 2024)
+- **event.event_id:** Event identifier string (e.g., `"2024"` or `"2026T"`); must match the filename suffix
 - **competitors:** List of all carvers; includes `carver_id` (unique per event), name, and optional `division` field
 - **special_prizes:** Awards and winners; ordered by `order` field (lower = higher priority)
 - **overall_results:** Competition categories with 1st/2nd/3rd places
@@ -229,7 +256,7 @@ For the **complete schema**, see: `schema/results.schema.json`
 
 Manually creating JSON files is error-prone. Use the **ShowcaseResults CLI tool** to generate them from competition spreadsheets.
 
-The CLI accepts `.xlsx` (Excel) files and outputs `results-{year}.json`.
+The CLI accepts `.xlsx` (Excel) files and outputs `results-{event}.json`.
 
 ### CLI Usage
 
@@ -247,7 +274,7 @@ ShowcaseResults.Cli.exe create results --format html --format json --output outp
 
 The `--format` option accepts `html` and `json`. It can be repeated to produce both formats in a single run. The default is `html`.
 
-This generates `output/results-{year}.json`. Upload it to `media/com_showcaseresults/data/` on your Joomla server.
+This generates `output/results-{event}.json`. Upload it to `media/com_showcaseresults/data/` on your Joomla server.
 
 ### CLI Features
 
@@ -264,7 +291,7 @@ This generates `output/results-{year}.json`. Upload it to `media/com_showcaseres
 
 **Fix:**
 1. Verify the file exists at: `media/com_showcaseresults/data/results-2024.json`
-2. Check the filename spelling — must be exactly `results-{year}.json` (lowercase)
+2. Check the filename spelling — must be exactly `results-{event}.json` (e.g., `results-2024.json` or `results-2026T.json`)
 3. Ensure file permissions allow the web server to read it
 
 ### Symptom: Old data showing after I uploaded a new file
