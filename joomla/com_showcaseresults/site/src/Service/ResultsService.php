@@ -125,7 +125,7 @@ class ResultsService
             {
                 $allResults[] = [
                     'event_name' => $data['event']['name'] ?? '',
-                    'event_year' => $data['event']['year'] ?? 0,
+                    'event_year' => $data['event']['event_id'] ?? 0,
                     'special_prizes' => $eventResults['special_prizes'],
                     'overall_results' => $eventResults['overall_results'],
                     'division_results' => $eventResults['division_results']
@@ -259,7 +259,7 @@ class ResultsService
             'results' => [
                 [
                     'event_name' => $data['event']['name'] ?? '',
-                    'event_year' => $data['event']['year'] ?? 0,
+                    'event_year' => $data['event']['event_id'] ?? 0,
                     'special_prizes' => $eventResults['special_prizes'],
                     'overall_results' => $eventResults['overall_results'],
                     'division_results' => $eventResults['division_results']
@@ -358,7 +358,7 @@ class ResultsService
             'results' => [
                 [
                     'event_name' => $data['event']['name'] ?? '',
-                    'event_year' => $data['event']['year'] ?? 0,
+                    'event_year' => $data['event']['event_id'] ?? 0,
                     'special_prizes' => $eventResults['special_prizes'],
                     'overall_results' => $eventResults['overall_results'],
                     'division_results' => $eventResults['division_results']
@@ -494,7 +494,7 @@ class ResultsService
 
         return [
             'event_name'  => $data['event']['name'] ?? '',
-            'event_year'  => $data['event']['year'] ?? $event,
+            'event_year'  => $data['event']['event_id'] ?? $event,
             'carvers'     => $carvers,
         ];
     }
