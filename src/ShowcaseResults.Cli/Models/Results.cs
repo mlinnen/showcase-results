@@ -1,6 +1,6 @@
 namespace ShowcaseResults.Models;
 
-public record EventInfo(string Name, string Year);
+public record EventInfo(string Name, string EventId);
 
 public record PlaceEntry(int Place, int CarverId, string Winner, int EntryNumber);
 

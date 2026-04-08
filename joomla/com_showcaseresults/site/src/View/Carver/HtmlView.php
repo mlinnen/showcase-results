@@ -19,10 +19,10 @@ use Mlinnen\Component\ShowcaseResults\Site\Service\ResultsService;
  *
  * Accepts query parameters:
  * - name: Carver name for cross-event lookup
- * - carver_id: Per-event carver identifier (requires year parameter)
- * - year: Event year (required when using carver_id)
+ * - carver_id: Per-event carver identifier (requires event parameter)
+ * - event: Event identifier (required when using carver_id)
  *
- * Note: carver_id without year is invalid (privacy by design).
+ * Note: carver_id without event is invalid (privacy by design).
  * Template rendering will be enhanced in issue #11.
  * Error handling for invalid params will be added in issue #12.
  *
@@ -52,10 +52,10 @@ class HtmlView extends BaseHtmlView
         // Get raw query parameters
         $nameRaw = $input->getString('name', '');
         $carverIdRaw = $input->getString('carver_id', '');
-        $yearRaw = $input->getString('year', '');
+        $eventRaw = $input->getString('event', '');
 
         // Validate and sanitize inputs
-        $validation = $this->validateParameters($nameRaw, $carverIdRaw, $yearRaw);
+        $validation = $this->validateParameters($nameRaw, $carverIdRaw, $eventRaw);
 
         if ($validation['error'])
         {
@@ -72,7 +72,7 @@ class HtmlView extends BaseHtmlView
             $this->carverData = $service->lookup(
                 $validation['name'],
                 $validation['carver_id'],
-                $validation['year']
+                $validation['event']
             );
         }
 
@@ -94,25 +94,25 @@ class HtmlView extends BaseHtmlView
      *
      * @param   string  $nameRaw       Raw name parameter
      * @param   string  $carverIdRaw   Raw carver_id parameter
-     * @param   string  $yearRaw       Raw year parameter
+     * @param   string  $eventRaw      Raw event parameter
      *
      * @return  array   Validation result with error or sanitized values
      */
-    private function validateParameters(string $nameRaw, string $carverIdRaw, string $yearRaw): array
+    private function validateParameters(string $nameRaw, string $carverIdRaw, string $eventRaw): array
     {
         $name = trim($nameRaw);
         $carver_id = 0;
-        $year = '';
+        $event = '';
 
         // Check if no parameters provided
-        if (empty($name) && empty($carverIdRaw) && empty($yearRaw))
+        if (empty($name) && empty($carverIdRaw) && empty($eventRaw))
         {
             return [
                 'error' => 'no_parameters',
                 'message' => 'No search parameters provided.',
                 'name' => '',
                 'carver_id' => 0,
-                'year' => ''
+                'event' => ''
             ];
         }
 
@@ -126,37 +126,37 @@ class HtmlView extends BaseHtmlView
                     'message' => 'Carver ID must be a number.',
                     'name' => '',
                     'carver_id' => 0,
-                    'year' => ''
+                    'event' => ''
                 ];
             }
             $carver_id = (int) $carverIdRaw;
         }
 
-        // Validate year if provided
-        if (!empty($yearRaw))
+        // Validate event if provided
+        if (!empty($eventRaw))
         {
-            if (!preg_match('/^[a-zA-Z0-9]+$/', $yearRaw))
+            if (!preg_match('/^[a-zA-Z0-9]+$/', $eventRaw))
             {
                 return [
-                    'error' => 'invalid_year',
-                    'message' => 'Year must contain only letters and numbers.',
+                    'error' => 'invalid_event',
+                    'message' => 'Event must contain only letters and numbers.',
                     'name' => '',
                     'carver_id' => 0,
-                    'year' => ''
+                    'event' => ''
                 ];
             }
-            $year = $yearRaw;
+            $event = $eventRaw;
         }
 
-        // Validate carver_id requires year
-        if ($carver_id > 0 && $year === '')
+        // Validate carver_id requires event
+        if ($carver_id > 0 && $event === '')
         {
             return [
-                'error' => 'carver_id_requires_year',
-                'message' => 'A year is required when looking up by carver ID, because carver IDs differ between events. Try adding &year=2024 or search by name instead.',
+                'error' => 'carver_id_requires_event',
+                'message' => 'An event is required when looking up by carver ID, because carver IDs differ between events. Try adding &event=2024 or search by name instead.',
                 'name' => '',
                 'carver_id' => 0,
-                'year' => ''
+                'event' => ''
             ];
         }
 
@@ -171,7 +171,7 @@ class HtmlView extends BaseHtmlView
             'message' => '',
             'name' => $name,
             'carver_id' => $carver_id,
-            'year' => $year
+            'event' => $event
         ];
     }
 }

@@ -30,18 +30,18 @@ function escCarvers(string $str): string
             <p><?php echo escCarvers($this->carversData['error_message']); ?></p>
         </div>
 
-    <?php elseif (!empty($this->carversData['no_year'])): ?>
+    <?php elseif (!empty($this->carversData['no_event'])): ?>
 
         <div class="cca-year-selector">
             <h2>Carvers List</h2>
             <p>Select an event year to view the list of competitors:</p>
             <ul>
-                <?php foreach ($this->carversData['available_years'] as $yr): ?>
+                <?php foreach ($this->carversData['available_events'] as $yr): ?>
                     <li>
                         <a href="<?php echo Route::_(
-                            'index.php?option=com_showcaseresults&view=carvers&year=' . (int) $yr
+                            'index.php?option=com_showcaseresults&view=carvers&event=' . escCarvers($yr)
                         ); ?>">
-                            <?php echo (int) $yr; ?>
+                            <?php echo escCarvers($yr); ?>
                         </a>
                     </li>
                 <?php endforeach; ?>
@@ -50,7 +50,7 @@ function escCarvers(string $str): string
 
     <?php elseif (!empty($this->carversData['carvers'])): ?>
 
-        <h1><?php echo escCarvers($this->carversData['event_name']); ?> <?php echo (int) $this->carversData['event_year']; ?></h1>
+        <h1><?php echo escCarvers($this->carversData['event_name']); ?> <?php echo escCarvers((string) $this->carversData['event_year']); ?></h1>
 
         <table class="cca-carvers-list">
             <thead>
@@ -68,7 +68,7 @@ function escCarvers(string $str): string
                             <a href="<?php echo Route::_(
                                 'index.php?option=com_showcaseresults&view=carver'
                                 . '&carver_id=' . (int) $carver['carver_id']
-                                . '&year=' . (int) $this->carversData['event_year']
+                                . '&event=' . escCarvers((string) $this->carversData['event_year'])
                             ); ?>">
                                 <?php echo escCarvers($carver['full_name']); ?>
                             </a>

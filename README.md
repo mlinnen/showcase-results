@@ -22,14 +22,14 @@ dotnet build src/ShowcaseResults.Cli
 showcase-results create results [options]
 ```
 
-All options are optional. If the spreadsheet paths are omitted the tool looks for files in `data/input/`. If `--event-name` or `--year` are omitted the defaults below are used.
+All options are optional. If the spreadsheet paths are omitted the tool looks for files in `data/input/`. If `--event-name` or `--event` are omitted the defaults below are used.
 
 ### Options
 
 | Option | Default | Description |
 |--------|---------|-------------|
 | `--event-name` | `Showcase of Woodcarvings` | Name of the event |
-| `--year` | Current year | Year of the event |
+| `--event` | Current year | Year of the event |
 | `--competitors` | `data/input/Competitor.xlsx` | Path to the competitors spreadsheet |
 | `--prizes` | `data/input/Prizes.xlsx` | Path to the prizes spreadsheet |
 | `--judging` | `data/input/Judging.xlsx` | Path to the judging results spreadsheet |
@@ -46,13 +46,13 @@ showcase-results create results
 Override the event name and year:
 
 ```bash
-showcase-results create results --event-name "Spring Invitational" --year 2025
+showcase-results create results --event-name "Spring Invitational" --event 2025
 ```
 
 Use alphanumeric year values for test events:
 
 ```bash
-showcase-results create results --event-name "Test Event" --year "2026T"
+showcase-results create results --event-name "Test Event" --event "2026T"
 ```
 
 Provide explicit file paths:

@@ -14,10 +14,10 @@ var eventNameOption = new Option<string>(
     "--event-name",
     () => "Showcase of Woodcarvings",
     "Name of the event");
-var yearOption = new Option<string>(
-    "--year",
+var eventOption = new Option<string>(
+    "--event",
     () => DateTime.Now.Year.ToString(),
-    "Year of the event");
+    "Event identifier (e.g. 2024, 2026T)");
 var competitorsOption = new Option<string>(
     "--competitors",
     () => Path.Join("data", "input", "Competitor.xlsx"),
@@ -42,7 +42,7 @@ var formatOption = new Option<string[]>(
 formatOption.AllowMultipleArgumentsPerToken = true;
 
 resultsCommand.AddOption(eventNameOption);
-resultsCommand.AddOption(yearOption);
+resultsCommand.AddOption(eventOption);
 resultsCommand.AddOption(competitorsOption);
 resultsCommand.AddOption(prizesOption);
 resultsCommand.AddOption(judgingOption);
@@ -52,7 +52,7 @@ resultsCommand.AddOption(formatOption);
 resultsCommand.SetHandler((InvocationContext ctx) =>
 {
     var eventName   = ctx.ParseResult.GetValueForOption(eventNameOption)!;
-    var year        = ctx.ParseResult.GetValueForOption(yearOption)!;
+    var eventId     = ctx.ParseResult.GetValueForOption(eventOption)!;
     var competitors = Path.GetFullPath(ctx.ParseResult.GetValueForOption(competitorsOption)!);
     var prizes      = Path.GetFullPath(ctx.ParseResult.GetValueForOption(prizesOption)!);
     var judging     = Path.GetFullPath(ctx.ParseResult.GetValueForOption(judgingOption)!);
@@ -61,7 +61,7 @@ resultsCommand.SetHandler((InvocationContext ctx) =>
         ctx.ParseResult.GetValueForOption(formatOption) ?? new[] { "html" },
         StringComparer.OrdinalIgnoreCase);
 
-    Console.WriteLine($"Parsing spreadsheets for {eventName} {year}...");
+    Console.WriteLine($"Parsing spreadsheets for {eventName} {eventId}...");
 
     var parser = new SpreadsheetParser(competitors, prizes, judging);
 
@@ -75,7 +75,7 @@ resultsCommand.SetHandler((InvocationContext ctx) =>
     Console.WriteLine($"  {competitorList.Count} competitors");
 
     var data = new ShowcaseResultsData(
-        new EventInfo(eventName, year),
+        new EventInfo(eventName, eventId),
         specialPrizes,
         overallResults,
         divisionResults,
@@ -99,7 +99,7 @@ resultsCommand.SetHandler((InvocationContext ctx) =>
             WriteIndented = true,
             PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower
         };
-        var jsonPath = Path.Join(outputDir, $"results-{data.Event.Year}.json");
+        var jsonPath = Path.Join(outputDir, $"results-{data.Event.EventId}.json");
         var json = JsonSerializer.Serialize(data, jsonOptions);
         File.WriteAllText(jsonPath, json, System.Text.Encoding.UTF8);
         Console.WriteLine($"\u2713 Wrote {jsonPath}");
@@ -123,7 +123,7 @@ var carverOutputOption = new Option<string?>(
     "Path for the output HTML file (default: output/carver-{id}.html)");
 
 carverArticleCommand.AddOption(eventNameOption);
-carverArticleCommand.AddOption(yearOption);
+carverArticleCommand.AddOption(eventOption);
 carverArticleCommand.AddOption(competitorsOption);
 carverArticleCommand.AddOption(prizesOption);
 carverArticleCommand.AddOption(judgingOption);
@@ -134,7 +134,7 @@ carverArticleCommand.AddOption(carverOutputOption);
 carverArticleCommand.SetHandler((InvocationContext ctx) =>
 {
     var eventName   = ctx.ParseResult.GetValueForOption(eventNameOption)!;
-    var year        = ctx.ParseResult.GetValueForOption(yearOption)!;
+    var eventId     = ctx.ParseResult.GetValueForOption(eventOption)!;
     var competitors = Path.GetFullPath(ctx.ParseResult.GetValueForOption(competitorsOption)!);
     var prizes      = Path.GetFullPath(ctx.ParseResult.GetValueForOption(prizesOption)!);
     var judging     = Path.GetFullPath(ctx.ParseResult.GetValueForOption(judgingOption)!);
@@ -149,7 +149,7 @@ carverArticleCommand.SetHandler((InvocationContext ctx) =>
         return;
     }
 
-    Console.WriteLine($"Parsing spreadsheets for {eventName} {year}...");
+    Console.WriteLine($"Parsing spreadsheets for {eventName} {eventId}...");
 
     var parser = new SpreadsheetParser(competitors, prizes, judging);
 
@@ -158,7 +158,7 @@ carverArticleCommand.SetHandler((InvocationContext ctx) =>
     var (overallResults, divisionResults) = parser.ParseJudging();
 
     var data = new ShowcaseResultsData(
-        new EventInfo(eventName, year),
+        new EventInfo(eventName, eventId),
         specialPrizes,
         overallResults,
         divisionResults,

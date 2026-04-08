@@ -18,7 +18,7 @@ use Mlinnen\Component\ShowcaseResults\Site\Service\ResultsService;
  * HTML view for the Carvers list
  *
  * Accepts query parameters:
- * - year: Event year to filter by (shows year selector if omitted)
+ * - event: Event to filter by (shows event selector if omitted)
  *
  * @since 1.0.0
  */
@@ -42,22 +42,22 @@ class HtmlView extends BaseHtmlView
     {
         $app   = Factory::getApplication();
         $input = $app->input;
-        $year  = $input->getString('year', '');
+        $event  = $input->getString('event', '');
 
         $service = new ResultsService();
 
-        if ($year === '')
+        if ($event === '')
         {
-            // No year supplied — pass available years so template can render selector
+            // No event supplied — pass available events so template can render selector
             $this->carversData = [
-                'no_year'         => true,
-                'available_years' => $service->getAvailableYears(),
+                'no_event'         => true,
+                'available_events' => $service->getAvailableEvents(),
             ];
             $this->document->setTitle('Carvers List');
         }
         else
         {
-            $this->carversData = $service->getCarversList($year);
+            $this->carversData = $service->getCarversList($event);
 
             if (!empty($this->carversData['event_name']))
             {

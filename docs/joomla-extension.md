@@ -74,15 +74,15 @@ The **Carvers List** displays all competitors for a specific event year in a tab
 2. Enter a menu title (e.g., "2024 Carvers")
 3. Click **Select** next to Menu Item Type
 4. Choose **Showcase Results → Carvers List**
-5. Under **Menu Item** tab, set the **Year** parameter:
+5. Under **Menu Item** tab, set the **Event** parameter:
    - Enter `2024` (or your event year)
    - This filters the list to that year only
 6. Click **Save & Close**
 
-**If you leave Year blank:**
-- Visitors see a **year-selector dropdown** instead
-- They choose the year, then view the carvers list
-- Useful if your site covers multiple years
+**If you leave Event blank:**
+- Visitors see a **event-selector dropdown** instead
+- They choose the event, then view the carvers list
+- Useful if your site covers multiple events
 
 ### View 2: Carver Detail (Per-Carver Results)
 
@@ -96,7 +96,7 @@ The **Carver Detail** view shows results for a single carver.
 2. Enter a menu title (e.g., "Search Carver")
 3. Click **Select** next to Menu Item Type
 4. Choose **Showcase Results → Carver Results**
-5. Leave the **name**, **carver_id**, and **year** parameters blank
+5. Leave the **name**, **carver_id**, and **event** parameters blank
    - This lets the page work as a general search/lookup
    - Visitors can enter a carver's name or use URL parameters (see reference below)
 6. Click **Save & Close**
@@ -109,35 +109,35 @@ Visitors and developers can use URL parameters to navigate directly to results. 
 
 | Parameter | Required | Description | Example |
 |-----------|----------|-------------|---------|
-| `year` | No | Event year to display | `?view=carvers&year=2024` |
+| `event` | No | Event identifier to display | `?view=carvers&event=2024` |
 
-**If year is omitted:** Shows a year-selector dropdown listing all available years.
+**If event is omitted:** Shows a event-selector dropdown listing all available years.
 
-**URL example:** `https://yoursite.com/carvers?year=2024`
+**URL example:** `https://yoursite.com/carvers?event=2024`
 
 ### Carver Detail View (`?view=carver`)
 
 | Parameter | Required | Description | Example |
 |-----------|----------|-------------|---------|
 | `name` | No | Carver's full name; searches across all events | `?view=carver&name=John+Doe` |
-| `name` + `year` | No | Carver's name for a specific year only | `?view=carver&name=John+Doe&year=2024` |
-| `carver_id` | No | Carver's per-event ID; **must pair with year** | `?view=carver&carver_id=16&year=2024` |
+| `name` + `event` | No | Carver's name for a specific event only | `?view=carver&name=John+Doe&event=2024` |
+| `carver_id` | No | Carver's per-event ID; **must pair with event** | `?view=carver&carver_id=16&event=2024` |
 
 **Important:** `carver_id` is **per-event only** (privacy-respecting design):
 - A carver with ID 16 in 2024 might be ID 22 in 2023
-- Always include the year when using `carver_id`
-- Without a year, the page returns a friendly error
+- Always include the event when using `carver_id`
+- Without an event, the page returns a friendly error
 
 **Cross-event search (by name):**
 - `?view=carver&name=Jane+Doe` — Shows Jane's results across all events, sorted by year (newest first)
 
-**Single-year search:**
-- `?view=carver&name=Jane+Doe&year=2024` — Shows Jane's 2024 results only
+**Single-event search:**
+- `?view=carver&name=Jane+Doe&event=2024` — Shows Jane's 2024 results only
 
 **URL examples:**
 - `https://yoursite.com/search-carver?name=Jane+Doe` — Cross-event search
-- `https://yoursite.com/search-carver?name=Jane+Doe&year=2024` — Single year
-- `https://yoursite.com/search-carver?carver_id=16&year=2024` — By carver ID
+- `https://yoursite.com/search-carver?name=Jane+Doe&event=2024` — Single year
+- `https://yoursite.com/search-carver?carver_id=16&event=2024` — By carver ID
 
 ## JSON Data File Format
 
@@ -251,7 +251,7 @@ This generates `output/results-2024.json`. Upload it to `media/com_showcaseresul
 
 ## Troubleshooting
 
-### Symptom: "No data available for 2024. Available years: none."
+### Symptom: "No data available for 2024. Available events: none."
 
 **Likely Cause:** JSON file is not at the correct location.
 
@@ -288,10 +288,10 @@ This generates `output/results-2024.json`. Upload it to `media/com_showcaseresul
 
 ### Symptom: URL with `?carver_id=16` returns an error
 
-**Likely Cause:** Missing the `year` parameter.
+**Likely Cause:** Missing the `event` parameter.
 
 **Fix:**
-- Always include `year` when using `carver_id`: `?view=carver&carver_id=16&year=2024`
+- Always include `event` when using `carver_id`: `?view=carver&carver_id=16&event=2024`
 - The `carver_id` is unique only within a single event (privacy-respecting design)
 
 ### Symptom: Malformed JSON file (syntax error) silently ignored

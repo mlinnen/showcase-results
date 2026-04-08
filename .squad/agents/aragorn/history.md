@@ -86,3 +86,21 @@ Re-validation after fixes: ✅ ALL 4 FAILURES RESOLVED
 - Verdict: APPROVED FOR PRODUCTION
 
 Ready for commit to main branch.
+
+## Learnings
+
+### Test File Locations and Year→Event Rename Pattern (2026-04-01)
+
+**Test files in this repo** (no C# xUnit/NUnit test projects exist; all tests are manual test plans in `docs/`):
+- `docs/test-plan-issue-7.md` — 28-case manual test plan for the Joomla carver results component
+- `docs/test-plan-carvers-list.md` — 19-case manual test plan for the carvers list view
+- `docs/test-data-spec.md` — test data specification (JSON structure, not executable tests)
+
+**Rename pattern applied: `year` parameter → `event` parameter**
+- URL query params: `?year=2024` → `?event=2024` and `&year=2024` → `&event=2024`
+- Applied across all test step "Navigate to" instructions and link format examples
+- Updated error message expectations: `"Year must be a valid number."` → `"Event must be a valid number."`
+- Updated test case section headers: e.g., "No Year Parameter — Year Selector Shown" → "No Event Parameter — Event Selector Shown"
+- NOT changed: data model field references (`"year": 2024` in JSON schema), data concept uses ("single-year carver", "multiple years coexist"), or PHP method names
+- No C# test files or `--year` CLI flag references found in the test plan docs
+- No `dotnet test` run needed — no executable test projects exist in the solution

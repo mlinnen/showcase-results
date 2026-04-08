@@ -8,10 +8,10 @@
     <fields name="request">
         <fieldset name="request">
             <field
-                name="year"
+                name="event"
                 type="text"
-                label="COM_SHOWCASERESULTS_FIELD_YEAR_LABEL"
-                description="COM_SHOWCASERESULTS_FIELD_YEAR_DESC"
+                label="COM_SHOWCASERESULTS_FIELD_EVENT_LABEL"
+                description="COM_SHOWCASERESULTS_FIELD_EVENT_DESC"
             />
         </fieldset>
     </fields>

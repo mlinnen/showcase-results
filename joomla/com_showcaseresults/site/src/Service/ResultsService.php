@@ -47,28 +47,28 @@ class ResultsService
      *
      * @param   string  $name       Carver name (first + last)
      * @param   int     $carver_id  Per-event carver identifier
-     * @param   string  $year       Event year
+     * @param   string  $event      Event identifier
      *
      * @return  array   Lookup results
      */
-    public function lookup(string $name = '', int $carver_id = 0, string $year = ''): array
+    public function lookup(string $name = '', int $carver_id = 0, string $event = ''): array
     {
         // Mode 1: Name cross-event
-        if (!empty($name) && $year === '')
+        if (!empty($name) && $event === '')
         {
             return $this->lookupByName($name);
         }
 
         // Mode 2: Name single-event
-        if (!empty($name) && !empty($year))
+        if (!empty($name) && !empty($event))
         {
-            return $this->lookupByNameAndYear($name, $year);
+            return $this->lookupByNameAndEvent($name, $event);
         }
 
         // Mode 3: ID single-event
-        if ($carver_id > 0 && !empty($year))
+        if ($carver_id > 0 && !empty($event))
         {
-            return $this->lookupByCarverIdAndYear($carver_id, $year);
+            return $this->lookupByCarverIdAndEvent($carver_id, $event);
         }
 
         // Should not reach here due to validation in HtmlView
@@ -173,24 +173,24 @@ class ResultsService
      * Scan one results file for a name (single-event)
      *
      * @param   string  $name  Carver name (first + last)
-     * @param   string  $year  Event year
+     * @param   string  $event  Event identifier
      *
      * @return  array   Results for the specified event
      */
-    private function lookupByNameAndYear(string $name, string $year): array
+    private function lookupByNameAndEvent(string $name, string $event): array
     {
-        $filepath = $this->dataPath . '/results-' . $year . '.json';
+        $filepath = $this->dataPath . '/results-' . $event . '.json';
 
         if (!file_exists($filepath))
         {
-            // Get available years
-            $availableYears = $this->getAvailableYears();
-            $yearsList = empty($availableYears) ? 'none' : implode(', ', $availableYears);
+            // Get available events
+            $availableEvents = $this->getAvailableEvents();
+            $eventsList = empty($availableEvents) ? 'none' : implode(', ', $availableEvents);
 
             return [
-                'error' => 'year_not_found',
-                'error_message' => "No data available for {$year}. Available years: {$yearsList}.",
-                'search_year' => $year,
+                'error' => 'event_not_found',
+                'error_message' => "No data available for {$event}. Available events: {$eventsList}.",
+                'search_event' => $event,
                 'results' => []
             ];
         }
@@ -201,8 +201,8 @@ class ResultsService
         {
             return [
                 'error' => 'data_load_error',
-                'error_message' => "Data for {$year} is temporarily unavailable.",
-                'search_year' => $year,
+                'error_message' => "Data for {$event} is temporarily unavailable.",
+                'search_event' => $event,
                 'results' => []
             ];
         }
@@ -213,10 +213,10 @@ class ResultsService
         if ($carverId === null)
         {
             return [
-                'error' => 'name_not_found_in_year',
-                'error_message' => "No results found for '{$name}' in {$year}. They may have competed in a different year.",
+                'error' => 'name_not_found_in_event',
+                'error_message' => "No results found for '{$name}' in {$event}. They may have competed in a different event.",
                 'search_name' => $name,
-                'search_year' => $year,
+                'search_event' => $event,
                 'results' => []
             ];
         }
@@ -246,9 +246,9 @@ class ResultsService
         {
             return [
                 'error' => 'no_results_for_carver',
-                'error_message' => "{$carverName} is a registered competitor in {$year} but has no recorded results.",
+                'error_message' => "{$carverName} is a registered competitor in {$event} but has no recorded results.",
                 'carver_name' => $carverName,
-                'search_year' => $year,
+                'search_event' => $event,
                 'results' => []
             ];
         }
@@ -272,24 +272,24 @@ class ResultsService
      * Scan one results file for a carver_id (single-event only)
      *
      * @param   int     $carver_id  Per-event carver identifier
-     * @param   string  $year       Event year
+     * @param   string  $event      Event identifier
      *
      * @return  array   Results for the specified carver
      */
-    private function lookupByCarverIdAndYear(int $carver_id, string $year): array
+    private function lookupByCarverIdAndEvent(int $carver_id, string $event): array
     {
-        $filepath = $this->dataPath . '/results-' . $year . '.json';
+        $filepath = $this->dataPath . '/results-' . $event . '.json';
 
         if (!file_exists($filepath))
         {
-            // Get available years
-            $availableYears = $this->getAvailableYears();
-            $yearsList = empty($availableYears) ? 'none' : implode(', ', $availableYears);
+            // Get available events
+            $availableEvents = $this->getAvailableEvents();
+            $eventsList = empty($availableEvents) ? 'none' : implode(', ', $availableEvents);
 
             return [
-                'error' => 'year_not_found',
-                'error_message' => "No data available for {$year}. Available years: {$yearsList}.",
-                'search_year' => $year,
+                'error' => 'event_not_found',
+                'error_message' => "No data available for {$event}. Available events: {$eventsList}.",
+                'search_event' => $event,
                 'results' => []
             ];
         }
@@ -300,8 +300,8 @@ class ResultsService
         {
             return [
                 'error' => 'data_load_error',
-                'error_message' => "Data for {$year} is temporarily unavailable.",
-                'search_year' => $year,
+                'error_message' => "Data for {$event} is temporarily unavailable.",
+                'search_event' => $event,
                 'results' => []
             ];
         }
@@ -326,9 +326,9 @@ class ResultsService
         {
             return [
                 'error' => 'carver_id_not_found',
-                'error_message' => "Carver #{$carver_id} was not found in the {$year} results.",
+                'error_message' => "Carver #{$carver_id} was not found in the {$event} results.",
                 'search_carver_id' => $carver_id,
-                'search_year' => $year,
+                'search_event' => $event,
                 'results' => []
             ];
         }
@@ -345,9 +345,9 @@ class ResultsService
         {
             return [
                 'error' => 'no_results_for_carver',
-                'error_message' => "{$carverName} is a registered competitor in {$year} but has no recorded results.",
+                'error_message' => "{$carverName} is a registered competitor in {$event} but has no recorded results.",
                 'carver_name' => $carverName,
-                'search_year' => $year,
+                'search_event' => $event,
                 'results' => []
             ];
         }
@@ -426,28 +426,28 @@ class ResultsService
     }
 
     /**
-     * Get list of all competitors for a given event year
+     * Get list of all competitors for a given event
      *
      * Returns an array with keys: event_name, event_year, carvers (sorted by last_name, first_name).
      * Each carver entry: carver_id, first_name, last_name, full_name, division.
      *
-     * @param   string  $year  Event year
+     * @param   string  $event  Event identifier
      *
-     * @return  array  Carvers list data, or error array if year/data unavailable
+     * @return  array  Carvers list data, or error array if event/data unavailable
      */
-    public function getCarversList(string $year): array
+    public function getCarversList(string $event): array
     {
-        $filepath = $this->dataPath . '/results-' . $year . '.json';
+        $filepath = $this->dataPath . '/results-' . $event . '.json';
 
         if (!file_exists($filepath))
         {
-            $availableYears = $this->getAvailableYears();
-            $yearsList = empty($availableYears) ? 'none' : implode(', ', $availableYears);
+            $availableEvents = $this->getAvailableEvents();
+            $eventsList = empty($availableEvents) ? 'none' : implode(', ', $availableEvents);
 
             return [
-                'error'         => 'year_not_found',
-                'error_message' => "No data available for {$year}. Available years: {$yearsList}.",
-                'search_year'   => $year,
+                'error'         => 'event_not_found',
+                'error_message' => "No data available for {$event}. Available events: {$eventsList}.",
+                'search_event'  => $event,
                 'carvers'       => [],
             ];
         }
@@ -458,8 +458,8 @@ class ResultsService
         {
             return [
                 'error'         => 'data_load_error',
-                'error_message' => "Data for {$year} is temporarily unavailable.",
-                'search_year'   => $year,
+                'error_message' => "Data for {$event} is temporarily unavailable.",
+                'search_event'  => $event,
                 'carvers'       => [],
             ];
         }
@@ -494,32 +494,32 @@ class ResultsService
 
         return [
             'event_name'  => $data['event']['name'] ?? '',
-            'event_year'  => $data['event']['year'] ?? $year,
+            'event_year'  => $data['event']['year'] ?? $event,
             'carvers'     => $carvers,
         ];
     }
 
     /**
-     * Get list of available years from results files
+     * Get list of available events from results files
      *
-     * @return  array  Array of years (strings), sorted descending
+     * @return  array  Array of event identifiers (strings), sorted descending
      */
-    public function getAvailableYears(): array
+    public function getAvailableEvents(): array
     {
         $files = $this->getResultsFiles();
-        $years = [];
+        $events = [];
 
         foreach ($files as $filepath)
         {
-            // Extract year from filename: results-2024.json or results-2026T.json -> 2024 or 2026T
+            // Extract event identifier from filename: results-2024.json or results-2026T.json -> 2024 or 2026T
             if (preg_match('/results-([a-zA-Z0-9]+)\.json$/', basename($filepath), $matches))
             {
-                $years[] = $matches[1];
+                $events[] = $matches[1];
             }
         }
 
-        rsort($years);
-        return $years;
+        rsort($events);
+        return $events;
     }
 
     /**

@@ -87,3 +87,21 @@ Implemented year-as-string at schema and data layers:
 - README.md: added alphanumeric year example
 
 Status: ✅ COMPLETED - Both tasks merged and validated.
+
+## Session: year→event Parameter Rename (current)
+
+**Task:** Rename the `year` CLI parameter/property to `event` throughout C# source and JSON schema.
+
+**Rename pattern:** `year` (parameter/property) → `event` / `EventId` / `eventId`
+
+**Files changed:**
+1. `src/ShowcaseResults.Cli/Models/Results.cs` — `EventInfo` record: `string Year` → `string EventId`
+2. `src/ShowcaseResults.Cli/Program.cs` — `yearOption` → `eventOption`; `--year` → `--event`; `var year` → `var eventId` (x2 handlers); `new EventInfo(eventName, year)` → `new EventInfo(eventName, eventId)` (x2); `data.Event.Year` → `data.Event.EventId` in filename construction
+3. `src/ShowcaseResults.Cli/Rendering/ArticleRenderer.cs` — `data.Event.Year` → `data.Event.EventId` (x3 string interpolations)
+4. `schema/results.schema.json` — `"required": ["name", "year"]` → `["name", "event"]`; `"year"` property key → `"event"`
+
+**No `data/` JSON files needed changes** — grep confirmed no `"year"` keys present in any data files.
+
+**Build result:** `dotnet build src\showcase-results.sln` — succeeded with 0 errors (2 pre-existing NuGet vulnerability warnings, unrelated).
+
+**Key constraint respected:** `DateTime.Now.Year.ToString()` left intact — that is a .NET system call, not the parameter name.

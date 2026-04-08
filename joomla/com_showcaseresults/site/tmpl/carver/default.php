@@ -54,8 +54,8 @@ function esc(string $str): string
                 <p>Search for a carver's results using one of these methods:</p>
                 <ul>
                     <li>By name: <code>?name=John+Doe</code></li>
-                    <li>By name and year: <code>?name=John+Doe&amp;year=2024</code></li>
-                    <li>By carver ID and year: <code>?carver_id=16&amp;year=2024</code></li>
+                    <li>By name and year: <code>?name=John+Doe&amp;event=2024</code></li>
+                    <li>By carver ID and year: <code>?carver_id=16&amp;event=2024</code></li>
                 </ul>
             </div>
         <?php else: ?>
@@ -68,10 +68,10 @@ function esc(string $str): string
         <?php
         // Determine subtitle based on query mode
         $app = Joomla\CMS\Factory::getApplication();
-        $year = $app->input->getString('year', '');
+        $event = $app->input->getString('event', '');
         $subtitle = '';
         
-        if (!empty($year) && count($this->carverData['results']) === 1)
+        if (!empty($event) && count($this->carverData['results']) === 1)
         {
             $event = $this->carverData['results'][0];
             $subtitle = 'Results for ' . esc($event['event_name']) . ' ' . $event['event_year'];

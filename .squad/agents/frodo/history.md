@@ -73,3 +73,30 @@ Implemented year-as-string throughout Joomla component:
 - Regex: updated getAvailableYears() to match alphanumeric filenames
 
 Status: ✅ COMPLETED - Both tasks merged and validated.
+
+## Learnings
+
+### Session: `year` → `event` parameter rename (2026-04-01)
+
+**Task:** Renamed the `year` URL query parameter to `event` across all Joomla extension files and documentation.
+
+**Files containing `year` parameter references (now updated to `event`):**
+
+**Joomla PHP/XML/INI:**
+- `site/src/View/Carver/HtmlView.php` — `getString('year')` → `getString('event')`, `$yearRaw` → `$eventRaw`, `$year` → `$event`, all return-array keys `'year'` → `'event'`, error codes `invalid_year`/`carver_id_requires_year` → `invalid_event`/`carver_id_requires_event`, function signature
+- `site/src/View/Carvers/HtmlView.php` — same getString/variable pattern; `'no_year'` → `'no_event'`, `'available_years'` → `'available_events'`, `getAvailableYears()` → `getAvailableEvents()`
+- `site/src/Service/ResultsService.php` — all method signatures (`$year` → `$event`), `lookupByNameAndYear` → `lookupByNameAndEvent`, `lookupByCarverIdAndYear` → `lookupByCarverIdAndEvent`, `getCarversList`, `getAvailableYears` → `getAvailableEvents`, error keys `year_not_found` → `event_not_found`, `search_year` → `search_event`, error messages
+- `site/tmpl/carver/default.php` — `getString('year')` → `getString('event')`, `$year` → `$event`, code examples `&amp;year=` → `&amp;event=`
+- `site/tmpl/carvers/default.php` — `no_year` → `no_event`, `available_years` → `available_events`, URL construction `&year=` → `&event=`, cast `(int)` → `escCarvers()` for string event values
+- `site/tmpl/carver/default.xml` — `name="year"` → `name="event"`, language key `FIELD_YEAR_*` → `FIELD_EVENT_*`
+- `site/tmpl/carvers/default.xml` — same XML field rename
+- `site/language/en-GB/com_showcaseresults.ini` — `FIELD_YEAR_LABEL/DESC` → `FIELD_EVENT_LABEL/DESC`
+
+**Documentation:**
+- `docs/joomla-extension.md` — all `?year=`/`&year=` URL examples, param table row, menu item instructions, error messages
+- `docs/test-plan-issue-7.md` — URL param examples in test steps, error messages, carver_id/year relationship tests
+- `docs/test-plan-carvers-list.md` — `?year=` URL params, "year selector" → "event selector", test case titles/criteria
+
+**README.md:** `--year` CLI flag → `--event`
+
+**NOT renamed (intentional):** `data['event']['year']` JSON field access, `event_year` data key in return arrays, `results-{year}.json` filename pattern references (filenames still use year values), prose descriptions of year as a concept, `cca-year-selector` CSS class.

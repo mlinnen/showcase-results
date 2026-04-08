@@ -22,11 +22,11 @@
   "properties": {
     "event": {
       "type": "object",
-      "required": ["name", "year"],
+      "required": ["name", "event"],
       "additionalProperties": false,
       "properties": {
         "name": { "type": "string", "minLength": 1 },
-        "year": { "type": "string", "pattern": "^[a-zA-Z0-9]+$" }
+        "event": { "type": "string", "pattern": "^[a-zA-Z0-9]+$" }
       }
     },
     "special_prizes": {

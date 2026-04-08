@@ -2,7 +2,7 @@
 
 ## Overview
 
-This test plan validates the **Carvers List View** for the com_showcaseresults Joomla component. The view displays all competitors from a given event year in a filterable list showing Carver ID, Carver Name (linked to detail view), and Division. The data is provided by `ResultsService::getCarversList(int $year)` and supports filtering by year query parameter (`?year=2024`).
+This test plan validates the **Carvers List View** for the com_showcaseresults Joomla component. The view displays all competitors from a given event year in a filterable list showing Carver ID, Carver Name (linked to detail view), and Division. The data is provided by `ResultsService::getCarversList(string $event)` and supports filtering by event query parameter (`?event=2024`).
 
 ## Prerequisites
 
@@ -40,10 +40,10 @@ This test plan validates the **Carvers List View** for the com_showcaseresults J
 
 ## Test Cases
 
-### 1. Happy Path — Year with Data, All Carvers Shown
+### 1. Happy Path — Event with Data, All Carvers Shown
 
 **Input:**
-- Navigate to carvers list view with query parameter: `?year=2024`
+- Navigate to carvers list view with query parameter: `?event=2024`
 
 **Expected Output:**
 - Page displays a list/table of all carvers from 2024
@@ -61,13 +61,13 @@ This test plan validates the **Carvers List View** for the com_showcaseresults J
 
 ---
 
-### 2. No Year Parameter — Year Selector Shown
+### 2. No Event Parameter — Event Selector Shown
 
 **Input:**
-- Navigate to carvers list view without year parameter (no `?year=...`)
+- Navigate to carvers list view without event parameter (no `?event=...`)
 
 **Expected Output:**
-- Page displays a year selector/dropdown or clickable list of available years
+- Page displays a event selector/dropdown or clickable list of available years
 - Shows all years with available data: 2023, 2024, 2025
 - Each year is a clickable link or selectable option
 
@@ -79,14 +79,14 @@ This test plan validates the **Carvers List View** for the com_showcaseresults J
 
 ---
 
-### 3. Invalid Year (Non-Numeric)
+### 3. Invalid Event (Non-Numeric)
 
 **Input:**
-- Navigate to carvers list view with invalid year: `?year=abc`
+- Navigate to carvers list view with invalid event: `?event=abc`
 
 **Expected Output:**
-- Error message displayed: "Year must be a valid number." (or similar user-friendly message)
-- Year selector shown as fallback
+- Error message displayed: "Event must be a valid number." (or similar user-friendly message)
+- event selector shown as fallback
 - No PHP errors or warnings in Joomla error log
 
 **Pass Criteria:**
@@ -97,27 +97,27 @@ This test plan validates the **Carvers List View** for the com_showcaseresults J
 
 ---
 
-### 4. Valid Year but No JSON File Exists
+### 4. Valid Event but No JSON File Exists
 
 **Input:**
-- Navigate to carvers list view with a valid year that has no data: `?year=2022`
+- Navigate to carvers list view with a valid event that has no data: `?event=2022`
 
 **Expected Output:**
-- Error message: "No data available for 2022. Available years: 2025, 2024, 2023." (lists actual available years)
-- Year selector shown with available years
+- Error message: "No data available for 2022. Available events: 2025, 2024, 2023." (lists actual available years)
+- event selector shown with available years
 - Users can click to select a year with data
 
 **Pass Criteria:**
 - [ ] Available years list is correct and in descending order
 - [ ] Message is user-friendly and helpful
-- [ ] Year selector links work
+- [ ] event selector links work
 
 ---
 
 ### 5. Carvers Sorted by Last Name Then First Name
 
 **Input:**
-- Navigate to `?year=2024`
+- Navigate to `?event=2024`
 - Examine the list order
 
 **Expected Output:**
@@ -140,7 +140,7 @@ This test plan validates the **Carvers List View** for the com_showcaseresults J
 ### 6. Carver with No Results Still Appears in List
 
 **Input:**
-- Navigate to `?year=2024`
+- Navigate to `?event=2024`
 - Look for carvers that exist in competitors array but have no special_prizes, overall_results, or division_results
 
 **Expected Output:**
@@ -158,7 +158,7 @@ This test plan validates the **Carvers List View** for the com_showcaseresults J
 ### 7. Division Shown Correctly for Each Carver
 
 **Input:**
-- Navigate to `?year=2024`
+- Navigate to `?event=2024`
 - Inspect division column for each test carver
 
 **Expected Output:**
@@ -178,18 +178,18 @@ This test plan validates the **Carvers List View** for the com_showcaseresults J
 ### 8. Carver Name Link Points to Correct Detail View URL
 
 **Input:**
-- Navigate to `?year=2024`
+- Navigate to `?event=2024`
 - Inspect href of Carver Name links, e.g., "Alice Brown"
 
 **Expected Output:**
-- Link format: `?view=carver&carver_id=1&year=2024` (for Carver 1)
-- Link format: `?view=carver&carver_id=2&year=2024` (for Carver 2)
+- Link format: `?view=carver&carver_id=1&event=2024` (for Carver 1)
+- Link format: `?view=carver&carver_id=2&event=2024` (for Carver 2)
 - Each carver's link includes correct carver_id and year
 
 **Pass Criteria:**
-- [ ] All carver name links follow format: `?view=carver&carver_id=X&year=2024`
+- [ ] All carver name links follow format: `?view=carver&carver_id=X&event=2024`
 - [ ] carver_id in URL matches the Carver ID shown in list
-- [ ] year in URL matches the current year being viewed
+- [ ] event in URL matches the current event being viewed
 - [ ] Clicking a link navigates to carver detail view
 
 ---
@@ -197,7 +197,7 @@ This test plan validates the **Carvers List View** for the com_showcaseresults J
 ### 9. HTML Escaping of Carver Names (XSS Prevention)
 
 **Input:**
-- Navigate to `?year=2024`
+- Navigate to `?event=2024`
 - Look for Carver 5: "Edward <b>Tagged</b>"
 - View page source (Ctrl+U or View > Source)
 
@@ -218,21 +218,21 @@ This test plan validates the **Carvers List View** for the com_showcaseresults J
 ### 10. Multiple Years Available — Links Work for Each Year
 
 **Input:**
-- Navigate to carvers list with no year parameter
-- Click year selector for 2023
-- Then click year selector for 2024
-- Then click year selector for 2025
+- Navigate to carvers list with no event parameter
+- Click event selector for 2023
+- Then click event selector for 2024
+- Then click event selector for 2025
 
 **Expected Output:**
-- Navigating to `?year=2023` shows all carvers from 2023 (including Grace Jackson)
-- Navigating to `?year=2024` shows all carvers from 2024 (including Alice Brown, Bob Smith, etc.)
-- Navigating to `?year=2025` shows all carvers from 2025
+- Navigating to `?event=2023` shows all carvers from 2023 (including Grace Jackson)
+- Navigating to `?event=2024` shows all carvers from 2024 (including Alice Brown, Bob Smith, etc.)
+- Navigating to `?event=2025` shows all carvers from 2025
 - Each year's list is independent and shows only that year's carvers
 
 **Pass Criteria:**
 - [ ] All three year links work correctly
 - [ ] Each year displays correct set of carvers
-- [ ] Year selector is always available/accessible
+- [ ] event selector is always available/accessible
 - [ ] URL updates to reflect selected year
 - [ ] No carvers from other years mixed into current year's list
 
@@ -245,11 +245,11 @@ This test plan validates the **Carvers List View** for the com_showcaseresults J
 **Setup:** Create `results-2026.json` with valid structure but empty competitors array.
 
 **Input:**
-- Navigate to `?year=2026`
+- Navigate to `?event=2026`
 
 **Expected Output:**
 - Message: "No competitors found for 2026." (or similar)
-- Year selector shown as fallback
+- event selector shown as fallback
 - No errors or crashes
 
 **Pass Criteria:**
@@ -259,43 +259,43 @@ This test plan validates the **Carvers List View** for the com_showcaseresults J
 
 ---
 
-### 12. Negative Year (Input Validation)
+### 12. Negative Event (Input Validation)
 
 **Input:**
-- Navigate to `?year=-2024`
+- Navigate to `?event=-2024`
 
 **Expected Output:**
-- Error: "Year must be a valid number." or "Invalid year."
-- Year selector shown
+- Error: "Event must be a valid number." or "Invalid event."
+- event selector shown
 
 **Pass Criteria:**
-- [ ] Negative years rejected
+- [ ] Negative event values rejected
 - [ ] Error message shown
 
 ---
 
-### 13. Year as Text (Input Validation)
+### 13. Event as Text (Input Validation)
 
 **Input:**
-- Navigate to `?year=twenty-twenty-four`
+- Navigate to `?event=twenty-twenty-four`
 
 **Expected Output:**
-- Error: "Year must be a valid number."
-- Year selector shown
+- Error: "Event must be a valid number."
+- event selector shown
 
 **Pass Criteria:**
-- [ ] Non-numeric years rejected
+- [ ] Non-alphanumeric event values rejected
 - [ ] User-friendly error message
 
 ---
 
-### 14. Very Large Year (Boundary Test)
+### 14. Very Large Event (Boundary Test)
 
 **Input:**
-- Navigate to `?year=999999`
+- Navigate to `?event=999999`
 
 **Expected Output:**
-- Error: "No data available for 999999. Available years: 2025, 2024, 2023." (since file doesn't exist)
+- Error: "No data available for 999999. Available events: 2025, 2024, 2023." (since file doesn't exist)
 - OR accepted if component allows arbitrary large years (year as integer is valid)
 
 **Pass Criteria:**
@@ -307,12 +307,12 @@ This test plan validates the **Carvers List View** for the com_showcaseresults J
 ### 15. Duplicate Carver Names Across Years
 
 **Input:**
-- Navigate to `?year=2024` and find Alice Brown (Carver 1)
-- Navigate to `?year=2023` and find Alice Brown (different Carver ID)
+- Navigate to `?event=2024` and find Alice Brown (Carver 1)
+- Navigate to `?event=2023` and find Alice Brown (different Carver ID)
 
 **Expected Output:**
-- 2024 Alice Brown links to `?view=carver&carver_id=1&year=2024`
-- 2023 Alice Brown links to `?view=carver&carver_id=1&year=2023` (same ID in both, or different if test data differs)
+- 2024 Alice Brown links to `?view=carver&carver_id=1&event=2024`
+- 2023 Alice Brown links to `?view=carver&carver_id=1&event=2023` (same ID in both, or different if test data differs)
 - Each year's Alice Brown displays only in that year's list
 - No mixing or confusion
 
@@ -326,7 +326,7 @@ This test plan validates the **Carvers List View** for the com_showcaseresults J
 ### 16. Special Characters in Division Name
 
 **Input:**
-- Navigate to `?year=2024`
+- Navigate to `?event=2024`
 - Check division column for special characters if test data includes them (e.g., "Youth & Beginner", "Advanced/Master")
 
 **Expected Output:**
@@ -343,7 +343,7 @@ This test plan validates the **Carvers List View** for the com_showcaseresults J
 ### 17. Very Long Carver Name
 
 **Input:**
-- Navigate to `?year=2024`
+- Navigate to `?event=2024`
 - If test data includes a long name, verify layout
 
 **Expected Output:**
@@ -367,7 +367,7 @@ This test plan validates the **Carvers List View** for the com_showcaseresults J
 
 **Expected Output:**
 - Error message: "No competition data is currently available. Please check back later." (or similar)
-- No year selector shown (no years to select)
+- No event selector shown (no years to select)
 - No technical errors or stack traces
 
 **Pass Criteria:**
@@ -403,7 +403,7 @@ This test plan validates the **Carvers List View** for the com_showcaseresults J
 - [ ] No JavaScript errors in browser console
 - [ ] XSS protection verified (HTML escaping works)
 - [ ] Carvers sorted correctly by last name, then first name
-- [ ] Year selector appears when no year parameter provided
+- [ ] Event selector appears when no event parameter provided
 - [ ] Error handling is user-friendly and informative
 - [ ] All carvers (including those with no results) appear in list
 - [ ] Links to carver detail view are correct
@@ -413,10 +413,10 @@ This test plan validates the **Carvers List View** for the com_showcaseresults J
 ## Testing Notes
 
 ### Test Execution Order
-1. Execute test 2 first (year selector) to verify data setup
-2. Execute tests 1, 5–10 for main functionality (with `?year=2024`)
+1. Execute test 2 first (event selector) to verify data setup
+2. Execute tests 1, 5–10 for main functionality (with `?event=2024`)
 3. Execute test 3–4 for error handling
-4. Execute test 10 for multi-year navigation
+4. Execute test 10 for multi-event navigation
 5. Execute edge cases (11–19) as applicable
 
 ### Browser Compatibility
