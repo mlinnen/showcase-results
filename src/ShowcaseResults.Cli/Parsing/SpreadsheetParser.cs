@@ -125,7 +125,8 @@ public class SpreadsheetParser
             .Select(r => new Competitor(
                 int.Parse(r["Carver ID"]!),
                 r.GetValueOrDefault("First Name")?.Trim() ?? "",
-                r.GetValueOrDefault("Last Name")?.Trim() ?? ""))
+                r.GetValueOrDefault("Last Name")?.Trim() ?? "",
+                NormalizeDivision(r.GetValueOrDefault("Division"))))
             .ToList();
     }
 
