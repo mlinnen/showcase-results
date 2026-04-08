@@ -19,3 +19,17 @@
 - **2026-03-25 — Issue #7 decomposition (Joomla dynamic component).** Decomposed issue #7 into 6 sub-issues (#8–#13): CLI JSON export (#8), Joomla scaffolding (#9), data layer (#10), view rendering (#11), error handling (#12), and test plan (#13). Key architectural decision: `carver_id` is per-event only (privacy), so `?name=` is the only cross-event lookup key. Dependency graph allows #8 (C#) and #9 (PHP scaffolding) to proceed in parallel. Separated data layer from view following MVC; isolated error handling to keep happy-path clean. Decision written to inbox.
 
 - **2026-03-26 — Year as String type (ADR-007, Issue #24).** Test events require alphanumeric year suffixes (e.g., `2026T`), so year must be a string everywhere: JSON schema, C# EventInfo, Joomla parameters. Security enforced via three-layer validation: HtmlView input check with `^[a-zA-Z0-9]+$` regex, JSON schema pattern constraint, and safe file path construction (`results-{year}.json`). Prevents path traversal and null-byte injection. Backward compatible: old numeric-only years still work (`2026`), new files output string format. Migration: update C# type `int Year` → `string Year`, add schema pattern, update Joomla is_numeric() to regex, update filename extraction regex from `\d{4}` to `[a-zA-Z0-9]+`. Decision in inbox/gandalf-year-as-string.md.
+
+## Session: Issue #24 — Year as String (2026-04-01)
+
+**Role:** Lead - Architecture Decision  
+**Task:** ADR-007 establishing alphanumeric year support  
+**Status:** ✅ COMPLETED - APPROVED FOR PRODUCTION
+
+Led architectural decision enabling year values to contain text (e.g., 2026T for test events). Coordinated full stack implementation:
+- JSON schema: year type string with pattern constraint
+- C# model: EventInfo.Year int → string
+- Joomla: all year parameters use getString()
+- Data files: updated to string format
+
+Decision documented in decisions.md ADR-007 entry.

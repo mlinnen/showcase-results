@@ -6,106 +6,19 @@
 - **Role:** Content Builder
 - **Joined:** 2026-03-23T01:57:14.727Z
 
-## Learnings
+## Core Context (Summarized)
 
-### Schema Approved, Parser Complete (2026-03-23T02:33:36Z)
-- **Status:** Unblocked. Parser complete, data/output/results.json ready.
-- **Schema:** ADR-002 approved. 33 special prizes, 2 overall results, 3 divisions, 37 competitors. No ribbon concept — uses 1st/2nd/3rd place rankings.
-- **Data Quality:** One note: Carver 16 (Erik Mitchell) has entry_number = 0 for Novice "21 Busts N"; win omitted from output.
-- **Next:** Build output/article.html from results.json per ADR-002 constraints (sections: special prizes, overall results, division results).
+**Early project phase (2026-03-23):** Rendered carving competition results into HTML article format per ADR-002 spec. Created Node.js renderer (`src/render/index.js`) producing semantic HTML with three sections (special prizes, overall results, division results). Entry numbers formatted as `<span class="cca-entry">(#N)</span>`, with proper null/zero handling. Joomla compliance verified: no HTML wrappers, inline styles, or scripts.
 
-### Article Built (2026-03-23)
-- **Status:** Complete. `output/article.html` generated (1190 lines). `src/render/index.js` written as reproducible Node.js renderer.
-- **Joomla compliance verified:** No `<html>/<head>/<body>` wrappers, no inline `style=`, no `<script>` tags. Zero violations.
-- **Structure:** Three sections — Special Prizes table (33 rows, sorted by `order`), Overall Results table (2 categories), Division Results (3 divisions × awards + category sub-tables).
-- **Style handling:** `null` → empty cell (no "null" text); `N` → "Natural"; `P` → "Painted".
-- **Place cells:** Render as "Name (#entry)" using a `<span class="cca-entry">` for the entry number — keeps name and entry scannable without extra columns.
-- **Division layout:** Categories with `style: null` (Best Of awards) split into a compact 2-column "Division Awards" table; N/P categories go into a 5-column "Category Results" table. Prevents visual noise from empty Style cells on award rows.
-- **Missing places:** Empty `<td>` for 2nd/3rd when not present — no placeholder text, clean output.
-- **Pre-existing `article.ts`:** Placeholder TypeScript file left untouched; `index.js` is the new canonical renderer per the task spec.
+**Joomla component build phase (2026-03-25):** Scaffolded `com_showcaseresults` component with service providers, controllers, views, templates, and build script. Implemented three-mode data layer (ResultsService): (1) cross-event name lookup, (2) single-year name+year, (3) per-event carver_id (privacy-constrained). Full template rendering completed with ordinal() helper, error handling, security (esc() helper, path traversal prevention). Minor findings: year validation gap, subtitle escaping consistency (deferred).
 
-### Fix 2 — Title and Special Prizes Entry Format (2026-03-23)
-- **Status:** Fixed two renderer issues in `src/render/index.js`. Article regenerated.
-- **Title fix:** Removed duplicated year from title. Now uses `event.name` directly without appending `event.year`, allowing `event.name` to control the full event title (e.g., "CCA Showcase 2026").
-- **Special prizes entry format fix:** Changed entry numbers from bare text `#N` to `<span class="cca-entry">(#N)</span>`, matching the format used in category results tables. Entry number 0 or null/undefined renders as empty `<td></td>`.
-- **Spot-checks passed:** Title reads "Showcase of Woodcarvings — Showcase Results" (will read "CCA Showcase 2026 — Showcase Results" once JSON updated); special prizes table uses correct `<span class="cca-entry">(#N)</span>` format; no literal "null" text; no entry #0 displayed.
+**Feature expansion (2026-03-29):** Added carvers list view (year-filtered competitor table with division field, sorted by name). Extended ResultsService with getCarversList() method and promoted getAvailableYears() to public. Updated JSON schema with division field for competitors.
 
-### Division Results Table in Carver Article (2026-03-25)
-- **Status:** Complete. `RenderCarverArticle()` division results block changed from `<ul>/<li>` to a `<table>` per division.
-- **Table columns:** Category (name + style suffix when present), Place (e.g., "1st Place"), Entry # (entry number, empty when 0).
-- **CSS class:** `cca-carver-division-results` applied to each division table.
-- **Scope:** Only the carver article's division results block was modified — `RenderDivisionResults()` (main article), overall results, and special prizes were untouched.
-- **Build:** Passed with 0 errors (2 pre-existing NU1903 warnings only).
+## Issues Worked (Summarized)
 
-### Special Prizes Prize Column Enhancement (2026-03-23)
-- **Status:** Enhanced special prizes table with new Prize column. `renderSpecialPrizes()` updated, article regenerated.
-- **Table structure:** Column order now: Name | Prize | Winner | Entry (was: Prize | Winner | Entry). First column header changed from "Prize" to "Name" to reflect that it displays the award name (e.g., "Best of Show").
-- **Prize value formatting:** New Prize column (renders `p.prize` field) implements smart formatting: numeric strings (e.g., "450") render as dollar amounts ("$450"), non-numeric strings render as-is (e.g., "Lee S. Dukes Memorial Award Commemorative Plaque"), missing/null/empty values render as empty `<td></td>`.
-- **Verification passed:** Checked output/article.html — `<th>Name</th>` and `<th>Prize</th>` present in correct order, dollar amounts render correctly (e.g., $450, $250), non-numeric prizes display as plain text, regex pattern `/^\d+(\.\d{1,2})?$/` correctly identifies numeric values for currency formatting.
-
-### Joomla Component Scaffold (2026-03-25)
-- **Status:** Complete. Created `com_showcaseresults` Joomla component scaffold. PR #15 opened to dev.
-- **Files created:** 12 files — manifest XML, controller, view, template (placeholder), menu item XML, service providers (site/admin), language files (en-GB), media folder, build script.
-- **Structure:** `joomla/com_showcaseresults/` with site/, admin/, and media/ folders. Namespace `Mlinnen\Component\ShowcaseResults` registered.
-- **Query params:** View accepts `name`, `carver_id`, `year` parameters. Placeholder template displays them for testing.
-- **Build script:** `joomla/build.ps1` creates `com_showcaseresults.zip` (7.25 KB) — tested successfully.
-- **Placeholders:** Controller and view are minimal skeletons. Business logic (data loading) comes in #10, rendering enhancement in #11, error handling (carver_id without year) in #12.
-- **Joomla compliance:** Manifest compatible with Joomla 4.x and 5.x, PHP 8.1+ requirement, follows modern component structure with service providers and DI container registration.
-
-### Joomla Data Layer — ResultsService (2026-03-25)
-- **Status:** Complete. Implemented PHP ResultsService class. PR #16 opened to squad/9-joomla-scaffold.
-- **Files created:** `site/src/Service/ResultsService.php` (504 lines, 9 methods)
-- **Files updated:** `HtmlView.php` (instantiates service, sets page title), `default.php` (displays carverData with var_dump)
-- **Three lookup modes implemented:**
-  1. **Name cross-event:** `?name=John+Doe` — scans all results-*.json files, groups by event, sorts by year descending
-  2. **Name single-event:** `?name=John+Doe&year=2024` — scans one file
-  3. **ID single-event:** `?carver_id=16&year=2024` — scans one file
-- **Critical design constraint:** carver_id is per-event only (privacy feature) — CANNOT be used to correlate across events. Only name works cross-event.
-- **Edge cases handled:** carver_id without year (error), name not found (found=false), no JSON files (error=no_data), malformed JSON (skip with warning)
-- **Data path:** `JPATH_ROOT . '/media/com_showcaseresults/data'` (expects results-{year}.json from CLI JSON export)
-- **Return structure:** Array with carver_name, found flag, results array (event_name, event_year, special_prizes, overall_results, division_results)
-- **Helper methods:** loadResultsFile(), getResultsFiles(), extractCarverResults(), findCarverIdByName()
-- **Template rendering:** Raw var_dump for now — real HTML rendering comes in #11
-- **Next:** Issue #11 will replace var_dump with proper HTML table rendering matching the Node.js article renderer's style
-
-### Joomla Template Rendering — Issue #11 (2026-03-25)
-- **Status:** Complete. Full HTML template rendering implemented in default.php. PR #17 opened to squad/10-data-layer.
-- **File modified:** `site/tmpl/carver/default.php` (157 lines added, 13 removed)
-- **ordinal() helper:** Inline function converts place numbers to ordinal text (1st, 2nd, 3rd, 4th...). Handles edge cases: 11th, 12th, 13th (not 11st, 12nd, 13rd).
-- **Data structure from HtmlView:** Template receives `$this->carverData` with keys: carver_name (string), found (bool), error (optional), results (array of event records)
-- **Event record shape:** event_name, event_year, special_prizes (array), overall_results (array with category + places), division_results (array with division + categories array, each category has name, style, places)
-- **Template structure:**
-  - **Page header (cca-carver-header):** Carver name + subtitle (cross-event vs single-event)
-  - **Event sections (cca-event-section):** One per event, already sorted by year descending via ResultsService
-  - **Special Prizes (cca-special-prizes):** 3-column table (Award, Prize, Entry #)
-  - **Overall Results (cca-overall-results):** 3-column table (Category, Place, Entry #)
-  - **Division Results (cca-division-results):** One table per division, 4-column (Category, Style, Place, Entry #)
-- **Empty handling:** Sections with no data are completely skipped (no empty tables rendered)
-- **Entry numbers:** 0 or null render as empty `<td></td>` (no text)
-- **Style values:** N → "Natural", P → "Painted", null → empty cell
-- **Semantic HTML:** Uses `<section>`, `<table>`, `<thead>`, `<tbody>`, `<h1>`-`<h4>` tags. No inline styles, no CSS frameworks, no Joomla article wrappers.
-- **CSS classes:** All use cca-* prefix per team conventions
-- **Subtitle logic:** Single-event (year param present) shows "Results for {Event Name} {Year}", cross-event shows "Results across all events"
-- **Next:** Issue #12 will add error handling and edge cases; issue #13 will add testing/verification
-
-### Joomla Error Handling — Issue #12 (2026-03-25)
-- **Status:** Complete. Comprehensive error handling and parameter validation. PR #18 opened to squad/11-template-rendering.
-- **Files modified:** `HtmlView.php` (added validateParameters() method, 122 lines), `ResultsService.php` (enhanced error messages, added getAvailableYears()), `default.php` (error display logic, esc() helper)
-- **Parameter validation (HtmlView):** No parameters → usage instructions; non-numeric carver_id/year → friendly errors; carver_id without year → "A year is required..." (explains privacy constraint); name + carver_id → name takes precedence
-- **Not-found states (ResultsService):** Name not found cross-event, name not found in year, carver_id not found, registered but zero results — all with contextual, helpful messages
-- **Data file errors:** No files, year missing (shows available years via getAvailableYears()), malformed JSON (graceful handling)
-- **Security:** HTML escaping via esc() helper using ENT_QUOTES|ENT_HTML5; year validated numeric BEFORE path construction (path traversal prevention)
-- **Error display:** `<div class="cca-usage">` for no-params (instructional), `<div class="cca-error">` for all others
-- **Next:** Issue #13 (testing and verification)
-
-### Carvers List View — Issue #22 (2026-03-29)
-- **Status:** Complete. New `carvers` (plural) view delivering a year-filtered list of all competitors.
-- **JSON updated:** Added `"division"` field to every competitor in `results-2024.json` and `results-2023.json`. Division derived from first appearance in `division_results`. Carvers with no results receive `""`.
-- **ResultsService changes:** New public method `getCarversList(int $year): array` returns `event_name`, `event_year`, `carvers[]` (each with `carver_id`, `first_name`, `last_name`, `full_name`, `division`), sorted by last_name then first_name (case-insensitive). `getAvailableYears()` promoted from `private` to `public` (needed by HtmlView year-selector).
-- **New files:** `site/src/View/Carvers/HtmlView.php`, `site/tmpl/carvers/default.php`, `site/tmpl/carvers/default.xml`.
-- **Template:** Year-selector (`cca-year-selector`) when no year param; table (`cca-carvers-list`) with Carver ID, Name (linked to carver detail view via `Route::_()`), Division when year provided; error block (`cca-error`) on data failure.
-- **Build:** ZIP rebuilt successfully — 31 entries (was 28). All new files confirmed present.
-- **Naming note:** Template uses `escCarvers()` helper instead of `esc()` to avoid PHP global function collision if both carver templates ever end up in the same request scope.
+- **Issue #7 (Joomla component):** Scaffolded component, implemented data layer (ResultsService with 3 lookup modes), full HTML template rendering with ordinal() helper, error handling, security auditing. All 6 sub-issues (#8–#13) delivered across C#/PHP/JSON layers.
+- **Issue #22 (Carvers list view):** Extended schema with division field, implemented getCarversList() method, new CarversView and year-selector template, component ZIP rebuilt.
+- **Issue #24 (Year as string):** Updated all Joomla year parameters from integer to string, validation via alphanumeric regex `/^[a-zA-Z0-9]+$/`, XML fields changed from type="number" to type="text", Joomla regex updated to match alphanumeric filenames.
 
 ## Issue #7 — Feature Complete (2026-03-25T13:57:52Z)
 
@@ -137,38 +50,26 @@
 - **Build:** ZIP successfully regenerated (31 entries, all new files verified present)
 - **Next:** Ready for Aragorn's QA testing per test plan
 
-### Joomla Extension User Guide (2026-03-29)
+## Joomla Extension User Guide (2026-03-29)
 
 **Status:** ✅ COMPLETE. Markdown user guide written for non-technical Joomla admins.
 
 - **File:** `docs/joomla-extension.md` (12.0 KB)
-- **Sections covered:**
-  1. **Overview** — What the extension does (carvers list + carver detail views, JSON-based data loading)
-  2. **Installation** — 3-step process: download, upload via Joomla admin, verify
-  3. **Adding result data** — File location `media/com_showcaseresults/data/`, naming convention `results-{year}.json`, uploading, caching behavior
-  4. **Setting up menu items** — Step-by-step for Carvers List (with year param) and Carver Detail (blank params for search); year-selector fallback explained
-  5. **URL parameter reference** — Complete parameter tables for both views (cross-event search by name, single-year, carver_id+year), examples, privacy note on per-event carver_id
-  6. **JSON data file format** — Sample JSON structure with field annotations; link to schema/results.schema.json for full spec
-  7. **Generating JSON from spreadsheets** — References CLI tool, quick command example, feature list
-  8. **Troubleshooting** — 6 common issues (file path, cache, name mismatch, division blank, carver_id without year, malformed JSON) with symptoms, causes, fixes
-- **Tone & style:** Plain English, step-by-step where appropriate, headers/tables/code blocks, assumes Joomla basics but not extension knowledge
-- **Security coverage:** Parameter validation, path handling, caching (Joomla cache plugin warning), XSS context (HTML escaping)
-- **Cross-references:** CLI docs, schema, README.md, Joomla menu/extensions UI
+- **Sections covered:** Overview, Installation, Adding result data, Setting up menu items, URL parameter reference, JSON data file format, Generating JSON from spreadsheets, Troubleshooting
+- **Security coverage:** Parameter validation, path handling, caching, XSS context (HTML escaping)
 
-### Year Parameter Changed to String — Issue #24 (2026-03-29)
 
-**Status:** ✅ COMPLETE. All 5 files updated to support alphanumeric year values like "2026T".
+## Session: Issue #24 — Year as String (2026-04-01)
 
-- **Files modified:**
-  1. `site/src/View/Carvers/HtmlView.php` — Changed `getInt('year', 0)` to `getString('year', '')`, updated comparison from `$year === 0` to `$year === ''`
-  2. `site/src/View/Carver/HtmlView.php` — Updated validateParameters() to use alphanumeric regex `/^[a-zA-Z0-9]+$/` instead of `is_numeric()`, changed validation variable `$year` from int to string, updated error message to "Year must contain only letters and numbers.", updated all return statements to use `'year' => ''` instead of `'year' => 0`
-  3. `site/src/Service/ResultsService.php` — Changed method signature `lookup($name, $carver_id, $year)` parameter `$year` from `int` to `string`, updated comparisons from `$year === 0` to `$year === ''` and `$year > 0` to `!empty($year)`, changed `lookupByNameAndYear()` and `lookupByCarverIdAndYear()` signatures to accept `string $year`, updated `getCarversList()` to accept `string $year`, changed `getAvailableYears()` regex from `/results-(\d{4})\.json$/` to `/results-([a-zA-Z0-9]+)\.json$/`, removed int cast `(int) $matches[1]`, updated return type doc to "Array of years (strings)"
-  4. `site/tmpl/carvers/default.xml` — Changed year field type from `type="number"` to `type="text"`
-  5. `site/tmpl/carver/default.xml` — Changed year field type from `type="number"` to `type="text"`
-- **Security:** Alphanumeric regex prevents path traversal (no slashes, dots, or special chars allowed)
-- **Rationale:** Test events use year identifiers like "2026T" to distinguish from production events. Validating with alphanumeric pattern allows flexibility while maintaining security.
-- **Breaking change:** None — existing numeric years (e.g., "2024") still work; this is a compatible extension
+**Role:** Content Builder  
+**Task 1:** Joomla PHP/XML year string changes  
+**Task 2:** Fix missed getInt() in default.php
 
-### Year Integer Reference Fix in Carver Template (2026-03-30)
-- **Status:** ✅ COMPLETE. Fixed missed year getInt() references in `joomla/com_showcaseresults/site/tmpl/carver/default.php` (lines 71, 74). Line 71 changed from `getInt('year', 0)` to `getString('year', '')`, line 74 changed from `$year > 0` to `!empty($year)`. Aragorn's validation identified this location after Issue #24 conversion. Two-line surgical fix ensures subtitle logic uses string comparison consistently with rest of codebase.
+Implemented year-as-string throughout Joomla component:
+- ResultsService: year parameter int → string|null
+- HtmlView: validation uses preg_match() for alphanumeric
+- default.php: all year inputs getInt() → getString()
+- XML: carver/carvers menu fields type="number" → type="text"
+- Regex: updated getAvailableYears() to match alphanumeric filenames
 
+Status: ✅ COMPLETED - Both tasks merged and validated.

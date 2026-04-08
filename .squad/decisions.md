@@ -53,6 +53,9 @@ All 6 sub-issues (#8–#13) now complete. PR chain: #14 (CLI JSON), #15 (scaffol
 ### Joomla Component Structure (2026-03-25, Frodo)
 Issue #9 — com_showcaseresults scaffold created using modern Joomla 4.x/5.x structure. Namespace: `Mlinnen\Component\ShowcaseResults`. Service providers for site/admin with DI container registration. Query parameters: `name` (cross-event), `carver_id` (per-event, requires year), `year` (event year). Data path: media/com_showcaseresults/data (configurable, receives results-{year}.json from CLI). PHP 8.1+, no legacy compatibility. 12 files delivered: controllers, views, service providers, language files, menu config, build script, installable .zip. MVC separation enables issues #10 (data layer), #11 (view rendering), #12 (error handling) to proceed independently. PR #15: squad/9-joomla-scaffold → dev.
 
+### ADR-007 — Year as String Type (Issue #24) (2026-04-01, Gandalf)
+Architectural decision to support alphanumeric year values (not just integers). Enables test events marked with suffixes like `2026T`. Implementation: (1) JSON schema—year type changed from integer to string with pattern `^[a-zA-Z0-9]+$`; (2) C# EventInfo.Year—int → string; (3) CLI --year option—accepts Option<string>; (4) Joomla—all year inputs use getString(), validation uses preg_match() for alphanumeric check; (5) Joomla XML—type="number" → type="text" for year fields; (6) Data files—existing results-*.json year values updated to strings. Three-layer security: input validation (HtmlView), schema validation (pattern constraint), file path safety. Backward compatible with existing numeric years. Full stack tested and APPROVED for production.
+
 ## Governance
 - All meaningful changes require team consensus
 - Document architectural decisions here

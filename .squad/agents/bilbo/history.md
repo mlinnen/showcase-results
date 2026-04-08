@@ -72,3 +72,18 @@ Data quality issue discovered: 10 rows in Judging.xlsx have entry_number = 0. Of
 **Validation:** Built project successfully with `dotnet build src\ShowcaseResults.Cli\ShowcaseResults.Cli.csproj`
 
 - JSON year fields must be strings (alphanumeric: ^[a-zA-Z0-9]+$) per schema update, not integers
+
+## Session: Issue #24 — Year as String (2026-04-01)
+
+**Role:** Data Engineer  
+**Task 1:** JSON schema + C# model changes  
+**Task 2:** JSON data file updates + README
+
+Implemented year-as-string at schema and data layers:
+- schema/results.schema.json: year type → string with pattern validation
+- EventInfo.Year: int → string
+- CLI --year: Option<int> → Option<string>
+- output/*.json: updated all year values to strings
+- README.md: added alphanumeric year example
+
+Status: ✅ COMPLETED - Both tasks merged and validated.
