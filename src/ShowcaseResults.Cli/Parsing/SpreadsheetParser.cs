@@ -136,18 +136,19 @@ public class SpreadsheetParser
         return rows
             .Where(r =>
                 r.GetValueOrDefault("Name") != null &&
-                r.GetValueOrDefault("Carver") != null &&
-                r.GetValueOrDefault("Order") != null)
+                r.GetValueOrDefault("Order") != null &&
+                string.Equals(r.GetValueOrDefault("Assigned"), "TRUE", StringComparison.OrdinalIgnoreCase))
             .Select(r =>
             {
-                var carver = ParseCarver(r["Carver"]);
-                if (carver == null) return null;
+                if (!int.TryParse(r.GetValueOrDefault("Carver #"), out int carverId)) return null;
+                var winner = r.GetValueOrDefault("Carver Name")?.Trim();
+                if (string.IsNullOrEmpty(winner)) return null;
                 int.TryParse(r.GetValueOrDefault("Entry #"), out int entryNum);
                 return new SpecialPrize(
                     int.Parse(r["Order"]!),
                     r["Name"]!.Trim(),
-                    carver.Value.CarverId,
-                    carver.Value.Winner,
+                    carverId,
+                    winner,
                     entryNum,
                     r.GetValueOrDefault("Prize")?.Trim() ?? "");
             })
