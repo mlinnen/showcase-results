@@ -53,6 +53,9 @@ All 6 sub-issues (#8–#13) now complete. PR chain: #14 (CLI JSON), #15 (scaffol
 ### Joomla Component Structure (2026-03-25, Frodo)
 Issue #9 — com_showcaseresults scaffold created using modern Joomla 4.x/5.x structure. Namespace: `Mlinnen\Component\ShowcaseResults`. Service providers for site/admin with DI container registration. Query parameters: `name` (cross-event), `carver_id` (per-event, requires year), `year` (event year). Data path: media/com_showcaseresults/data (configurable, receives results-{year}.json from CLI). PHP 8.1+, no legacy compatibility. 12 files delivered: controllers, views, service providers, language files, menu config, build script, installable .zip. MVC separation enables issues #10 (data layer), #11 (view rendering), #12 (error handling) to proceed independently. PR #15: squad/9-joomla-scaffold → dev.
 
+### Solution File Organization (2026-03-26, Gandalf)
+Moved `showcase-results.sln` from repo root to `src/showcase-results.sln`. Updated project reference paths to be relative to the new location. Rationale: solution file co-located with source code; repo root reserved for repo-level concerns (docs, schema, data, output). Build verified: `dotnet build src/showcase-results.sln` succeeded with 0 errors.
+
 ## Governance
 - All meaningful changes require team consensus
 - Document architectural decisions here
