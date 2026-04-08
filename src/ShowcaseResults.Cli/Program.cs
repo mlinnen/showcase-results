@@ -101,7 +101,7 @@ resultsCommand.SetHandler((InvocationContext ctx) =>
         };
         var jsonPath = Path.Join(outputDir, $"results-{data.Event.EventId}.json");
         var json = JsonSerializer.Serialize(data, jsonOptions);
-        File.WriteAllText(jsonPath, json, System.Text.Encoding.UTF8);
+        File.WriteAllText(jsonPath, json, new System.Text.UTF8Encoding(false));
         Console.WriteLine($"\u2713 Wrote {jsonPath}");
     }
 });
