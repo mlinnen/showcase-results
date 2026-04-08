@@ -91,33 +91,18 @@ function esc(string $str): string
             <section class="cca-event-section">
                 <h2><?php echo esc($event['event_name']); ?> <?php echo $event['event_year']; ?></h2>
                 
-                <?php if (!empty($event['special_prizes'])): ?>
-                    <div class="cca-special-prizes">
-                        <h3>Special Prizes</h3>
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Award</th>
-                                    <th>Prize</th>
-                                    <th>Entry #</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php foreach ($event['special_prizes'] as $prize): ?>
-                                    <tr>
-                                        <td><?php echo esc($prize['award'] ?? ''); ?></td>
-                                        <td><?php echo esc($prize['prize'] ?? ''); ?></td>
-                                        <td>
-                                            <?php if (!empty($prize['entry_number']) && $prize['entry_number'] > 0): ?>
-                                                <?php echo esc($prize['entry_number']); ?>
-                                            <?php endif; ?>
-                                        </td>
-                                    </tr>
-                                <?php endforeach; ?>
-                            </tbody>
-                        </table>
-                    </div>
-                <?php endif; ?>
+                <?php
+                // Build entry_number → award name lookup from special prizes
+                $awardsByEntry = [];
+                foreach ($event['special_prizes'] as $prize)
+                {
+                    $entryNum = $prize['entry_number'] ?? 0;
+                    if ($entryNum > 0)
+                    {
+                        $awardsByEntry[$entryNum][] = $prize['name'] ?? '';
+                    }
+                }
+                ?>
                 
                 <?php if (!empty($event['overall_results'])): ?>
                     <div class="cca-overall-results">
@@ -128,19 +113,22 @@ function esc(string $str): string
                                     <th>Category</th>
                                     <th>Place</th>
                                     <th>Entry #</th>
+                                    <th>Award</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <?php foreach ($event['overall_results'] as $category): ?>
                                     <?php foreach ($category['places'] as $place): ?>
+                                        <?php $entryNum = $place['entry_number'] ?? 0; ?>
                                         <tr>
                                             <td><?php echo esc($category['category']); ?></td>
                                             <td><?php echo ordinal($place['place'] ?? 0); ?></td>
                                             <td>
-                                                <?php if (!empty($place['entry_number']) && $place['entry_number'] > 0): ?>
-                                                    <?php echo esc($place['entry_number']); ?>
+                                                <?php if ($entryNum > 0): ?>
+                                                    <?php echo esc($entryNum); ?>
                                                 <?php endif; ?>
                                             </td>
+                                            <td><?php echo esc(implode(', ', $awardsByEntry[$entryNum] ?? [])); ?></td>
                                         </tr>
                                     <?php endforeach; ?>
                                 <?php endforeach; ?>
@@ -161,11 +149,13 @@ function esc(string $str): string
                                         <th>Style</th>
                                         <th>Place</th>
                                         <th>Entry #</th>
+                                        <th>Award</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <?php foreach ($division['categories'] as $category): ?>
                                         <?php foreach ($category['places'] as $place): ?>
+                                            <?php $entryNum = $place['entry_number'] ?? 0; ?>
                                             <tr>
                                                 <td><?php echo esc($category['name']); ?></td>
                                                 <td>
@@ -179,10 +169,11 @@ function esc(string $str): string
                                                 </td>
                                                 <td><?php echo ordinal($place['place'] ?? 0); ?></td>
                                                 <td>
-                                                    <?php if (!empty($place['entry_number']) && $place['entry_number'] > 0): ?>
-                                                        <?php echo esc($place['entry_number']); ?>
+                                                    <?php if ($entryNum > 0): ?>
+                                                        <?php echo esc($entryNum); ?>
                                                     <?php endif; ?>
                                                 </td>
+                                                <td><?php echo esc(implode(', ', $awardsByEntry[$entryNum] ?? [])); ?></td>
                                             </tr>
                                         <?php endforeach; ?>
                                     <?php endforeach; ?>
