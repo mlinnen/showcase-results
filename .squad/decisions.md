@@ -55,6 +55,8 @@ Issue #9 — com_showcaseresults scaffold created using modern Joomla 4.x/5.x st
 
 ### ADR-007 — Year as String Type (Issue #24) (2026-04-01, Gandalf)
 Architectural decision to support alphanumeric year values (not just integers). Enables test events marked with suffixes like `2026T`. Implementation: (1) JSON schema—year type changed from integer to string with pattern `^[a-zA-Z0-9]+$`; (2) C# EventInfo.Year—int → string; (3) CLI --year option—accepts Option<string>; (4) Joomla—all year inputs use getString(), validation uses preg_match() for alphanumeric check; (5) Joomla XML—type="number" → type="text" for year fields; (6) Data files—existing results-*.json year values updated to strings. Three-layer security: input validation (HtmlView), schema validation (pattern constraint), file path safety. Backward compatible with existing numeric years. Full stack tested and APPROVED for production.
+### Solution File Organization (2026-03-26, Gandalf)
+Moved `showcase-results.sln` from repo root to `src/showcase-results.sln`. Updated project reference paths to be relative to the new location. Rationale: solution file co-located with source code; repo root reserved for repo-level concerns (docs, schema, data, output). Build verified: `dotnet build src/showcase-results.sln` succeeded with 0 errors.
 
 ## Governance
 - All meaningful changes require team consensus
