@@ -59,6 +59,7 @@ resultsCommand.SetHandler((InvocationContext ctx) =>
     var eventName   = ctx.ParseResult.GetValueForOption(eventNameOption)!;
     var eventId     = ctx.ParseResult.GetValueForOption(eventOption)!;
     var dataRoot    = ctx.ParseResult.GetValueForOption(dataRootOption);
+    dataRoot = string.IsNullOrWhiteSpace(dataRoot) ? null : dataRoot;
     var competitorsExplicit = ctx.ParseResult.GetValueForOption(competitorsOption);
     var prizesExplicit      = ctx.ParseResult.GetValueForOption(prizesOption);
     var judgingExplicit     = ctx.ParseResult.GetValueForOption(judgingOption);
@@ -136,7 +137,7 @@ var carverNameOption = new Option<string?>(
 var carverOutputOption = new Option<string?>(
     "--output",
     () => null,
-    "Path for the output HTML file (default: output/carver-{id}.html)");
+    "Path for the output HTML file (default: {data-root}/output/carver-{id}.html or output/carver-{id}.html)");
 
 carverArticleCommand.AddOption(eventNameOption);
 carverArticleCommand.AddOption(eventOption);
@@ -153,11 +154,12 @@ carverArticleCommand.SetHandler((InvocationContext ctx) =>
     var eventName   = ctx.ParseResult.GetValueForOption(eventNameOption)!;
     var eventId     = ctx.ParseResult.GetValueForOption(eventOption)!;
     var dataRoot    = ctx.ParseResult.GetValueForOption(dataRootOption);
+    dataRoot = string.IsNullOrWhiteSpace(dataRoot) ? null : dataRoot;
     var competitorsExplicit = ctx.ParseResult.GetValueForOption(competitorsOption);
     var prizesExplicit      = ctx.ParseResult.GetValueForOption(prizesOption);
     var judgingExplicit     = ctx.ParseResult.GetValueForOption(judgingOption);
     
-    var competitors = Path.GetFullPath(competitorsExplicit 
+    var competitors = Path.GetFullPath(competitorsExplicit
         ?? (dataRoot != null ? Path.Join(dataRoot, "input", "Competitor.xlsx") : Path.Join("data", "input", "Competitor.xlsx")));
     var prizes = Path.GetFullPath(prizesExplicit 
         ?? (dataRoot != null ? Path.Join(dataRoot, "input", "Prizes.xlsx") : Path.Join("data", "input", "Prizes.xlsx")));
