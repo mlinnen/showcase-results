@@ -89,6 +89,21 @@ Ready for commit to main branch.
 
 ## Learnings
 
+### PR #25 — --data-root Parameter Review (2026-04-01)
+
+**Reviewed:** `--data-root` parameter implementation in `src/ShowcaseResults.Cli/Program.cs`
+
+**Findings:**
+- **BUG 1:** Empty string or whitespace-only `--data-root` values are not validated. Empty string (`""`) resolves to `F:\cwc\showcase-results\input\...` instead of falling back to default `data\input\...`. Whitespace-only (`"   "`) resolves to invalid path `F:\cwc\showcase-results\   \input\...`.
+- **BUG 2:** Help text for `carverOutputOption` (line 139) does not mention `{data-root}` prefix. Help text says `"Path for the output HTML file (default: output/carver-{id}.html)"` but should say `"Path for the output HTML file (default: {data-root}/output/carver-{id}.html or output/carver-{id}.html)"` to match the pattern used for all other options.
+- **APPROVED:** Three-tier path resolution logic is correct for non-empty data-root values. Explicit paths always win. Trailing slashes handled correctly by `Path.Join()`. Relative data-root paths accepted. Option registration is correct (separate `carverOutputOption` vs `outputOption`, both using `--output` alias but on different commands).
+
+**Verdict:** REJECTED until bugs fixed.
+
+**Required fixes:**
+1. Add validation: `dataRoot = string.IsNullOrWhiteSpace(dataRoot) ? null : dataRoot;` after reading the option value (lines 61, 155) to normalize empty/whitespace to null.
+2. Update help text for `carverOutputOption` (line 139) to include `{data-root}` prefix pattern.
+
 ### Test File Locations and Year→Event Rename Pattern (2026-04-01)
 
 **Test files in this repo** (no C# xUnit/NUnit test projects exist; all tests are manual test plans in `docs/`):
@@ -104,3 +119,17 @@ Ready for commit to main branch.
 - NOT changed: data model field references (`"year": 2024` in JSON schema), data concept uses ("single-year carver", "multiple years coexist"), or PHP method names
 - No C# test files or `--year` CLI flag references found in the test plan docs
 - No `dotnet test` run needed — no executable test projects exist in the solution
+
+## Session: PR #25 — --data-root Parameter (Code Review) (2026-04-09)
+
+**Role:** Tester (Code Review)  
+**Task:** Review --data-root parameter implementation and identify issues
+
+**Review findings:**
+- 🐛 **BUG 1 — Empty/Whitespace Not Validated:** `--data-root ""` or `--data-root "   "` produces malformed paths; should normalize to null for fallback to defaults
+- 🐛 **BUG 2 — Incomplete Help Text:** carverOutputOption help text omits {data-root} prefix pattern; inconsistent with other options
+- ✅ **APPROVED:** Three-tier path resolution logic correct for non-empty values
+
+**Verdict:** REJECTED — Return to developer for fixes
+
+**Next:** Gandalf assigned to apply fixes
