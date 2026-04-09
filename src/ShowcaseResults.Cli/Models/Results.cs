@@ -2,7 +2,7 @@ namespace ShowcaseResults.Models;
 
 public record EventInfo(string Name, string EventId);
 
-public record PlaceEntry(int Place, int CarverId, string Winner, int EntryNumber);
+public record PlaceEntry(int Place, int CarverId, string Winner, int EntryNumber, string? Prize = null);
 
 public record SpecialPrize(int Order, string Name, int CarverId, string Winner, int EntryNumber, string Prize);
 

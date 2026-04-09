@@ -15,7 +15,8 @@
         "place":        { "type": "integer", "minimum": 1, "maximum": 3 },
         "carver_id":    { "type": "integer", "minimum": 1 },
         "winner":       { "type": "string", "minLength": 1 },
-        "entry_number": { "type": "integer", "minimum": 1 }
+        "entry_number": { "type": "integer", "minimum": 1 },
+        "prize":        { "type": ["string", "null"], "description": "Dollar amount or prize name for this placement (from judging sheet Prize column)" }
       }
     }
   },

@@ -162,7 +162,7 @@ public class SpreadsheetParser
                 if (!string.IsNullOrEmpty(c1Name))
                 {
                     if (int.TryParse(row.GetValueOrDefault("#"), out int en1) && en1 >= 1)
-                        places.Add(new PlaceEntry(1, c1Id, c1Name, en1));
+                        places.Add(new PlaceEntry(1, c1Id, c1Name, en1, row.GetValueOrDefault("Prize")?.Trim()));
                     else
                         Console.Error.WriteLine($"  WARN: skipping 1st place for \"{category}\" ({divisionRaw}) — entry# is {row.GetValueOrDefault("#")}");
                 }
@@ -174,7 +174,7 @@ public class SpreadsheetParser
                 if (!string.IsNullOrEmpty(c2Name))
                 {
                     if (int.TryParse(row.GetValueOrDefault("#_1"), out int en2) && en2 >= 1)
-                        places.Add(new PlaceEntry(2, c2Id, c2Name, en2));
+                        places.Add(new PlaceEntry(2, c2Id, c2Name, en2, row.GetValueOrDefault("Prize_1")?.Trim()));
                     else
                         Console.Error.WriteLine($"  WARN: skipping 2nd place for \"{category}\" ({divisionRaw}) — entry# is {row.GetValueOrDefault("#_1")}");
                 }
@@ -186,7 +186,7 @@ public class SpreadsheetParser
                 if (!string.IsNullOrEmpty(c3Name))
                 {
                     if (int.TryParse(row.GetValueOrDefault("#_2"), out int en3) && en3 >= 1)
-                        places.Add(new PlaceEntry(3, c3Id, c3Name, en3));
+                        places.Add(new PlaceEntry(3, c3Id, c3Name, en3, row.GetValueOrDefault("Prize_2")?.Trim()));
                     else
                         Console.Error.WriteLine($"  WARN: skipping 3rd place for \"{category}\" ({divisionRaw}) — entry# is {row.GetValueOrDefault("#_2")}");
                 }

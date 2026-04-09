@@ -99,7 +99,7 @@ function esc(string $str): string
                     $entryNum = $prize['entry_number'] ?? 0;
                     if ($entryNum > 0)
                     {
-                        $awardsByEntry[$entryNum][] = $prize['name'] ?? '';
+                        $awardsByEntry[$entryNum][] = $prize['prize'] ?? '';
                     }
                 }
                 ?>
@@ -113,7 +113,7 @@ function esc(string $str): string
                                     <th>Category</th>
                                     <th>Place</th>
                                     <th>Entry #</th>
-                                    <th>Award</th>
+                                    <th>Prize</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -149,7 +149,7 @@ function esc(string $str): string
                                         <th>Style</th>
                                         <th>Place</th>
                                         <th>Entry #</th>
-                                        <th>Award</th>
+                                        <th>Prize</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -173,7 +173,7 @@ function esc(string $str): string
                                                         <?php echo esc($entryNum); ?>
                                                     <?php endif; ?>
                                                 </td>
-                                                <td><?php echo esc(implode(', ', $awardsByEntry[$entryNum] ?? [])); ?></td>
+                                                <td><?php echo esc($place['prize'] ?? ''); ?></td>
                                             </tr>
                                         <?php endforeach; ?>
                                     <?php endforeach; ?>

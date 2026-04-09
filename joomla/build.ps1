@@ -14,8 +14,16 @@ if (Test-Path $outputZip) {
     Write-Host "Removed existing $outputZip" -ForegroundColor Yellow
 }
 
-# Create zip package
-Compress-Archive -Path $componentPath -DestinationPath $outputZip -Force
+# Create zip package (files at root, not nested in a subfolder)
+Add-Type -Assembly System.IO.Compression.FileSystem
+$fullComponentPath = (Resolve-Path $componentPath).Path
+$fullOutputZip = Join-Path (Get-Location) $outputZip
+[System.IO.Compression.ZipFile]::CreateFromDirectory(
+    $fullComponentPath,
+    $fullOutputZip,
+    [System.IO.Compression.CompressionLevel]::Optimal,
+    $false
+)
 
 if (Test-Path $outputZip) {
     $zipInfo = Get-Item $outputZip
