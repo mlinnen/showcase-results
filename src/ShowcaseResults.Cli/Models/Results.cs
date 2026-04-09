@@ -1,8 +1,8 @@
 namespace ShowcaseResults.Models;
 
-public record EventInfo(string Name, int Year);
+public record EventInfo(string Name, string EventId);
 
-public record PlaceEntry(int Place, int CarverId, string Winner, int EntryNumber);
+public record PlaceEntry(int Place, int CarverId, string Winner, int EntryNumber, string? Prize = null);
 
 public record SpecialPrize(int Order, string Name, int CarverId, string Winner, int EntryNumber, string Prize);
 
@@ -12,7 +12,7 @@ public record DivisionCategory(string Name, string? Style, List<PlaceEntry> Plac
 
 public record DivisionResult(string Division, List<DivisionCategory> Categories);
 
-public record Competitor(int CarverId, string FirstName, string LastName);
+public record Competitor(int CarverId, string FirstName, string LastName, string? Division);
 
 public record ShowcaseResultsData(
     EventInfo Event,

@@ -88,21 +88,6 @@ public class SpreadsheetParser
         return string.IsNullOrEmpty(text) ? null : text;
     }
 
-    /// <summary>
-    /// Parse "ID FirstName LastName" → (CarverId, Winner) or null.
-    /// </summary>
-    private static (int CarverId, string Winner)? ParseCarver(string? raw)
-    {
-        if (string.IsNullOrWhiteSpace(raw)) return null;
-        var s = raw.Trim();
-        var spaceIdx = s.IndexOf(' ');
-        if (spaceIdx == -1) return null;
-        if (!int.TryParse(s[..spaceIdx], out int carverId)) return null;
-        var winner = s[(spaceIdx + 1)..].Trim();
-        if (string.IsNullOrEmpty(winner)) return null;
-        return (carverId, winner);
-    }
-
     private static string? NormalizeStyle(string? val)
     {
         if (string.IsNullOrWhiteSpace(val)) return null;
@@ -125,7 +110,8 @@ public class SpreadsheetParser
             .Select(r => new Competitor(
                 int.Parse(r["Carver ID"]!),
                 r.GetValueOrDefault("First Name")?.Trim() ?? "",
-                r.GetValueOrDefault("Last Name")?.Trim() ?? ""))
+                r.GetValueOrDefault("Last Name")?.Trim() ?? "",
+                NormalizeDivision(r.GetValueOrDefault("Division"))))
             .ToList();
     }
 
@@ -135,18 +121,19 @@ public class SpreadsheetParser
         return rows
             .Where(r =>
                 r.GetValueOrDefault("Name") != null &&
-                r.GetValueOrDefault("Carver") != null &&
-                r.GetValueOrDefault("Order") != null)
+                r.GetValueOrDefault("Order") != null &&
+                string.Equals(r.GetValueOrDefault("Assigned"), "TRUE", StringComparison.OrdinalIgnoreCase))
             .Select(r =>
             {
-                var carver = ParseCarver(r["Carver"]);
-                if (carver == null) return null;
+                if (!int.TryParse(r.GetValueOrDefault("Carver #"), out int carverId)) return null;
+                var winner = r.GetValueOrDefault("Carver Name")?.Trim();
+                if (string.IsNullOrEmpty(winner)) return null;
                 int.TryParse(r.GetValueOrDefault("Entry #"), out int entryNum);
                 return new SpecialPrize(
                     int.Parse(r["Order"]!),
                     r["Name"]!.Trim(),
-                    carver.Value.CarverId,
-                    carver.Value.Winner,
+                    carverId,
+                    winner,
                     entryNum,
                     r.GetValueOrDefault("Prize")?.Trim() ?? "");
             })
@@ -166,38 +153,48 @@ public class SpreadsheetParser
         foreach (var row in rows)
         {
             var places = new List<PlaceEntry>();
+            var category = row.GetValueOrDefault("Category")?.Trim() ?? "";
+            var divisionRaw = row.GetValueOrDefault("Division");
 
-            var c1 = ParseCarver(row.GetValueOrDefault("1st"));
-            if (c1 != null)
+            if (int.TryParse(row.GetValueOrDefault("1st Carver Id"), out int c1Id))
             {
-                if (int.TryParse(row.GetValueOrDefault("#"), out int en1) && en1 >= 1)
-                    places.Add(new PlaceEntry(1, c1.Value.CarverId, c1.Value.Winner, en1));
-                else
-                    Console.Error.WriteLine($"  WARN: skipping 1st place for \"{row.GetValueOrDefault("Category")?.Trim()}\" ({row.GetValueOrDefault("Division")}) — entry# is {row.GetValueOrDefault("#")}");
+                var c1Name = row.GetValueOrDefault("1st Carver Name")?.Trim();
+                if (!string.IsNullOrEmpty(c1Name))
+                {
+                    if (int.TryParse(row.GetValueOrDefault("#"), out int en1) && en1 >= 1)
+                        places.Add(new PlaceEntry(1, c1Id, c1Name, en1, row.GetValueOrDefault("Prize")?.Trim()));
+                    else
+                        Console.Error.WriteLine($"  WARN: skipping 1st place for \"{category}\" ({divisionRaw}) — entry# is {row.GetValueOrDefault("#")}");
+                }
             }
 
-            var c2 = ParseCarver(row.GetValueOrDefault("2nd"));
-            if (c2 != null)
+            if (int.TryParse(row.GetValueOrDefault("2nd Carver Id"), out int c2Id))
             {
-                if (int.TryParse(row.GetValueOrDefault("#_1"), out int en2) && en2 >= 1)
-                    places.Add(new PlaceEntry(2, c2.Value.CarverId, c2.Value.Winner, en2));
-                else
-                    Console.Error.WriteLine($"  WARN: skipping 2nd place for \"{row.GetValueOrDefault("Category")?.Trim()}\" ({row.GetValueOrDefault("Division")}) — entry# is {row.GetValueOrDefault("#_1")}");
+                var c2Name = row.GetValueOrDefault("2nd Carver Name")?.Trim();
+                if (!string.IsNullOrEmpty(c2Name))
+                {
+                    if (int.TryParse(row.GetValueOrDefault("#_1"), out int en2) && en2 >= 1)
+                        places.Add(new PlaceEntry(2, c2Id, c2Name, en2, row.GetValueOrDefault("Prize_1")?.Trim()));
+                    else
+                        Console.Error.WriteLine($"  WARN: skipping 2nd place for \"{category}\" ({divisionRaw}) — entry# is {row.GetValueOrDefault("#_1")}");
+                }
             }
 
-            var c3 = ParseCarver(row.GetValueOrDefault("3rd"));
-            if (c3 != null)
+            if (int.TryParse(row.GetValueOrDefault("3rd Carver Id"), out int c3Id))
             {
-                if (int.TryParse(row.GetValueOrDefault("#_2"), out int en3) && en3 >= 1)
-                    places.Add(new PlaceEntry(3, c3.Value.CarverId, c3.Value.Winner, en3));
-                else
-                    Console.Error.WriteLine($"  WARN: skipping 3rd place for \"{row.GetValueOrDefault("Category")?.Trim()}\" ({row.GetValueOrDefault("Division")}) — entry# is {row.GetValueOrDefault("#_2")}");
+                var c3Name = row.GetValueOrDefault("3rd Carver Name")?.Trim();
+                if (!string.IsNullOrEmpty(c3Name))
+                {
+                    if (int.TryParse(row.GetValueOrDefault("#_2"), out int en3) && en3 >= 1)
+                        places.Add(new PlaceEntry(3, c3Id, c3Name, en3, row.GetValueOrDefault("Prize_2")?.Trim()));
+                    else
+                        Console.Error.WriteLine($"  WARN: skipping 3rd place for \"{category}\" ({divisionRaw}) — entry# is {row.GetValueOrDefault("#_2")}");
+                }
             }
 
             if (places.Count == 0) continue;
 
-            var category = row.GetValueOrDefault("Category")?.Trim() ?? "";
-            var division = NormalizeDivision(row.GetValueOrDefault("Division"));
+            var division = NormalizeDivision(divisionRaw);
             var style = NormalizeStyle(row.GetValueOrDefault("Style"));
 
             if (division == null)

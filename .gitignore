@@ -5,7 +5,7 @@ data/input/
 data/output/
 
 # Project: generated HTML output (re-created by CLI)
-output/article.html
+output/
 
 # Project: TypeScript build output
 dist/

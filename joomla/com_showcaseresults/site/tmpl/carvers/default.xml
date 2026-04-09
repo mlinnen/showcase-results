@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<metadata>
+    <layout title="COM_SHOWCASERESULTS_CARVERS_VIEW_TITLE">
+        <message>
+            <![CDATA[COM_SHOWCASERESULTS_CARVERS_VIEW_DESC]]>
+        </message>
+    </layout>
+    <fields name="request">
+        <fieldset name="request">
+            <field
+                name="event"
+                type="text"
+                label="COM_SHOWCASERESULTS_FIELD_EVENT_LABEL"
+                description="COM_SHOWCASERESULTS_FIELD_EVENT_DESC"
+            />
+        </fieldset>
+    </fields>
+</metadata>
