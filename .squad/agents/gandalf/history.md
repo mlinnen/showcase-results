@@ -10,6 +10,8 @@
 
 <!-- Append learnings below -->
 
+- **2026-04-08 — --data-root whitespace validation (PR #25 fixes).** Applied two critical fixes to PR #25 after Aragorn's review: (1) Added `dataRoot = string.IsNullOrWhiteSpace(dataRoot) ? null : dataRoot;` normalization to both command handlers (results and carver-article) immediately after reading the option value — prevents `--data-root ""` or `--data-root "   "` from producing malformed paths by ensuring whitespace values fall back to null/relative defaults. (2) Updated carverOutputOption help text from `"default: output/carver-{id}.html"` to `"default: {data-root}/output/carver-{id}.html or output/carver-{id}.html"` for consistency with other options. Build verified clean. Lesson: user-input strings need defensive normalization before path construction, and help text must document fallback behavior clearly.
+
 - **2026-04-08 — year → event parameter rename (full stack).** Renamed the `year`/`--year` parameter to `event`/`--event` across all components. Motivation: ADR-007 established alphanumeric event IDs (e.g., `2026T`), making "year" a misleading name. Changes: C# `EventInfo.Year` → `EventId`, CLI `--year` → `--event`, `ArticleRenderer` 3 interpolations, JSON schema `event.year` → `event.event`, 8 Joomla PHP/XML/INI files (URL params, vars, array keys, XML fields), 3 doc files + README, 29 URL param occurrences in test plans. Build: 0 errors. 19 files changed. Lesson: parameter naming should reflect semantics (event identity) not format assumption (calendar year).
 
 - **2026-03-26 — Solution file moved to src\ (sln-move).** Moved `showcase-results.sln` from repo root to `src\showcase-results.sln`. Updated the single project reference path inside the .sln from `src\ShowcaseResults.Cli\ShowcaseResults.Cli.csproj` → `ShowcaseResults.Cli\ShowcaseResults.Cli.csproj`. No other files (README, workflows, scripts) referenced the .sln path. Build verified clean: `dotnet build src\showcase-results.sln` — 0 errors. Lesson: always grep all file types before assuming a path is only referenced in one place.
@@ -37,3 +39,19 @@ Led architectural decision enabling year values to contain text (e.g., 2026T for
 - Data files: updated to string format
 
 Decision documented in decisions.md ADR-007 entry.
+
+## Session: PR #25 — --data-root Parameter (Bug Fixes) (2026-04-09)
+
+**Role:** Lead (Defect Resolution)  
+**Task:** Apply Aragorn's review fixes to PR #25
+
+**Fixes applied:**
+1. **Empty/Whitespace Normalization (Lines 61, 155):** Added `dataRoot = string.IsNullOrWhiteSpace(dataRoot) ? null : dataRoot;` in both handlers (results, carver-article) to normalize empty/whitespace values to null, ensuring fallback to original defaults
+2. **Help Text Update (Line 139):** Updated carverOutputOption help text from `"default: output/carver-{id}.html"` to `"default: {data-root}/output/carver-{id}.html or output/carver-{id}.html"` for consistency
+
+**Validation:**
+- Build: `dotnet build src\showcase-results.sln` — 0 errors
+- Changes: 2 code locations (normalization + help text)
+- Pushed: ✅ Ready for merge
+
+**Lesson:** User input strings need defensive normalization before path construction; help text must document fallback chain clearly
