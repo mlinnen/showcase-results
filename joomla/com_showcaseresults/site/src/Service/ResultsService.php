@@ -428,7 +428,7 @@ class ResultsService
     /**
      * Get list of all competitors for a given event
      *
-     * Returns an array with keys: event_name, event_year, carvers (sorted by last_name, first_name).
+     * Returns an array with keys: event_name, event_year, carvers (sorted by carver_id ascending).
      * Each carver entry: carver_id, first_name, last_name, full_name, division.
      *
      * @param   string  $event  Event identifier
@@ -480,16 +480,9 @@ class ResultsService
             ];
         }
 
-        // Sort by last_name, then first_name (case-insensitive)
+        // Sort by carver_id ascending
         usort($carvers, function (array $a, array $b): int {
-            $last = strcasecmp($a['last_name'], $b['last_name']);
-
-            if ($last !== 0)
-            {
-                return $last;
-            }
-
-            return strcasecmp($a['first_name'], $b['first_name']);
+            return $a['carver_id'] <=> $b['carver_id'];
         });
 
         return [
