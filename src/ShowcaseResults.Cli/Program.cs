@@ -106,7 +106,7 @@ resultsCommand.SetHandler((InvocationContext ctx) =>
         var renderer = new ArticleRenderer();
         var html = renderer.RenderArticle(data);
         File.WriteAllText(output, html, System.Text.Encoding.UTF8);
-        Console.WriteLine($"\u2713 Wrote {output}");
+        Console.WriteLine($"\u2713 Wrote {Path.GetRelativePath(Environment.CurrentDirectory, output)}");
     }
 
     if (formats.Contains("json"))
@@ -119,7 +119,7 @@ resultsCommand.SetHandler((InvocationContext ctx) =>
         var jsonPath = Path.Join(outputDir, $"results-{data.Event.EventId}.json");
         var json = JsonSerializer.Serialize(data, jsonOptions);
         File.WriteAllText(jsonPath, json, new System.Text.UTF8Encoding(false));
-        Console.WriteLine($"\u2713 Wrote {jsonPath}");
+        Console.WriteLine($"\u2713 Wrote {Path.GetRelativePath(Environment.CurrentDirectory, jsonPath)}");
     }
 });
 
@@ -214,7 +214,7 @@ carverArticleCommand.SetHandler((InvocationContext ctx) =>
     Directory.CreateDirectory(Path.GetDirectoryName(outFile)!);
     File.WriteAllText(outFile, result.Html, System.Text.Encoding.UTF8);
 
-    Console.WriteLine($"\u2713 Wrote {outFile}");
+    Console.WriteLine($"\u2713 Wrote {Path.GetRelativePath(Environment.CurrentDirectory, outFile)}");
 });
 
 createCommand.AddCommand(resultsCommand);
