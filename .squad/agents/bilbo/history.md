@@ -118,3 +118,31 @@ Status: ✅ COMPLETED - Both tasks merged and validated.
 **Change:** Improved `--format` description to: `"Output format(s): html writes the results article to the --output path; json writes results-{event}.json to the same directory (used by the Joomla data layer). Repeatable: --format html --format json"`
 
 **Build:** `dotnet build src\showcase-results.sln` — 0 errors, 2 pre-existing NuGet warnings (unchanged).
+
+## Session: --data-root Parameter (2026-04-01)
+
+**Task:** Add optional `--data-root` parameter to CLI for setting default input/output root paths.
+
+**Implementation:**
+- Added `--data-root` option (nullable string) to both `create results` and `create carver-article` commands
+- Changed `--competitors`, `--prizes`, `--judging`, `--output` options from `Option<string>` with hardcoded defaults to `Option<string?>` with null defaults
+- Handler logic computes effective paths: explicit option > data-root-based path > original relative default
+- Updated help text for input/output options to document the data-root behavior
+
+**Path resolution pattern:**
+```csharp
+var competitors = Path.GetFullPath(competitorsExplicit 
+    ?? (dataRoot != null ? Path.Join(dataRoot, "input", "Competitor.xlsx") 
+    : Path.Join("data", "input", "Competitor.xlsx")));
+```
+
+**Default paths with data-root:**
+- `{data-root}/input/Competitor.xlsx`, `Prizes.xlsx`, `Judging.xlsx`
+- `{data-root}/output/article.html` (results command)
+- `{data-root}/output/carver-{id}.html` (carver-article command)
+
+**Key finding:** System.CommandLine doesn't provide "was this option explicitly set" metadata, so nullable defaults with null-coalescing logic is the cleanest approach to distinguish user input from defaults.
+
+**Build:** `dotnet build src\ShowcaseResults.Cli\ShowcaseResults.Cli.csproj` — 0 errors (2 pre-existing NuGet warnings).
+
+**Deliverable:** PR #25 created on branch `feature/data-root-parameter`.
