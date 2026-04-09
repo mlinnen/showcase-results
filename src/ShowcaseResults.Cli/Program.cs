@@ -18,22 +18,26 @@ var eventOption = new Option<string>(
     "--event",
     () => DateTime.Now.Year.ToString(),
     "Event identifier (e.g. 2024, 2026T)");
-var competitorsOption = new Option<string>(
+var dataRootOption = new Option<string?>(
+    "--data-root",
+    () => null,
+    "Parent path for default input/output locations (e.g. C:\\tools\\cli\\data)");
+var competitorsOption = new Option<string?>(
     "--competitors",
-    () => Path.Join("data", "input", "Competitor.xlsx"),
-    "Path to Competitor.xlsx");
-var prizesOption = new Option<string>(
+    () => null,
+    "Path to Competitor.xlsx (default: {data-root}/input/Competitor.xlsx or data/input/Competitor.xlsx)");
+var prizesOption = new Option<string?>(
     "--prizes",
-    () => Path.Join("data", "input", "Prizes.xlsx"),
-    "Path to Prizes.xlsx");
-var judgingOption = new Option<string>(
+    () => null,
+    "Path to Prizes.xlsx (default: {data-root}/input/Prizes.xlsx or data/input/Prizes.xlsx)");
+var judgingOption = new Option<string?>(
     "--judging",
-    () => Path.Join("data", "input", "Judging.xlsx"),
-    "Path to Judging.xlsx");
-var outputOption = new Option<string>(
+    () => null,
+    "Path to Judging.xlsx (default: {data-root}/input/Judging.xlsx or data/input/Judging.xlsx)");
+var outputOption = new Option<string?>(
     "--output",
-    () => Path.Join("output", "article.html"),
-    "Path for the output article.html");
+    () => null,
+    "Path for the output article.html (default: {data-root}/output/article.html or output/article.html)");
 
 var formatOption = new Option<string[]>(
     "--format",
@@ -43,6 +47,7 @@ formatOption.AllowMultipleArgumentsPerToken = true;
 
 resultsCommand.AddOption(eventNameOption);
 resultsCommand.AddOption(eventOption);
+resultsCommand.AddOption(dataRootOption);
 resultsCommand.AddOption(competitorsOption);
 resultsCommand.AddOption(prizesOption);
 resultsCommand.AddOption(judgingOption);
@@ -53,10 +58,21 @@ resultsCommand.SetHandler((InvocationContext ctx) =>
 {
     var eventName   = ctx.ParseResult.GetValueForOption(eventNameOption)!;
     var eventId     = ctx.ParseResult.GetValueForOption(eventOption)!;
-    var competitors = Path.GetFullPath(ctx.ParseResult.GetValueForOption(competitorsOption)!);
-    var prizes      = Path.GetFullPath(ctx.ParseResult.GetValueForOption(prizesOption)!);
-    var judging     = Path.GetFullPath(ctx.ParseResult.GetValueForOption(judgingOption)!);
-    var output      = Path.GetFullPath(ctx.ParseResult.GetValueForOption(outputOption)!);
+    var dataRoot    = ctx.ParseResult.GetValueForOption(dataRootOption);
+    var competitorsExplicit = ctx.ParseResult.GetValueForOption(competitorsOption);
+    var prizesExplicit      = ctx.ParseResult.GetValueForOption(prizesOption);
+    var judgingExplicit     = ctx.ParseResult.GetValueForOption(judgingOption);
+    var outputExplicit      = ctx.ParseResult.GetValueForOption(outputOption);
+    
+    var competitors = Path.GetFullPath(competitorsExplicit 
+        ?? (dataRoot != null ? Path.Join(dataRoot, "input", "Competitor.xlsx") : Path.Join("data", "input", "Competitor.xlsx")));
+    var prizes = Path.GetFullPath(prizesExplicit 
+        ?? (dataRoot != null ? Path.Join(dataRoot, "input", "Prizes.xlsx") : Path.Join("data", "input", "Prizes.xlsx")));
+    var judging = Path.GetFullPath(judgingExplicit 
+        ?? (dataRoot != null ? Path.Join(dataRoot, "input", "Judging.xlsx") : Path.Join("data", "input", "Judging.xlsx")));
+    var output = Path.GetFullPath(outputExplicit 
+        ?? (dataRoot != null ? Path.Join(dataRoot, "output", "article.html") : Path.Join("output", "article.html")));
+    
     var formats     = new HashSet<string>(
         ctx.ParseResult.GetValueForOption(formatOption) ?? new[] { "html" },
         StringComparer.OrdinalIgnoreCase);
@@ -124,6 +140,7 @@ var carverOutputOption = new Option<string?>(
 
 carverArticleCommand.AddOption(eventNameOption);
 carverArticleCommand.AddOption(eventOption);
+carverArticleCommand.AddOption(dataRootOption);
 carverArticleCommand.AddOption(competitorsOption);
 carverArticleCommand.AddOption(prizesOption);
 carverArticleCommand.AddOption(judgingOption);
@@ -135,9 +152,17 @@ carverArticleCommand.SetHandler((InvocationContext ctx) =>
 {
     var eventName   = ctx.ParseResult.GetValueForOption(eventNameOption)!;
     var eventId     = ctx.ParseResult.GetValueForOption(eventOption)!;
-    var competitors = Path.GetFullPath(ctx.ParseResult.GetValueForOption(competitorsOption)!);
-    var prizes      = Path.GetFullPath(ctx.ParseResult.GetValueForOption(prizesOption)!);
-    var judging     = Path.GetFullPath(ctx.ParseResult.GetValueForOption(judgingOption)!);
+    var dataRoot    = ctx.ParseResult.GetValueForOption(dataRootOption);
+    var competitorsExplicit = ctx.ParseResult.GetValueForOption(competitorsOption);
+    var prizesExplicit      = ctx.ParseResult.GetValueForOption(prizesOption);
+    var judgingExplicit     = ctx.ParseResult.GetValueForOption(judgingOption);
+    
+    var competitors = Path.GetFullPath(competitorsExplicit 
+        ?? (dataRoot != null ? Path.Join(dataRoot, "input", "Competitor.xlsx") : Path.Join("data", "input", "Competitor.xlsx")));
+    var prizes = Path.GetFullPath(prizesExplicit 
+        ?? (dataRoot != null ? Path.Join(dataRoot, "input", "Prizes.xlsx") : Path.Join("data", "input", "Prizes.xlsx")));
+    var judging = Path.GetFullPath(judgingExplicit 
+        ?? (dataRoot != null ? Path.Join(dataRoot, "input", "Judging.xlsx") : Path.Join("data", "input", "Judging.xlsx")));
     var carverId    = ctx.ParseResult.GetValueForOption(carverIdOption);
     var carverName  = ctx.ParseResult.GetValueForOption(carverNameOption);
     var outputPath  = ctx.ParseResult.GetValueForOption(carverOutputOption);
@@ -180,7 +205,9 @@ carverArticleCommand.SetHandler((InvocationContext ctx) =>
 
     var outFile = !string.IsNullOrWhiteSpace(outputPath)
         ? Path.GetFullPath(outputPath)
-        : Path.GetFullPath(Path.Join("output", $"carver-{result.CarverId}.html"));
+        : Path.GetFullPath(dataRoot != null 
+            ? Path.Join(dataRoot, "output", $"carver-{result.CarverId}.html")
+            : Path.Join("output", $"carver-{result.CarverId}.html"));
 
     Directory.CreateDirectory(Path.GetDirectoryName(outFile)!);
     File.WriteAllText(outFile, result.Html, System.Text.Encoding.UTF8);
