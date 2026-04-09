@@ -14,16 +14,28 @@ if (Test-Path $outputZip) {
     Write-Host "Removed existing $outputZip" -ForegroundColor Yellow
 }
 
-# Create zip package (files at root, not nested in a subfolder)
+# Create zip package with forward-slash entry names (required for Joomla on Linux/PHP)
+Add-Type -Assembly System.IO.Compression
 Add-Type -Assembly System.IO.Compression.FileSystem
 $fullComponentPath = (Resolve-Path $componentPath).Path
 $fullOutputZip = Join-Path (Get-Location) $outputZip
-[System.IO.Compression.ZipFile]::CreateFromDirectory(
-    $fullComponentPath,
-    $fullOutputZip,
-    [System.IO.Compression.CompressionLevel]::Optimal,
-    $false
-)
+
+$stream = [System.IO.File]::Open($fullOutputZip, [System.IO.FileMode]::Create)
+$archive = New-Object System.IO.Compression.ZipArchive($stream, [System.IO.Compression.ZipArchiveMode]::Create)
+
+Get-ChildItem -Path $fullComponentPath -Recurse -File | ForEach-Object {
+    $relativePath = $_.FullName.Substring($fullComponentPath.Length).TrimStart('\', '/')
+    $entryName = $relativePath.Replace('\', '/')   # ZIP spec requires forward slashes
+    $entry = $archive.CreateEntry($entryName, [System.IO.Compression.CompressionLevel]::Optimal)
+    $entryStream = $entry.Open()
+    $fileStream = [System.IO.File]::OpenRead($_.FullName)
+    $fileStream.CopyTo($entryStream)
+    $fileStream.Dispose()
+    $entryStream.Dispose()
+}
+
+$archive.Dispose()
+$stream.Dispose()
 
 if (Test-Path $outputZip) {
     $zipInfo = Get-Item $outputZip
