@@ -10,6 +10,13 @@
 
 <!-- Append learnings below -->
 
+## 2026-04-23 — Issue #30 JSON-layer checked-in filtering
+
+- User preference: enforce checked-in filtering in the generated JSON, not only in Joomla rendering.
+- Key parser path: `src/ShowcaseResults.Cli/Parsing/SpreadsheetParser.cs` now looks for an explicit checked-in signal in `Competitor.xlsx`; if none exists, `src/ShowcaseResults.Cli/Program.cs` falls back to competitors referenced by assigned prizes or ranked judging results before serializing JSON.
+- Downstream contract: `schema/results.schema.json`, `README.md`, and `docs/joomla-extension.md` now describe `competitors` as checked-in-only data for consumers like `joomla/com_showcaseresults/site/src/Service/ResultsService.php`.
+- Current source-data constraint: the checked-in sample workbook in `data/input/Competitor.xlsx` has no explicit checked-in column, so today's generated sample JSON falls back to result-bearing carver IDs (35 competitors in `joomla/com_showcaseresults/media/data/results-2026T.json`).
+
 ## 2026-03-23 — Spreadsheet analysis & data model
 
 Analyzed all four source spreadsheets in `data/input/`:

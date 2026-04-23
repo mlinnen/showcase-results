@@ -237,7 +237,7 @@ If you're manually creating or editing a results file, here's the structure:
 
 - **event.name:** The event title (e.g., "41st Showcase of Woodcarvings")
 - **event.event_id:** Event identifier string (e.g., `"2024"` or `"2026T"`); must match the filename suffix
-- **competitors:** Registration list of carvers; includes `carver_id` (unique per event), name, and optional `division` field
+- **competitors:** Checked-in carvers only; includes `carver_id` (unique per event), name, and optional `division` field
 - **special_prizes:** Awards and winners; ordered by `order` field (lower = higher priority)
 - **overall_results:** Competition categories with 1st/2nd/3rd places
 - **division_results:** Results grouped by division (Novice, Intermediate, Master, etc.); each division has categories with ranked places
@@ -246,7 +246,7 @@ If you're manually creating or editing a results file, here's the structure:
 ### Notes on Fields
 
 - **carver_id:** Unique only within an event—do not assume it correlates across years
-- **division:** Optional; if missing, the carver is registered but may not appear in division results
+- **division:** Optional; if missing, the checked-in carver may still appear only in special prizes or overall results
 - **style:** In categories, `"N"` = Natural, `"P"` = Painted, `null` = award-only (no style)
 - **entry_number:** 0 or null means no entry number; the UI renders an empty cell
 
@@ -275,6 +275,8 @@ ShowcaseResults.Cli.exe create results --format html --format json --output outp
 The `--format` option accepts `html` and `json`. It can be repeated to produce both formats in a single run. The default is `html`.
 
 This generates `output/results-{event}.json`. Upload it to `media/com_showcaseresults/data/` on your Joomla server.
+
+The generated JSON `competitors` array contains only checked-in carvers. When `Competitor.xlsx` includes an explicit checked-in signal, the CLI uses that column directly. If the competitor sheet has no checked-in field, the CLI falls back to competitors referenced by assigned prizes or ranked judging results and reports that fallback during generation.
 
 ### CLI Features
 
@@ -310,11 +312,11 @@ This generates `output/results-{event}.json`. Upload it to `media/com_showcasere
 1. Double-check the carver's first and last name in the JSON file
 2. Verify spelling, spaces, and punctuation match exactly
 3. Try searching via Carvers List view to see the exact name format in your data
-4. If the carver exists but has zero results, they may be registered but didn't place in any categories—check the `division_results` array in the JSON
+4. If the carver exists but has zero results, they may still be checked in but didn't place in any categories—check the `division_results` array in the JSON
 
 ### Symptom: Division column is blank for a carver in the Carvers List
 
-**Likely Cause:** Carver is registered in `competitors` but does not appear in `division_results`.
+**Likely Cause:** Carver is present in `competitors` but does not appear in `division_results`.
 
 **Fix:**
 1. Add the carver's entry to the relevant division's categories in `division_results`, or

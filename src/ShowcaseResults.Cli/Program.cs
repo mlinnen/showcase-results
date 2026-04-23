@@ -5,6 +5,22 @@ using ShowcaseResults.Models;
 using ShowcaseResults.Parsing;
 using ShowcaseResults.Rendering;
 
+static HashSet<int> CollectCheckedInCarverIds(
+    IEnumerable<SpecialPrize> specialPrizes,
+    IEnumerable<OverallCategory> overallResults,
+    IEnumerable<DivisionResult> divisionResults)
+{
+    var checkedInCarverIds = new HashSet<int>(specialPrizes.Select(prize => prize.CarverId));
+
+    foreach (var place in overallResults.SelectMany(category => category.Places))
+        checkedInCarverIds.Add(place.CarverId);
+
+    foreach (var place in divisionResults.SelectMany(division => division.Categories).SelectMany(category => category.Places))
+        checkedInCarverIds.Add(place.CarverId);
+
+    return checkedInCarverIds;
+}
+
 var rootCommand = new RootCommand("showcase-results CLI");
 
 var createCommand = new Command("create", "Create showcase results output");
@@ -82,9 +98,23 @@ resultsCommand.SetHandler((InvocationContext ctx) =>
 
     var parser = new SpreadsheetParser(competitors, prizes, judging);
 
-    var competitorList = parser.ParseCompetitors();
+    var competitorList = parser.ParseCompetitorsForJson(out var usedSourceCheckInSignal);
     var specialPrizes  = parser.ParseSpecialPrizes();
     var (overallResults, divisionResults) = parser.ParseJudging();
+
+    if (!usedSourceCheckInSignal)
+    {
+        var checkedInCarverIds = CollectCheckedInCarverIds(specialPrizes, overallResults, divisionResults);
+        competitorList = competitorList
+            .Where(competitor => checkedInCarverIds.Contains(competitor.CarverId))
+            .ToList();
+
+        Console.WriteLine("  Competitor.xlsx has no checked-in column; using prize/result rows to limit JSON competitors.");
+    }
+    else
+    {
+        Console.WriteLine("  Using Competitor.xlsx checked-in column to limit JSON competitors.");
+    }
 
     Console.WriteLine($"  {specialPrizes.Count} special prizes");
     Console.WriteLine($"  {overallResults.Count} overall result categories");

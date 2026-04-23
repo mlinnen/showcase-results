@@ -29,12 +29,12 @@ All options are optional. If the spreadsheet paths are omitted the tool looks fo
 | Option | Default | Description |
 |--------|---------|-------------|
 | `--event-name` | `Showcase of Woodcarvings` | Name of the event |
-| `--event` | Current year | Year of the event |
+| `--event` | Current year | Event identifier |
 | `--competitors` | `data/input/Competitor.xlsx` | Path to the competitors spreadsheet |
 | `--prizes` | `data/input/Prizes.xlsx` | Path to the prizes spreadsheet |
 | `--judging` | `data/input/Judging.xlsx` | Path to the judging results spreadsheet |
 | `--output` | `output/article.html` | Path for the generated HTML file |
-| `--format` | `html` | Output format(s): `html`, `json`. Can be repeated to produce both: `--format html --format json` |
+| `--format` | `html` | Output format(s): `html`, `json`. JSON keeps only checked-in competitors from the competitor sheet when available, otherwise it falls back to competitors referenced by prizes/results. Can be repeated to produce both: `--format html --format json` |
 
 ### Examples
 
@@ -61,6 +61,8 @@ Generate JSON output only (for Joomla component data):
 ```bash
 showcase-results create results --format json
 ```
+
+The JSON `competitors` array is limited to checked-in carvers. If `Competitor.xlsx` has an explicit checked-in column, that column drives the filter. If the sheet has no checked-in signal, the CLI falls back to competitors referenced by assigned prizes or ranked judging results and reports that fallback on the console.
 
 Generate both HTML and JSON in a single run:
 

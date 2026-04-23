@@ -8,7 +8,7 @@ These test files enable comprehensive manual testing of:
 - Cross-event name lookups (same person across multiple years)
 - Single-event lookups (by name or carver_id)
 - Error handling (carver not found, no results, etc.)
-- Edge cases (zero entry numbers, registered competitors with no wins)
+- Edge cases (zero entry numbers, checked-in competitors with no wins)
 - Rendering of all three result types (special prizes, overall, division)
 
 ## Schema Compliance
@@ -16,11 +16,11 @@ These test files enable comprehensive manual testing of:
 All JSON files MUST validate against `schema/results.schema.json` (ADR-002).
 
 Required top-level properties:
-- `event`: Object with `name` (string) and `year` (integer ≥ 2000)
+- `event`: Object with `name` (string) and `event_id` (alphanumeric string)
 - `special_prizes`: Array of special prize objects
 - `overall_results`: Array of overall category results
 - `division_results`: Array of division results (Novice, Intermediate, Open)
-- `competitors`: Array of all registered competitors
+- `competitors`: Array of checked-in competitors
 
 Refer to `schema/results.schema.json` for complete field definitions and validation rules.
 
@@ -33,7 +33,7 @@ Refer to `schema/results.schema.json` for complete field definitions and validat
 {
   "event": {
     "name": "CCA Showcase 2024",
-    "year": 2024
+    "event_id": "2024"
   }
 }
 ```
@@ -44,7 +44,7 @@ Refer to `schema/results.schema.json` for complete field definitions and validat
 |-----------|------------|-----------|---------|
 | 16 | John | Smith | Has ALL three result types (special prizes, overall, division) |
 | 23 | Jane | Doe | Appears in both 2024 and 2023 (different carver_id: 19 in 2023) |
-| 8 | Bob | Wilson | Registered competitor with ZERO results (tests error handling) |
+| 8 | Bob | Wilson | Checked-in competitor with ZERO results (tests error handling) |
 | 42 | Alice | Brown | Only appears in 2024 (single-year carver) |
 | 5 | Charlie | Green | Only in 2024, has division results only |
 | 11 | Diana | Lee | Has special prizes only |
@@ -251,7 +251,7 @@ This tests the template's handling of zero entry numbers (should render as empty
 - [ ] Contains at least 10 competitors
 - [ ] Carver 16 (John Smith) appears in special_prizes, overall_results, AND division_results
 - [ ] Carver 23 (Jane Doe) has at least one result of any type
-- [ ] Carver 8 (Bob Wilson) is in competitors array but has ZERO results
+- [ ] Carver 8 (Bob Wilson) is in competitors array and has ZERO results
 - [ ] Carver 42 (Alice Brown) has results in 2024 only
 - [ ] At least one entry has entry_number = 0
 - [ ] All three divisions (Novice, Intermediate, Open) are present
@@ -267,7 +267,7 @@ This tests the template's handling of zero entry numbers (should render as empty
 {
   "event": {
     "name": "CCA Showcase 2023",
-    "year": 2023
+    "event_id": "2023"
   }
 }
 ```
@@ -546,7 +546,7 @@ To test dynamic year addition (Test Case 6.1):
 
 **Required Field Presence**:
 - All top-level arrays (special_prizes, overall_results, division_results, competitors) must exist, even if empty
-- `event.name` and `event.year` are required
+- `event.name` and `event.event_id` are required
 - All place objects must have `place`, `carver_id`, `winner`, `entry_number` (even if 0)
 
 **Recommended Data Volume**:

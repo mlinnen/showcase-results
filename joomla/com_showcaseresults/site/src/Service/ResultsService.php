@@ -246,7 +246,7 @@ class ResultsService
         {
             return [
                 'error' => 'no_results_for_carver',
-                'error_message' => "{$carverName} is a registered competitor in {$event} but has no recorded results.",
+                'error_message' => "{$carverName} is a checked-in competitor in {$event} but has no recorded results.",
                 'carver_name' => $carverName,
                 'search_event' => $event,
                 'results' => []
@@ -345,7 +345,7 @@ class ResultsService
         {
             return [
                 'error' => 'no_results_for_carver',
-                'error_message' => "{$carverName} is a registered competitor in {$event} but has no recorded results.",
+                'error_message' => "{$carverName} is a checked-in competitor in {$event} but has no recorded results.",
                 'carver_name' => $carverName,
                 'search_event' => $event,
                 'results' => []
@@ -430,7 +430,7 @@ class ResultsService
      *
      * Returns an array with keys: event_name, event_year, carvers (sorted by carver_id ascending).
      * Each carver entry: carver_id, first_name, last_name, full_name, division.
-     * Only checked-in carvers are included in the returned list.
+     * The JSON competitors array is expected to already contain only checked-in carvers.
      *
      * @param   string  $event  Event identifier
      *
@@ -466,17 +466,10 @@ class ResultsService
         }
 
         $carvers = [];
-        $checkedInCarverIds = $this->collectCheckedInCarverIds($data);
 
         foreach ($data['competitors'] ?? [] as $comp)
         {
             $carverId = $comp['carver_id'] ?? 0;
-
-            if (!isset($checkedInCarverIds[$carverId]))
-            {
-                continue;
-            }
-
             $firstName = $comp['first_name'] ?? '';
             $lastName  = $comp['last_name'] ?? '';
 
@@ -499,55 +492,6 @@ class ResultsService
             'event_year'  => $data['event']['event_id'] ?? $event,
             'carvers'     => $carvers,
         ];
-    }
-
-    /**
-     * Collect carver IDs that appear in event results or assigned prizes.
-     *
-     * These are treated as the checked-in carvers for the public list view.
-     *
-     * @param   array  $data  Parsed results data
-     *
-     * @return  array  Associative array keyed by checked-in carver_id
-     */
-    private function collectCheckedInCarverIds(array $data): array
-    {
-        $checkedInCarverIds = [];
-
-        foreach ($data['special_prizes'] ?? [] as $prize)
-        {
-            if (isset($prize['carver_id']))
-            {
-                $checkedInCarverIds[(int) $prize['carver_id']] = true;
-            }
-        }
-
-        foreach ($data['overall_results'] ?? [] as $category)
-        {
-            foreach ($category['places'] ?? [] as $place)
-            {
-                if (isset($place['carver_id']))
-                {
-                    $checkedInCarverIds[(int) $place['carver_id']] = true;
-                }
-            }
-        }
-
-        foreach ($data['division_results'] ?? [] as $division)
-        {
-            foreach ($division['categories'] ?? [] as $category)
-            {
-                foreach ($category['places'] ?? [] as $place)
-                {
-                    if (isset($place['carver_id']))
-                    {
-                        $checkedInCarverIds[(int) $place['carver_id']] = true;
-                    }
-                }
-            }
-        }
-
-        return $checkedInCarverIds;
     }
 
     /**

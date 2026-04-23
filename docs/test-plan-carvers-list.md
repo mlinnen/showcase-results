@@ -24,8 +24,8 @@ This test plan validates the **Carvers List View** for the com_showcaseresults J
   - Carver 4: "D. Brown" (Professional) — carver with initial only
   - Carver 5: "Edward <b>Tagged</b>" (Novice) — test XSS escaping with HTML tags
   - Carver 6: "Frank O'Brien" (Intermediate) — test special characters in name
-  - Multiple registered carvers with no results (no assigned prize or ranked placement) to test they stay hidden from the public list
-- **Note:** Carvers without results should remain in the `competitors` registration array but be excluded from the rendered carvers list
+  - Multiple source registrations with no results (no assigned prize or ranked placement) to test they are excluded from the generated JSON
+- **Note:** The generated `competitors` array should already contain only checked-in carvers
 
 ### `results-2023.json`
 - **Minimum 10 competitors** with at least 3 from different divisions
@@ -56,7 +56,7 @@ This test plan validates the **Carvers List View** for the com_showcaseresults J
 
 **Pass Criteria:**
 - [ ] All test carvers (1–6, plus others) appear in the list
-- [ ] List contains exactly the count of unique carver_ids from results-2024.json
+- [ ] List contains exactly the count of carvers in `results-2024.json`'s `competitors` array
 - [ ] All links are present and functional
 
 ---
@@ -141,16 +141,16 @@ This test plan validates the **Carvers List View** for the com_showcaseresults J
 
 **Input:**
 - Navigate to `?event=2024`
-- Look for carvers that exist in competitors array but have no special_prizes, overall_results, or division_results
+- Compare the generated JSON against the source spreadsheet and confirm registrations with no prize/result rows were excluded upstream
 
 **Expected Output:**
 - Carvers with no results do not appear in the list
-- Only carvers present in assigned special prizes or ranked results appear
+- Only carvers present in the JSON `competitors` array appear
 - No placeholder row or warning is shown for excluded registrations
 
 **Pass Criteria:**
 - [ ] Carvers with no results are excluded from the list
-- [ ] Visible carver count matches the unique carver_ids present in assigned prizes and ranked results
+- [ ] Visible carver count matches the `competitors` array length in the JSON file
 - [ ] No placeholder or warning row appears for excluded registrations
 
 ---

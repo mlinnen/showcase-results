@@ -5,7 +5,7 @@
 - Joomla 4.x or 5.x test instance running and accessible
 - CLI tool built with .NET 8.0+ (`dotnet build`)
 - Component package built (`joomla/build-component.sh` or equivalent)
-- At least two `results-{year}.json` files uploaded to `media/com_showcaseresults/data/` (see Test Data Requirements below)
+- At least two `results-{event}.json` files uploaded to `media/com_showcaseresults/data/` (see Test Data Requirements below)
 - Access to Joomla admin panel for component installation
 - Browser with developer tools for inspecting HTML output
 
@@ -16,7 +16,7 @@ Two JSON files are required for comprehensive testing:
 ### `results-2024.json`
 - **Carver 16 (John Smith)**: Has special prizes, overall results, and division results (all three types)
 - **Carver 23 (Jane Doe)**: Appears in both 2024 and 2023 (same name, different carver_id)
-- **Carver 8 (Bob Wilson)**: Registered competitor with zero results (in competitors array but no wins)
+- **Carver 8 (Bob Wilson)**: Checked-in competitor with zero results (in competitors array but no wins)
 - **Carver 42 (Alice Brown)**: Only appears in 2024 (single-year carver)
 - Multiple entries with varying entry numbers including some with entry_number = 0 (to test null handling)
 
@@ -40,7 +40,7 @@ See `docs/test-data-spec.md` for detailed specifications.
 | 1.1 | JSON output creation | 1. Run `showcase-results create results --input data/2024.xlsx --format json --output output/test.html`<br>2. Check output directory | File `output/results-2024.json` is created alongside HTML output | [ ] |
 | 1.2 | Schema validation | 1. Use JSON schema validator (e.g., `ajv-cli`)<br>2. Run `ajv validate -s schema/results.schema.json -d output/results-2024.json` | Validation passes with no errors; confirms all required fields present | [ ] |
 | 1.3 | Default format unchanged | 1. Run `showcase-results create results --input data/2024.xlsx --output output/test2.html` (no `--format` flag)<br>2. Check output directory | Only `output/test2.html` created; no JSON file generated (backward compatibility maintained) | [ ] |
-| 1.4 | Year in filename | 1. Generate JSON for events from different years<br>2. Compare filename year to `event.year` field in JSON | Filename is `results-{year}.json` where year matches the `event.year` property value | [ ] |
+| 1.4 | Event id in filename | 1. Generate JSON for events from different events<br>2. Compare filename suffix to `event.event_id` field in JSON | Filename is `results-{event}.json` where the suffix matches the `event.event_id` property value | [ ] |
 
 ---
 
@@ -81,7 +81,7 @@ See `docs/test-data-spec.md` for detailed specifications.
 | 4.2 | No parameters (usage guide) | 1. Navigate to component URL with no query string | Page displays usage instructions with examples: `?name=John+Doe`, `?name=John+Doe&event=2024`, `?carver_id=16&event=2024`; wrapped in `<div class="cca-usage">` | [ ] |
 | 4.3 | Name not found (typo/nonexistent) | 1. Navigate to `?name=Nobody+Here` (name that doesn't exist in any results file) | Error message: "No results found for 'Nobody Here'. Please check the spelling and try again."; wrapped in `<div class="cca-error">` | [ ] |
 | 4.4 | ID not found (nonexistent ID) | 1. Navigate to `?carver_id=9999&event=2024` | Error message: "Carver #9999 was not found in the 2024 results."; no PHP warning about undefined array keys | [ ] |
-| 4.5 | No results carver (registered, zero wins) | 1. Navigate to `?name=Bob+Wilson` (registered in competitors array but has no results)<br>2. Or use `?carver_id=8&event=2024` | Error message: "Bob Wilson is a registered competitor in 2024 but has no recorded results."; carver name displayed (not "Competitor #8") | [ ] |
+| 4.5 | No results carver (checked in, zero wins) | 1. Navigate to `?name=Bob+Wilson` (checked in and present in competitors array but has no results)<br>2. Or use `?carver_id=8&event=2024` | Error message: "Bob Wilson is a checked-in competitor in 2024 but has no recorded results."; carver name displayed (not "Competitor #8") | [ ] |
 | 4.6 | No data files (empty data folder) | 1. Temporarily rename or remove all JSON files from `media/com_showcaseresults/data/`<br>2. Navigate to `?name=John+Doe` | Error message: "No competition data is currently available. Please check back later."; no PHP file_get_contents warnings | [ ] |
 | 4.7 | Invalid event (not found) | 1. Navigate to `?name=John+Doe&event=1999` (year with no data file) | Error message: "No data available for 1999. Available events: 2024, 2023." (or similar, listing actually available years) | [ ] |
 | 4.8 | Non-numeric ID (input validation) | 1. Navigate to `?carver_id=abc&event=2024` | Validation error: "Carver ID must be a number."; input rejected before database query | [ ] |
