@@ -76,8 +76,11 @@ The Joomla carvers list now filters to show only "checked-in" carvers: those who
 ### User Directive — Issue #30 Direction Change (2026-04-23, Mike Linnen via Copilot)
 Prefer JSON output to contain only checked-in competitors (determined from source spreadsheet), not filtering at the presentation layer alone. Rationale: simplifies Joomla component; makes the data contract explicit for all downstream consumers.
 
-### Issue #34 — AppSheet API as Optional Data Source (2026-04-23, Gandalf)
-Research complete. Planned architecture: `IDataProvider` abstraction (Phase 1) with `SpreadsheetParser` and new `AppSheetParser` implementations. `AppSheetClient` provides HTTP layer with `FindRowsAsync()` (Phase 2). CLI adds `--source spreadsheet|appsheet`, `--appsheet-app-id`, `--appsheet-api-key`, and table name options (Phase 4). Five-phase roadmap with sub-issues 34-A through 34-F. Risk assessment: 7 items, highest is unknown AppSheet column names (requires user input before 34-C). Suggested owners: Bilbo (34-A/B/C/D), Aragorn (34-E), Scribe (34-F). User decisions needed: AppSheet app structure, async strategy, table name granularity, API key storage policy. Plan in inbox/gandalf-issue-34-plan.md.
+### Issue #34 — AppSheet API as Optional Data Source: Implementation Plan Posted (2026-04-24, Gandalf)
+Research complete and implementation plan posted to GitHub issue #34 comment: https://github.com/mlinnen/showcase-results/issues/34#issuecomment-4305517069. Planned architecture: `IDataProvider` abstraction (Phase 1) with `SpreadsheetParser` and new `AppSheetParser` implementations. `AppSheetClient` provides HTTP layer with `FindRowsAsync()` (Phase 2). CLI adds `--source spreadsheet|appsheet`, `--appsheet-app-id`, `--appsheet-api-key`, and table name options (Phase 4). Five-phase roadmap (34-A through 34-E). Risk assessment: 7 unknowns (AppSheet table/column names, carver ID format, check-in column, API limits, key storage). Suggested owners: Bilbo (Phase 1–4), Aragorn (Phase 5 review), Scribe (Phase 5 docs). Key design: zero downstream changes via IDataProvider abstraction; async strategy uses `.GetAwaiter().GetResult()` in CLI handler; env var fallback for API key. Blockers: User input required on AppSheet app/table/column structure before Phase 2 begins.
+
+### Issue #34 GitHub Comment Posted (2026-04-24, Gandalf)
+Implementation plan posted to issue #34: https://github.com/mlinnen/showcase-results/issues/34#issuecomment-4305517069. Five-phase roadmap documented with full risk assessment and dependency graph. Next action: User (Mike) confirms AppSheet app/table/column structure; squad schedules Phase 1 design review.
 
 ## Governance
 - All meaningful changes require team consensus
