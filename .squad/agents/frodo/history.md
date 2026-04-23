@@ -74,6 +74,24 @@ Implemented year-as-string throughout Joomla component:
 
 Status: ✅ COMPLETED - Both tasks merged and validated.
 
+## Session: Issue #30 — Checked-In Carvers Filtering (2026-04-23)
+
+**Status:** ✅ COMPLETE and merged to dev.
+
+**Objective:** Filter the public carvers list to show only checked-in carvers (those with carver_id appearing in special prizes or ranked results).
+
+**Implementation:**
+- Added `ResultsService::getCheckedInCarverIds($year)` method to scan prizes and results, extract unique carver_id values
+- Modified `site/tmpl/carvers/default.php` to filter competitors array before rendering
+- Updated `docs/joomla-extension.md` to document checked-in semantics
+- Extended `docs/test-plan-carvers-list.md` with 4 new test cases
+
+**Key Decision:** Checked-in filtering preserves data integrity (no JSON changes) while ensuring the public list reflects participation, not raw registration. Non-competing registrations remain hidden.
+
+**Quality:** ✅ Approved by tester (Aragorn); no regressions; component ZIP rebuilt and verified.
+
+**PR:** #33 — Branch `squad/30-only-show-checked-in-carvers-in-list`
+
 ## Learnings
 
 ### Session: `year` → `event` parameter rename (2026-04-01)

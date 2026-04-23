@@ -70,6 +70,9 @@ Moved `showcase-results.sln` from repo root to `src/showcase-results.sln`. Updat
 ### Decision: Rename `year` Parameter to `event` (2026-04-01, Bilbo)
 Renamed the `year` CLI parameter, C# property, and JSON schema field to `event` throughout the codebase. Rationale: The parameter value is an event identifier (alphanumeric per ADR-007, may include suffixes like `2026T`); the name `year` is misleading. Changes: EventInfo.Year → EventInfo.EventId; --year → --event; event.year → event.event in schema. Breaking changes: CLI interface and JSON output schema. Build verified: 0 errors. Joomla component and JSON consumers must be updated to read `event.event` instead of `event.year`.
 
+### Issue #30 — Checked-In Carvers Filtering (2026-04-23, Frodo)
+The Joomla carvers list now filters to show only "checked-in" carvers: those whose carver_id appears in assigned prizes or ranked results (1st/2nd/3rd). Carvers registered but with zero results are excluded from the public list. Implementation: `ResultsService::getCheckedInCarverIds($year)` scans special_prizes and division_results, extracts unique carver_id values; template filters competitors array before rendering. Data model unchanged—filtering at render time. PR #33 delivered with 4 new test cases, test plan alignment, and zero regressions. Rationale: Privacy preservation (no registration leak), accurate roster presentation (participation, not raw registration). Approved by tester.
+
 ## Governance
 - All meaningful changes require team consensus
 - Document architectural decisions here

@@ -89,6 +89,28 @@ Ready for commit to main branch.
 
 ## Learnings
 
+### Session: Issue #30 — Checked-In Carvers Filtering (2026-04-23)
+
+**Role:** Tester  
+**Task:** Review PR #33 for correctness and edge cases
+
+**Review scope:**
+- Verified checked-in logic: carver_id appears in special_prizes or division_results
+- Tested edge cases: empty results, duplicate IDs, multi-year carvers
+- Regression testing: confirmed no impact on existing carvers list
+- Documentation alignment: test plans match implementation
+
+**Findings:**
+- ✅ No critical issues
+- ✅ Filtering logic correct
+- ✅ Edge cases handled properly (empty sets, deduplication, per-year isolation)
+- ✅ XSS escaping maintained
+- ✅ Documentation aligned with code
+
+**Verdict: APPROVED FOR MERGE**
+
+The checked-in filtering meets all requirements. Privacy-preserving and semantically correct (participation roster vs. raw registration dump).
+
 ### PR #25 — --data-root Parameter Review (2026-04-01)
 
 **Reviewed:** `--data-root` parameter implementation in `src/ShowcaseResults.Cli/Program.cs`
