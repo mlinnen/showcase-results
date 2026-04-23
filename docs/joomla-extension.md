@@ -4,7 +4,7 @@
 
 **Showcase Results** (`com_showcaseresults`) is a Joomla component that displays woodcarving competition results dynamically from JSON data files. Site visitors can:
 
-- **Browse carvers** — View a list of all competitors for a specific event year
+- **Browse carvers** — View the checked-in carvers for a specific event year
 - **View carver details** — See individual carver results across one event or search across all past events by name
 
 The component loads data from JSON files stored on your server and requires no database configuration. All views are read-only for site visitors; data management happens through file uploads.
@@ -67,7 +67,7 @@ Menu items allow visitors to access the two views. Create menu items in your sit
 
 ### View 1: Carvers List
 
-The **Carvers List** displays all competitors for a specific event year in a table.
+The **Carvers List** displays checked-in carvers for a specific event year in a table.
 
 **To create a Carvers List menu item:**
 
@@ -237,7 +237,7 @@ If you're manually creating or editing a results file, here's the structure:
 
 - **event.name:** The event title (e.g., "41st Showcase of Woodcarvings")
 - **event.event_id:** Event identifier string (e.g., `"2024"` or `"2026T"`); must match the filename suffix
-- **competitors:** List of all carvers; includes `carver_id` (unique per event), name, and optional `division` field
+- **competitors:** Registration list of carvers; includes `carver_id` (unique per event), name, and optional `division` field
 - **special_prizes:** Awards and winners; ordered by `order` field (lower = higher priority)
 - **overall_results:** Competition categories with 1st/2nd/3rd places
 - **division_results:** Results grouped by division (Novice, Intermediate, Master, etc.); each division has categories with ranked places

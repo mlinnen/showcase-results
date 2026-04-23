@@ -2,7 +2,7 @@
 
 ## Overview
 
-This test plan validates the **Carvers List View** for the com_showcaseresults Joomla component. The view displays all competitors from a given event year in a filterable list showing Carver ID, Carver Name (linked to detail view), and Division. The data is provided by `ResultsService::getCarversList(string $event)` and supports filtering by event query parameter (`?event=2024`).
+This test plan validates the **Carvers List View** for the com_showcaseresults Joomla component. The view displays checked-in carvers from a given event year in a filterable list showing Carver ID, Carver Name (linked to detail view), and Division. The data is provided by `ResultsService::getCarversList(string $event)` and supports filtering by event query parameter (`?event=2024`).
 
 ## Prerequisites
 
@@ -40,13 +40,13 @@ This test plan validates the **Carvers List View** for the com_showcaseresults J
 
 ## Test Cases
 
-### 1. Happy Path — Event with Data, All Carvers Shown
+### 1. Happy Path — Event with Data, Checked-In Carvers Shown
 
 **Input:**
 - Navigate to carvers list view with query parameter: `?event=2024`
 
 **Expected Output:**
-- Page displays a list/table of all carvers from 2024
+- Page displays a list/table of checked-in carvers from 2024
 - Each row shows:
   - Carver ID (e.g., "1")
   - Carver Name as a clickable link (e.g., "Alice Brown")
@@ -137,21 +137,21 @@ This test plan validates the **Carvers List View** for the com_showcaseresults J
 
 ---
 
-### 6. Carver with No Results Still Appears in List
+### 6. Carver with No Results Is Hidden from List
 
 **Input:**
 - Navigate to `?event=2024`
 - Look for carvers that exist in competitors array but have no special_prizes, overall_results, or division_results
 
 **Expected Output:**
-- Carvers with no results still appear in the list
-- They show their Carver ID, Name, and Division normally
-- No asterisk, icon, or indicator showing they have no results (list treats all equally)
+- Carvers with no results do not appear in the list
+- Only carvers present in assigned special prizes or ranked results appear
+- No placeholder row or warning is shown for excluded registrations
 
 **Pass Criteria:**
-- [ ] All registered competitors appear in the list (confirmed by count matching competitors array)
-- [ ] No carvers are filtered out or hidden based on having results
-- [ ] No visual distinction (badge/marker/footnote) for carvers without results
+- [ ] Carvers with no results are excluded from the list
+- [ ] Visible carver count matches the unique carver_ids present in assigned prizes and ranked results
+- [ ] No placeholder or warning row appears for excluded registrations
 
 ---
 
