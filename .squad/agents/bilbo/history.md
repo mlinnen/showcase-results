@@ -153,3 +153,17 @@ var competitors = Path.GetFullPath(competitorsExplicit
 **Build:** `dotnet build src\ShowcaseResults.Cli\ShowcaseResults.Cli.csproj` — 0 errors (2 pre-existing NuGet warnings).
 
 **Deliverable:** PR #25 created on branch `feature/data-root-parameter`.
+
+## Session: Issue #30 — Checked-In Filtering Moved to JSON Generation (2026-04-23)
+
+**Task:** Revise PR #33 after user preference: move checked-in filtering from Joomla rendering to CLI JSON generation.
+
+**Implementation:**
+- Updated `src/ShowcaseResults.Cli/Parsing/SpreadsheetParser.cs` to detect explicit checked-in signal in `Competitor.xlsx`
+- Implemented fallback in `src/ShowcaseResults.Cli/Program.cs`: if no explicit column, filter competitors to only those with assigned prizes or ranked results
+- Updated schema (`schema/results.schema.json`), README, and Joomla docs to describe `competitors` as checked-in-only
+- Regenerated `joomla/com_showcaseresults/media/data/results-2026T.json`: 35 checked-in competitors (IDs 22, 34 excluded from 37 registrations)
+
+**Key insight:** Current workbook has no explicit checked-in column, so the fallback logic (union of special_prizes + ranked results) is the source-driven rule. Downstream Joomla component now trusts the filtered JSON; no redundant filtering needed.
+
+**Status:** ✅ PR #33 approved by Aragorn, ready for merge.

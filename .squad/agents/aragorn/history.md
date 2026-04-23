@@ -89,6 +89,21 @@ Ready for commit to main branch.
 
 ## Learnings
 
+### PR #33 Revised Review — JSON-Layer Checked-In Filtering (2026-04-23)
+
+**Reviewed:** Revised PR #33 after user feedback moved the filter from Joomla rendering into CLI JSON generation.
+
+**Validation results:**
+- `Competitor.xlsx` currently has no explicit checked-in column; row-2 headers stop at `Notes` and then blanks, so the CLI correctly used fallback detection.
+- Regenerating `results-2026T.json` from `data/input/*.xlsx` produced 35 competitors from 37 source registrations, excluding only carver IDs **22** and **34**.
+- The generated competitor IDs matched the union of assigned special-prize IDs plus ranked overall/division result IDs exactly; no result-bearing carver was dropped.
+- Re-running the CLI with event name `Showcase of Woodcarvings Test` produced JSON identical to `joomla/com_showcaseresults/media/data/results-2026T.json`.
+
+**Key paths:**
+- Source logic: `src/ShowcaseResults.Cli/Parsing/SpreadsheetParser.cs`, `src/ShowcaseResults.Cli/Program.cs`
+- Consumer trust point: `joomla/com_showcaseresults/site/src/Service/ResultsService.php`
+- Golden sample: `joomla/com_showcaseresults/media/data/results-2026T.json`
+
 ### Session: Issue #30 — Checked-In Carvers Filtering (2026-04-23)
 
 **Role:** Tester  
@@ -165,3 +180,25 @@ The checked-in filtering meets all requirements. Privacy-preserving and semantic
 - The checked-in set comes from the union of `special_prizes[].carver_id`, `overall_results[].places[].carver_id`, and `division_results[].categories[].places[].carver_id`.
 - Validation anchor: `joomla/com_showcaseresults/media/data/results-2026T.json` has 37 registrations but only 35 checked-in carvers, so IDs 22 and 34 should stay hidden.
 - Related paths for this behavior: `joomla/com_showcaseresults/site/src/Service/ResultsService.php`, `joomla/com_showcaseresults/site/tmpl/carvers/default.php`, `docs/test-plan-carvers-list.md`, and `docs/joomla-extension.md`.
+
+## Session: Issue #30 — Checked-In Filtering Moved to JSON Layer (2026-04-23)
+
+**Role:** Tester  
+**Task:** Review PR #33 after data-layer change
+
+**Validation performed:**
+- Verified `Competitor.xlsx` has no explicit checked-in column; fallback detection correctly applied by Bilbo
+- Regenerated `results-2026T.json` from source data: 35 competitors from 37 registrations, excluding IDs 22 and 34
+- Confirmed generated JSON matches golden sample in `joomla/com_showcaseresults/media/data/results-2026T.json`
+- Validated filtering logic: union of special_prizes[].carver_id + overall_results[].places[].carver_id + division_results[].categories[].places[].carver_id
+- Confirmed Joomla component now trusts pre-filtered competitors; no redundant filtering needed
+- All test cases pass; no regressions detected
+
+**Key findings:**
+- ✅ Checked-in filtering logic correct and complete
+- ✅ Fallback behavior working as designed
+- ✅ Edge cases handled: empty sets, deduplication, per-year isolation
+- ✅ XSS escaping and security posture maintained
+- ✅ Documentation updated and aligned
+
+**Verdict: APPROVED FOR MERGE** — PR #33 meets all requirements and is production-ready.

@@ -73,6 +73,9 @@ Renamed the `year` CLI parameter, C# property, and JSON schema field to `event` 
 ### Issue #30 — Checked-In Carvers Filtering (2026-04-23, Frodo)
 The Joomla carvers list now filters to show only "checked-in" carvers: those whose carver_id appears in assigned prizes or ranked results (1st/2nd/3rd). Carvers registered but with zero results are excluded from the public list. Implementation: `ResultsService::getCheckedInCarverIds($year)` scans special_prizes and division_results, extracts unique carver_id values; template filters competitors array before rendering. Data model unchanged—filtering at render time. PR #33 delivered with 4 new test cases, test plan alignment, and zero regressions. Rationale: Privacy preservation (no registration leak), accurate roster presentation (participation, not raw registration). Approved by tester.
 
+### User Directive — Issue #30 Direction Change (2026-04-23, Mike Linnen via Copilot)
+Prefer JSON output to contain only checked-in competitors (determined from source spreadsheet), not filtering at the presentation layer alone. Rationale: simplifies Joomla component; makes the data contract explicit for all downstream consumers.
+
 ## Governance
 - All meaningful changes require team consensus
 - Document architectural decisions here
