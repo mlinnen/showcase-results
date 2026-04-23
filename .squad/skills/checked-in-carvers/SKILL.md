@@ -17,6 +17,7 @@ Use this when building or updating Joomla views that expose a public list of car
   - `division_results[].categories[].places[].carver_id`
 - After collecting the checked-in IDs, filter `competitors` down to matching rows so the list can still use competitor metadata like full name and division.
 - Keep the output sorted exactly as the view expects after filtering; filtering should not change the display sort contract.
+- Validate the rule against a sample results file by comparing the registration count with the unique checked-in ID count and naming at least one excluded registration.
 
 ## Examples
 - `joomla/com_showcaseresults/site/src/Service/ResultsService.php` — `collectCheckedInCarverIds()` plus filtered `getCarversList()`

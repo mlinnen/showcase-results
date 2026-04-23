@@ -133,3 +133,13 @@ Ready for commit to main branch.
 **Verdict:** REJECTED — Return to developer for fixes
 
 **Next:** Gandalf assigned to apply fixes
+
+### Issue #30 — Checked-In Carvers Validation (2026-04-23)
+
+**Reviewed:** PR #33 for `joomla/com_showcaseresults/site/src/Service/ResultsService.php` and related carvers-list docs.
+
+**Learnings:**
+- Public carvers lists must be derived from result-bearing `carver_id` values, not directly from the `competitors` registration array.
+- The checked-in set comes from the union of `special_prizes[].carver_id`, `overall_results[].places[].carver_id`, and `division_results[].categories[].places[].carver_id`.
+- Validation anchor: `joomla/com_showcaseresults/media/data/results-2026T.json` has 37 registrations but only 35 checked-in carvers, so IDs 22 and 34 should stay hidden.
+- Related paths for this behavior: `joomla/com_showcaseresults/site/src/Service/ResultsService.php`, `joomla/com_showcaseresults/site/tmpl/carvers/default.php`, `docs/test-plan-carvers-list.md`, and `docs/joomla-extension.md`.

@@ -24,8 +24,8 @@ This test plan validates the **Carvers List View** for the com_showcaseresults J
   - Carver 4: "D. Brown" (Professional) — carver with initial only
   - Carver 5: "Edward <b>Tagged</b>" (Novice) — test XSS escaping with HTML tags
   - Carver 6: "Frank O'Brien" (Intermediate) — test special characters in name
-  - Multiple carvers with no results (registered but no wins) to test they still appear in list
-- **Note:** Carvers without results (no special_prizes, overall_results, or division_results) should still appear
+  - Multiple registered carvers with no results (no assigned prize or ranked placement) to test they stay hidden from the public list
+- **Note:** Carvers without results should remain in the `competitors` registration array but be excluded from the rendered carvers list
 
 ### `results-2023.json`
 - **Minimum 10 competitors** with at least 3 from different divisions
@@ -405,7 +405,7 @@ This test plan validates the **Carvers List View** for the com_showcaseresults J
 - [ ] Carvers sorted correctly by last name, then first name
 - [ ] Event selector appears when no event parameter provided
 - [ ] Error handling is user-friendly and informative
-- [ ] All carvers (including those with no results) appear in list
+- [ ] Only checked-in carvers appear in list
 - [ ] Links to carver detail view are correct
 
 ---
