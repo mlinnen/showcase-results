@@ -12,7 +12,7 @@ public record DivisionCategory(string Name, string? Style, List<PlaceEntry> Plac
 
 public record DivisionResult(string Division, List<DivisionCategory> Categories);
 
-public record Competitor(int CarverId, string FirstName, string LastName, string? Division);
+public record Competitor(int CarverId, string FirstName, string LastName, string? Division, bool CheckedIn);
 
 public record ShowcaseResultsData(
     EventInfo Event,

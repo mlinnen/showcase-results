@@ -102,16 +102,20 @@
       }
     },
     "competitors": {
-      "description": "All registered competitors from Competitor.xlsx. PII fields excluded.",
+      "description": "Competitor directory for Joomla lookups. When Competitor.xlsx has an explicit checked-in column, include every checked-in row plus any prize/result-bearing competitors needed to keep carver_id lookups intact. Older sheets without that column fall back to competitors referenced by prizes/results. PII fields excluded.",
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["carver_id", "first_name", "last_name"],
+        "required": ["carver_id", "first_name", "last_name", "checked_in"],
         "additionalProperties": false,
         "properties": {
           "carver_id":  { "type": "integer", "minimum": 1 },
           "first_name": { "type": "string", "minLength": 1 },
           "last_name":  { "type": "string", "minLength": 1 },
+          "checked_in": {
+            "type": "boolean",
+            "description": "True when the competitor sheet marks this row checked in. False is reserved for integrity-only rows kept because they appear in prizes/results."
+          },
           "division":   {
             "type": ["string", "null"],
             "enum": ["Intermediate", "Novice", "Open", null],

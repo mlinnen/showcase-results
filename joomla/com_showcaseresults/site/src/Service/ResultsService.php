@@ -246,7 +246,7 @@ class ResultsService
         {
             return [
                 'error' => 'no_results_for_carver',
-                'error_message' => "{$carverName} is a registered competitor in {$event} but has no recorded results.",
+                'error_message' => "{$carverName} is a checked-in competitor in {$event} but has no recorded results.",
                 'carver_name' => $carverName,
                 'search_event' => $event,
                 'results' => []
@@ -345,7 +345,7 @@ class ResultsService
         {
             return [
                 'error' => 'no_results_for_carver',
-                'error_message' => "{$carverName} is a registered competitor in {$event} but has no recorded results.",
+                'error_message' => "{$carverName} is a checked-in competitor in {$event} but has no recorded results.",
                 'carver_name' => $carverName,
                 'search_event' => $event,
                 'results' => []
@@ -430,6 +430,8 @@ class ResultsService
      *
      * Returns an array with keys: event_name, event_year, carvers (sorted by carver_id ascending).
      * Each carver entry: carver_id, first_name, last_name, full_name, division.
+     * The JSON competitors array includes all checked-in competitors plus any result-bearing
+     * competitors needed for lookup integrity. This list view should show only checked-in rows.
      *
      * @param   string  $event  Event identifier
      *
@@ -468,11 +470,17 @@ class ResultsService
 
         foreach ($data['competitors'] ?? [] as $comp)
         {
+            if (array_key_exists('checked_in', $comp) && !$comp['checked_in'])
+            {
+                continue;
+            }
+
+            $carverId = $comp['carver_id'] ?? 0;
             $firstName = $comp['first_name'] ?? '';
             $lastName  = $comp['last_name'] ?? '';
 
             $carvers[] = [
-                'carver_id'  => $comp['carver_id'] ?? 0,
+                'carver_id'  => $carverId,
                 'first_name' => $firstName,
                 'last_name'  => $lastName,
                 'full_name'  => trim($firstName . ' ' . $lastName),

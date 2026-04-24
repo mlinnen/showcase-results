@@ -70,6 +70,18 @@ Moved `showcase-results.sln` from repo root to `src/showcase-results.sln`. Updat
 ### Decision: Rename `year` Parameter to `event` (2026-04-01, Bilbo)
 Renamed the `year` CLI parameter, C# property, and JSON schema field to `event` throughout the codebase. Rationale: The parameter value is an event identifier (alphanumeric per ADR-007, may include suffixes like `2026T`); the name `year` is misleading. Changes: EventInfo.Year → EventInfo.EventId; --year → --event; event.year → event.event in schema. Breaking changes: CLI interface and JSON output schema. Build verified: 0 errors. Joomla component and JSON consumers must be updated to read `event.event` instead of `event.year`.
 
+### Issue #30 — Checked-In Carvers Filtering (2026-04-23, Frodo)
+The Joomla carvers list now filters to show only "checked-in" carvers: those whose carver_id appears in assigned prizes or ranked results (1st/2nd/3rd). Carvers registered but with zero results are excluded from the public list. Implementation: `ResultsService::getCheckedInCarverIds($year)` scans special_prizes and division_results, extracts unique carver_id values; template filters competitors array before rendering. Data model unchanged—filtering at render time. PR #33 delivered with 4 new test cases, test plan alignment, and zero regressions. Rationale: Privacy preservation (no registration leak), accurate roster presentation (participation, not raw registration). Approved by tester.
+
+### User Directive — Issue #30 Direction Change (2026-04-23, Mike Linnen via Copilot)
+Prefer JSON output to contain only checked-in competitors (determined from source spreadsheet), not filtering at the presentation layer alone. Rationale: simplifies Joomla component; makes the data contract explicit for all downstream consumers.
+
+### Issue #34 — AppSheet API as Optional Data Source: Implementation Plan Posted (2026-04-24, Gandalf)
+Research complete and implementation plan posted to GitHub issue #34 comment: https://github.com/mlinnen/showcase-results/issues/34#issuecomment-4305517069. Planned architecture: `IDataProvider` abstraction (Phase 1) with `SpreadsheetParser` and new `AppSheetParser` implementations. `AppSheetClient` provides HTTP layer with `FindRowsAsync()` (Phase 2). CLI adds `--source spreadsheet|appsheet`, `--appsheet-app-id`, `--appsheet-api-key`, and table name options (Phase 4). Five-phase roadmap (34-A through 34-E). Risk assessment: 7 unknowns (AppSheet table/column names, carver ID format, check-in column, API limits, key storage). Suggested owners: Bilbo (Phase 1–4), Aragorn (Phase 5 review), Scribe (Phase 5 docs). Key design: zero downstream changes via IDataProvider abstraction; async strategy uses `.GetAwaiter().GetResult()` in CLI handler; env var fallback for API key. Blockers: User input required on AppSheet app/table/column structure before Phase 2 begins.
+
+### Issue #34 GitHub Comment Posted (2026-04-24, Gandalf)
+Implementation plan posted to issue #34: https://github.com/mlinnen/showcase-results/issues/34#issuecomment-4305517069. Five-phase roadmap documented with full risk assessment and dependency graph. Next action: User (Mike) confirms AppSheet app/table/column structure; squad schedules Phase 1 design review.
+
 ## Governance
 - All meaningful changes require team consensus
 - Document architectural decisions here

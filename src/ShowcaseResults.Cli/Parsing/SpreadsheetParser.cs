@@ -1,5 +1,6 @@
 using ClosedXML.Excel;
 using ShowcaseResults.Models;
+using System.Text.RegularExpressions;
 
 namespace ShowcaseResults.Parsing;
 
@@ -105,14 +106,29 @@ public class SpreadsheetParser
     public List<Competitor> ParseCompetitors()
     {
         var rows = ReadSheet(_competitorsPath);
+        var checkInColumn = FindCheckedInColumn(rows);
+
         return rows
             .Where(r => r.GetValueOrDefault("Carver ID") != null)
-            .Select(r => new Competitor(
-                int.Parse(r["Carver ID"]!),
-                r.GetValueOrDefault("First Name")?.Trim() ?? "",
-                r.GetValueOrDefault("Last Name")?.Trim() ?? "",
-                NormalizeDivision(r.GetValueOrDefault("Division"))))
+            .Select(r => MapCompetitor(r, checkInColumn))
             .ToList();
+    }
+
+    public (List<Competitor> Competitors, string? CheckedInColumn) ParseCompetitorsForJson()
+    {
+        var rows = ReadSheet(_competitorsPath);
+        var checkInColumn = FindCheckedInColumn(rows);
+        var competitors = rows
+            .Where(r => r.GetValueOrDefault("Carver ID") != null)
+            .Select(r => MapCompetitor(r, checkInColumn))
+            .ToList();
+
+        if (checkInColumn == null)
+        {
+            return (competitors, null);
+        }
+
+        return (competitors, checkInColumn);
     }
 
     public List<SpecialPrize> ParseSpecialPrizes()
@@ -216,5 +232,113 @@ public class SpreadsheetParser
             .ToList();
 
         return (overallResults, divisionResults);
+    }
+
+    private static string? FindCheckedInColumn(List<Dictionary<string, string?>> rows)
+    {
+        if (rows.Count == 0)
+        {
+            return null;
+        }
+
+        string? bestColumn = null;
+        int bestScore = 0;
+
+        foreach (var header in rows[0].Keys)
+        {
+            if (!IsPotentialCheckInHeader(header))
+            {
+                continue;
+            }
+
+            int parsedValues = 0;
+
+            foreach (var row in rows)
+            {
+                if (TryParseCheckInValue(row.GetValueOrDefault(header), out _))
+                {
+                    parsedValues++;
+                }
+            }
+
+            if (parsedValues > bestScore)
+            {
+                bestColumn = header;
+                bestScore = parsedValues;
+            }
+        }
+
+        return bestScore > 0 ? bestColumn : null;
+    }
+
+    private static Competitor MapCompetitor(Dictionary<string, string?> row, string? checkedInColumn)
+    {
+        return new Competitor(
+            int.Parse(row["Carver ID"]!),
+            row.GetValueOrDefault("First Name")?.Trim() ?? "",
+            row.GetValueOrDefault("Last Name")?.Trim() ?? "",
+            NormalizeDivision(row.GetValueOrDefault("Division")),
+            IsCheckedIn(row, checkedInColumn));
+    }
+
+    private static bool IsCheckedIn(Dictionary<string, string?> row, string? checkedInColumn)
+    {
+        if (checkedInColumn == null)
+        {
+            return true;
+        }
+
+        return TryParseCheckInValue(row.GetValueOrDefault(checkedInColumn), out var isCheckedIn) && isCheckedIn;
+    }
+
+    private static bool IsPotentialCheckInHeader(string header)
+    {
+        var normalizedHeader = Regex.Replace(header, @"[^A-Za-z0-9]+", " ")
+            .Trim()
+            .ToLowerInvariant();
+
+        return normalizedHeader is "checked in"
+            or "check in"
+            or "checkedin"
+            or "checkin"
+            or "is checked in"
+            or "checked in status"
+            or "check in status"
+            or "present"
+            or "attendance";
+    }
+
+    private static bool TryParseCheckInValue(string? value, out bool isCheckedIn)
+    {
+        var normalizedValue = value?.Trim().ToLowerInvariant();
+
+        switch (normalizedValue)
+        {
+            case "true":
+            case "yes":
+            case "y":
+            case "1":
+            case "x":
+            case "checked in":
+            case "checked-in":
+            case "present":
+                isCheckedIn = true;
+                return true;
+            case "false":
+            case "no":
+            case "n":
+            case "0":
+            case "checked out":
+            case "not checked in":
+            case "not checked-in":
+            case "absent":
+            case "":
+            case null:
+                isCheckedIn = false;
+                return normalizedValue != null;
+            default:
+                isCheckedIn = false;
+                return false;
+        }
     }
 }

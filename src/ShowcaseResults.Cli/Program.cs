@@ -5,6 +5,22 @@ using ShowcaseResults.Models;
 using ShowcaseResults.Parsing;
 using ShowcaseResults.Rendering;
 
+static HashSet<int> CollectFallbackCheckedInCarverIds(
+    IEnumerable<SpecialPrize> specialPrizes,
+    IEnumerable<OverallCategory> overallResults,
+    IEnumerable<DivisionResult> divisionResults)
+{
+    var checkedInCarverIds = new HashSet<int>(specialPrizes.Select(prize => prize.CarverId));
+
+    foreach (var place in overallResults.SelectMany(category => category.Places))
+        checkedInCarverIds.Add(place.CarverId);
+
+    foreach (var place in divisionResults.SelectMany(division => division.Categories).SelectMany(category => category.Places))
+        checkedInCarverIds.Add(place.CarverId);
+
+    return checkedInCarverIds;
+}
+
 var rootCommand = new RootCommand("showcase-results CLI");
 
 var createCommand = new Command("create", "Create showcase results output");
@@ -82,9 +98,40 @@ resultsCommand.SetHandler((InvocationContext ctx) =>
 
     var parser = new SpreadsheetParser(competitors, prizes, judging);
 
-    var competitorList = parser.ParseCompetitors();
+    var (competitorList, checkedInColumn) = parser.ParseCompetitorsForJson();
     var specialPrizes  = parser.ParseSpecialPrizes();
     var (overallResults, divisionResults) = parser.ParseJudging();
+    var resultBearingCarverIds = CollectFallbackCheckedInCarverIds(specialPrizes, overallResults, divisionResults);
+
+    if (checkedInColumn == null)
+    {
+        competitorList = competitorList
+            .Where(competitor => resultBearingCarverIds.Contains(competitor.CarverId))
+            .ToList();
+
+        Console.WriteLine("  Competitor.xlsx has no checked-in column; using prize/result rows only as a backward-compatible fallback.");
+    }
+    else
+    {
+        var integrityCompetitors = competitorList
+            .Where(competitor => !competitor.CheckedIn && resultBearingCarverIds.Contains(competitor.CarverId))
+            .ToList();
+
+        competitorList = competitorList
+            .Where(competitor => competitor.CheckedIn || resultBearingCarverIds.Contains(competitor.CarverId))
+            .ToList();
+
+        Console.WriteLine($"  Using Competitor.xlsx \"{checkedInColumn}\" column as the primary public-list signal.");
+
+        if (integrityCompetitors.Count > 0)
+        {
+            var preview = string.Join(", ", integrityCompetitors
+                .Take(5)
+                .Select(competitor => $"{competitor.CarverId} {competitor.FirstName} {competitor.LastName}".Trim()));
+            var suffix = integrityCompetitors.Count > 5 ? ", ..." : "";
+            Console.WriteLine($"  WARN: keeping {integrityCompetitors.Count} result-bearing competitor(s) in JSON with checked_in=false so Joomla name/detail lookups remain intact: {preview}{suffix}");
+        }
+    }
 
     Console.WriteLine($"  {specialPrizes.Count} special prizes");
     Console.WriteLine($"  {overallResults.Count} overall result categories");

@@ -74,6 +74,24 @@ Implemented year-as-string throughout Joomla component:
 
 Status: ✅ COMPLETED - Both tasks merged and validated.
 
+## Session: Issue #30 — Checked-In Carvers Filtering (2026-04-23)
+
+**Status:** ✅ COMPLETE and merged to dev.
+
+**Objective:** Filter the public carvers list to show only checked-in carvers (those with carver_id appearing in special prizes or ranked results).
+
+**Implementation:**
+- Added `ResultsService::getCheckedInCarverIds($year)` method to scan prizes and results, extract unique carver_id values
+- Modified `site/tmpl/carvers/default.php` to filter competitors array before rendering
+- Updated `docs/joomla-extension.md` to document checked-in semantics
+- Extended `docs/test-plan-carvers-list.md` with 4 new test cases
+
+**Key Decision:** Checked-in filtering preserves data integrity (no JSON changes) while ensuring the public list reflects participation, not raw registration. Non-competing registrations remain hidden.
+
+**Quality:** ✅ Approved by tester (Aragorn); no regressions; component ZIP rebuilt and verified.
+
+**PR:** #33 — Branch `squad/30-only-show-checked-in-carvers-in-list`
+
 ## Learnings
 
 ### Session: `year` → `event` parameter rename (2026-04-01)
@@ -114,3 +132,17 @@ Status: ✅ COMPLETED - Both tasks merged and validated.
 **Changes made:**
 - `README.md`: Added `--format` row to the options table; added two new examples ("Generate JSON only", "Generate both HTML and JSON").
 - `docs/joomla-extension.md`: Replaced the single quick-example block with two examples (JSON-only, both formats), added a one-line explanation of `--format`, and updated the CLI Features bullet to reflect format control.
+
+### Session: Issue #30 — checked-in carvers only (2026-04-23)
+
+**Task:** Restrict the Joomla carvers list so it only shows checked-in carvers instead of every registered competitor.
+
+**Pattern chosen:** In the Joomla list view, treat a carver as checked in when their `carver_id` appears anywhere in assigned `special_prizes`, `overall_results[].places`, or `division_results[].categories[].places`. Do not drive the public list directly from the raw `competitors` array.
+
+**Files updated:**
+- `joomla/com_showcaseresults/site/src/Service/ResultsService.php` — `getCarversList()` now filters competitors through a new `collectCheckedInCarverIds()` helper before rendering the public list
+- `joomla/com_showcaseresults/site/tmpl/carvers/default.php` — selector copy now says "checked-in carvers"
+- `docs/joomla-extension.md` — user guide now describes the carvers list as checked-in carvers
+- `docs/test-plan-carvers-list.md` — manual test plan updated so no-result registrations are expected to be hidden
+
+**Key verification detail:** Sample event `joomla/com_showcaseresults/media/data/results-2026T.json` has 37 registrations but only 35 checked-in/result-bearing carvers; IDs 22 and 34 are excluded by the new rule.
