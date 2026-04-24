@@ -102,7 +102,7 @@
       }
     },
     "competitors": {
-      "description": "Checked-in competitors from Competitor.xlsx. If the sheet has no explicit checked-in signal, the parser falls back to competitors referenced by prizes/results. PII fields excluded.",
+      "description": "Checked-in competitors from Competitor.xlsx, using the explicit \"Checked In\" column when present. Older sheets without that column fall back to competitors referenced by prizes/results. PII fields excluded.",
       "type": "array",
       "items": {
         "type": "object",

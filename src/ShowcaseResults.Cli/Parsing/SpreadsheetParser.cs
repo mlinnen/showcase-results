@@ -116,7 +116,7 @@ public class SpreadsheetParser
             .ToList();
     }
 
-    public List<Competitor> ParseCompetitorsForJson(out bool usedSourceCheckInSignal)
+    public (List<Competitor> Competitors, string? CheckedInColumn) ParseCompetitorsForJson()
     {
         var rows = ReadSheet(_competitorsPath);
         var competitors = rows
@@ -132,13 +132,10 @@ public class SpreadsheetParser
 
         if (checkInColumn == null)
         {
-            usedSourceCheckInSignal = false;
-            return competitors;
+            return (competitors, null);
         }
 
-        usedSourceCheckInSignal = true;
-
-        return rows
+        var checkedInCompetitors = rows
             .Where(r =>
                 r.GetValueOrDefault("Carver ID") != null &&
                 TryParseCheckInValue(r.GetValueOrDefault(checkInColumn), out var isCheckedIn) &&
@@ -149,6 +146,8 @@ public class SpreadsheetParser
                 r.GetValueOrDefault("Last Name")?.Trim() ?? "",
                 NormalizeDivision(r.GetValueOrDefault("Division"))))
             .ToList();
+
+        return (checkedInCompetitors, checkInColumn);
     }
 
     public List<SpecialPrize> ParseSpecialPrizes()

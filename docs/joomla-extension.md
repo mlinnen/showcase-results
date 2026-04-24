@@ -276,7 +276,7 @@ The `--format` option accepts `html` and `json`. It can be repeated to produce b
 
 This generates `output/results-{event}.json`. Upload it to `media/com_showcaseresults/data/` on your Joomla server.
 
-The generated JSON `competitors` array contains only checked-in carvers. When `Competitor.xlsx` includes an explicit checked-in signal, the CLI uses that column directly. If the competitor sheet has no checked-in field, the CLI falls back to competitors referenced by assigned prizes or ranked judging results and reports that fallback during generation.
+The generated JSON `competitors` array contains only checked-in carvers. In the current source workbook, `Competitor.xlsx` uses the `Checked In` column as the source of truth, so checked-in carvers stay in the Joomla list even if they did not win anything. The older prize/result fallback remains only for spreadsheets that truly do not have a checked-in field.
 
 ### CLI Features
 

@@ -24,8 +24,8 @@ This test plan validates the **Carvers List View** for the com_showcaseresults J
   - Carver 4: "D. Brown" (Professional) — carver with initial only
   - Carver 5: "Edward <b>Tagged</b>" (Novice) — test XSS escaping with HTML tags
   - Carver 6: "Frank O'Brien" (Intermediate) — test special characters in name
-  - Multiple source registrations with no results (no assigned prize or ranked placement) to test they are excluded from the generated JSON
-- **Note:** The generated `competitors` array should already contain only checked-in carvers
+  - Multiple checked-in source registrations with no results (no assigned prize or ranked placement) to verify they still appear in the generated JSON
+- **Note:** The generated `competitors` array should already contain only rows marked checked in by the competitor spreadsheet
 
 ### `results-2023.json`
 - **Minimum 10 competitors** with at least 3 from different divisions
@@ -137,21 +137,21 @@ This test plan validates the **Carvers List View** for the com_showcaseresults J
 
 ---
 
-### 6. Carver with No Results Is Hidden from List
+### 6. Checked-In Carver with No Results Still Appears
 
 **Input:**
 - Navigate to `?event=2024`
-- Compare the generated JSON against the source spreadsheet and confirm registrations with no prize/result rows were excluded upstream
+- Compare the generated JSON against the source spreadsheet and confirm rows marked checked in are preserved upstream even when they have no prize/result rows
 
 **Expected Output:**
-- Carvers with no results do not appear in the list
+- Checked-in carvers with no results still appear in the list
 - Only carvers present in the JSON `competitors` array appear
-- No placeholder row or warning is shown for excluded registrations
+- No placeholder row or warning is shown for checked-in competitors who simply have no placements
 
 **Pass Criteria:**
-- [ ] Carvers with no results are excluded from the list
+- [ ] Checked-in carvers with no results are included in the list
 - [ ] Visible carver count matches the `competitors` array length in the JSON file
-- [ ] No placeholder or warning row appears for excluded registrations
+- [ ] No placeholder or warning row appears for checked-in competitors with no placements
 
 ---
 

@@ -5,7 +5,7 @@ using ShowcaseResults.Models;
 using ShowcaseResults.Parsing;
 using ShowcaseResults.Rendering;
 
-static HashSet<int> CollectCheckedInCarverIds(
+static HashSet<int> CollectFallbackCheckedInCarverIds(
     IEnumerable<SpecialPrize> specialPrizes,
     IEnumerable<OverallCategory> overallResults,
     IEnumerable<DivisionResult> divisionResults)
@@ -98,22 +98,22 @@ resultsCommand.SetHandler((InvocationContext ctx) =>
 
     var parser = new SpreadsheetParser(competitors, prizes, judging);
 
-    var competitorList = parser.ParseCompetitorsForJson(out var usedSourceCheckInSignal);
+    var (competitorList, checkedInColumn) = parser.ParseCompetitorsForJson();
     var specialPrizes  = parser.ParseSpecialPrizes();
     var (overallResults, divisionResults) = parser.ParseJudging();
 
-    if (!usedSourceCheckInSignal)
+    if (checkedInColumn == null)
     {
-        var checkedInCarverIds = CollectCheckedInCarverIds(specialPrizes, overallResults, divisionResults);
+        var checkedInCarverIds = CollectFallbackCheckedInCarverIds(specialPrizes, overallResults, divisionResults);
         competitorList = competitorList
             .Where(competitor => checkedInCarverIds.Contains(competitor.CarverId))
             .ToList();
 
-        Console.WriteLine("  Competitor.xlsx has no checked-in column; using prize/result rows to limit JSON competitors.");
+        Console.WriteLine("  Competitor.xlsx has no checked-in column; using prize/result rows only as a backward-compatible fallback.");
     }
     else
     {
-        Console.WriteLine("  Using Competitor.xlsx checked-in column to limit JSON competitors.");
+        Console.WriteLine($"  Using Competitor.xlsx \"{checkedInColumn}\" column as the JSON competitors source of truth.");
     }
 
     Console.WriteLine($"  {specialPrizes.Count} special prizes");

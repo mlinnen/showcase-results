@@ -12,12 +12,15 @@ Use this when building or updating the spreadsheet-to-JSON pipeline or Joomla vi
 ## Patterns
 - Prefer emitting only checked-in carvers in the JSON `competitors` array so downstream consumers do not need duplicate filtering logic.
 - Use the competitor spreadsheet's own checked-in signal when it exists.
+- Treat the source sheet's explicit checked-in column as authoritative even when a checked-in carver has no prizes or placements.
+- In the current workbook, the explicit column name is `Checked In` and values like `Yes` should be treated as checked in.
 - If the competitor sheet truly lacks a checked-in field, fall back to the union of result-bearing `carver_id` values.
 - Build the checked-in set from the union of:
   - `special_prizes[].carver_id`
   - `overall_results[].places[].carver_id`
   - `division_results[].categories[].places[].carver_id`
 - After collecting the checked-in IDs, filter `competitors` down to matching rows so the list can still use competitor metadata like full name and division.
+- Do not drop checked-in competitors just because they have zero results; that was only a fallback heuristic when no explicit check-in field existed.
 - Keep the output sorted exactly as the consumer expects after filtering; filtering should not change the display sort contract.
 - Validate the rule against a sample results file by comparing the registration count with the unique checked-in ID count and naming at least one excluded registration.
 

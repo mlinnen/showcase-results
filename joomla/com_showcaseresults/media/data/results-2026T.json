@@ -3610,6 +3610,12 @@
       "division": "Intermediate"
     },
     {
+      "carver_id": 22,
+      "first_name": "Oscar",
+      "last_name": "Brown",
+      "division": "Open"
+    },
+    {
       "carver_id": 23,
       "first_name": "Lucille",
       "last_name": "Reid",
@@ -3668,6 +3674,12 @@
       "first_name": "Adrian",
       "last_name": "Byrd",
       "division": "Novice"
+    },
+    {
+      "carver_id": 34,
+      "first_name": "Candace",
+      "last_name": "Caun",
+      "division": "Intermediate"
     },
     {
       "carver_id": 35,

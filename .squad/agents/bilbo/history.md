@@ -10,6 +10,12 @@
 
 <!-- Append learnings below -->
 
+## 2026-04-24 — Issue #30 explicit checked-in column
+
+- Source data update: `data/example/example_Competitor.xlsx` now includes an explicit `Checked In` column, and I synced that workbook into `data/input/Competitor.xlsx` for generation.
+- Parser/output pattern: `src/ShowcaseResults.Cli/Parsing/SpreadsheetParser.cs` now returns the checked-in column name alongside filtered competitors so `src/ShowcaseResults.Cli/Program.cs` can treat the source column as authoritative and keep the prize/result heuristic only as a backward-compatible fallback.
+- Contract update: checked-in competitors can now appear in `competitors` even with zero placements, so `joomla/com_showcaseresults/media/data/results-2026T.json`, `README.md`, `schema/results.schema.json`, `docs/joomla-extension.md`, and `docs/test-plan-carvers-list.md` all need to describe that explicit-column behavior consistently.
+
 ## 2026-04-23 — Issue #30 JSON-layer checked-in filtering
 
 - User preference: enforce checked-in filtering in the generated JSON, not only in Joomla rendering.

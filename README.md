@@ -34,7 +34,7 @@ All options are optional. If the spreadsheet paths are omitted the tool looks fo
 | `--prizes` | `data/input/Prizes.xlsx` | Path to the prizes spreadsheet |
 | `--judging` | `data/input/Judging.xlsx` | Path to the judging results spreadsheet |
 | `--output` | `output/article.html` | Path for the generated HTML file |
-| `--format` | `html` | Output format(s): `html`, `json`. JSON keeps only checked-in competitors from the competitor sheet when available, otherwise it falls back to competitors referenced by prizes/results. Can be repeated to produce both: `--format html --format json` |
+| `--format` | `html` | Output format(s): `html`, `json`. JSON keeps only rows marked checked in in `Competitor.xlsx` (currently the `Checked In` column). Older sheets without that column fall back to competitors referenced by prizes/results. Can be repeated to produce both: `--format html --format json` |
 
 ### Examples
 
@@ -62,7 +62,7 @@ Generate JSON output only (for Joomla component data):
 showcase-results create results --format json
 ```
 
-The JSON `competitors` array is limited to checked-in carvers. If `Competitor.xlsx` has an explicit checked-in column, that column drives the filter. If the sheet has no checked-in signal, the CLI falls back to competitors referenced by assigned prizes or ranked judging results and reports that fallback on the console.
+The JSON `competitors` array is limited to checked-in carvers. In the current source workbook, `Competitor.xlsx` uses the `Checked In` column as the source of truth: truthy values such as `Yes` are included, and blank/falsey values are excluded. A results-based fallback remains only for older spreadsheets that do not have a checked-in column.
 
 Generate both HTML and JSON in a single run:
 
@@ -97,7 +97,7 @@ Each spreadsheet has a merged title in row 1 (skipped), column headers in row 2,
 
 | File | Required columns |
 |------|-----------------|
-| `Competitor.xlsx` | `Carver ID`, `First Name`, `Last Name` |
+| `Competitor.xlsx` | `Carver ID`, `First Name`, `Last Name`, `Checked In` |
 | `Prizes.xlsx` | `Name`, `Carver`, `Order`, `Entry #`, `Prize` |
 | `Judging.xlsx` | `Category`, `Division`, `Style`, `1st`, `2nd`, `3rd`, `#`, `#_1`, `#_2` |
 

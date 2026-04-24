@@ -44,7 +44,7 @@ Refer to `schema/results.schema.json` for complete field definitions and validat
 |-----------|------------|-----------|---------|
 | 16 | John | Smith | Has ALL three result types (special prizes, overall, division) |
 | 23 | Jane | Doe | Appears in both 2024 and 2023 (different carver_id: 19 in 2023) |
-| 8 | Bob | Wilson | Checked-in competitor with ZERO results (tests error handling) |
+| 8 | Bob | Wilson | Checked-in competitor with ZERO results; stays in `competitors` because the source checked-in column says yes |
 | 42 | Alice | Brown | Only appears in 2024 (single-year carver) |
 | 5 | Charlie | Green | Only in 2024, has division results only |
 | 11 | Diana | Lee | Has special prizes only |
