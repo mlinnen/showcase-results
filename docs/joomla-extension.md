@@ -157,12 +157,14 @@ If you're manually creating or editing a results file, here's the structure:
       "carver_id": 1,
       "first_name": "Jane",
       "last_name": "Doe",
+      "checked_in": true,
       "division": "Novice"
     },
     {
       "carver_id": 16,
       "first_name": "John",
       "last_name": "Smith",
+      "checked_in": false,
       "division": ""
     }
   ],
@@ -222,6 +224,7 @@ If you're manually creating or editing a results file, here's the structure:
       "carver_id": 1,
       "first_name": "Jane",
       "last_name": "Doe",
+      "checked_in": true,
       "division": "Novice"
     }
   ],
@@ -237,7 +240,7 @@ If you're manually creating or editing a results file, here's the structure:
 
 - **event.name:** The event title (e.g., "41st Showcase of Woodcarvings")
 - **event.event_id:** Event identifier string (e.g., `"2024"` or `"2026T"`); must match the filename suffix
-- **competitors:** Checked-in carvers only; includes `carver_id` (unique per event), name, and optional `division` field
+- **competitors:** Joomla lookup directory; includes every checked-in carver plus any result-bearing competitor retained for integrity, along with `carver_id` (unique per event), name, `checked_in`, and optional `division`
 - **special_prizes:** Awards and winners; ordered by `order` field (lower = higher priority)
 - **overall_results:** Competition categories with 1st/2nd/3rd places
 - **division_results:** Results grouped by division (Novice, Intermediate, Master, etc.); each division has categories with ranked places
@@ -246,7 +249,8 @@ If you're manually creating or editing a results file, here's the structure:
 ### Notes on Fields
 
 - **carver_id:** Unique only within an event—do not assume it correlates across years
-- **division:** Optional; if missing, the checked-in carver may still appear only in special prizes or overall results
+- **checked_in:** Primary signal for whether the public Carvers List should show this row. `false` means keep the row for name/detail lookup integrity, not for the checked-in list.
+- **division:** Optional; if missing, the competitor may still appear only in special prizes or overall results
 - **style:** In categories, `"N"` = Natural, `"P"` = Painted, `null` = award-only (no style)
 - **entry_number:** 0 or null means no entry number; the UI renders an empty cell
 
@@ -276,7 +280,7 @@ The `--format` option accepts `html` and `json`. It can be repeated to produce b
 
 This generates `output/results-{event}.json`. Upload it to `media/com_showcaseresults/data/` on your Joomla server.
 
-The generated JSON `competitors` array contains only checked-in carvers. In the current source workbook, `Competitor.xlsx` uses the `Checked In` column as the source of truth, so checked-in carvers stay in the Joomla list even if they did not win anything. The older prize/result fallback remains only for spreadsheets that truly do not have a checked-in field.
+The generated JSON `competitors` array is the shared competitor directory for Joomla. In the current source workbook, `Competitor.xlsx` uses the `Checked In` column as the primary source of truth, so checked-in carvers stay in the Joomla list even if they did not win anything. If a real winner is marked unchecked, the CLI still keeps that competitor row in JSON with `checked_in: false` so name/detail lookups and winner rendering do not lose the person behind the result. The older prize/result fallback remains only for spreadsheets that truly do not have a checked-in field.
 
 ### CLI Features
 

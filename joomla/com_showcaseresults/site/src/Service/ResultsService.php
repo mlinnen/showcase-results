@@ -430,7 +430,8 @@ class ResultsService
      *
      * Returns an array with keys: event_name, event_year, carvers (sorted by carver_id ascending).
      * Each carver entry: carver_id, first_name, last_name, full_name, division.
-     * The JSON competitors array is expected to already contain only checked-in carvers.
+     * The JSON competitors array includes all checked-in competitors plus any result-bearing
+     * competitors needed for lookup integrity. This list view should show only checked-in rows.
      *
      * @param   string  $event  Event identifier
      *
@@ -469,6 +470,11 @@ class ResultsService
 
         foreach ($data['competitors'] ?? [] as $comp)
         {
+            if (array_key_exists('checked_in', $comp) && !$comp['checked_in'])
+            {
+                continue;
+            }
+
             $carverId = $comp['carver_id'] ?? 0;
             $firstName = $comp['first_name'] ?? '';
             $lastName  = $comp['last_name'] ?? '';

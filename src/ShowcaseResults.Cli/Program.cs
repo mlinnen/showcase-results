@@ -101,19 +101,36 @@ resultsCommand.SetHandler((InvocationContext ctx) =>
     var (competitorList, checkedInColumn) = parser.ParseCompetitorsForJson();
     var specialPrizes  = parser.ParseSpecialPrizes();
     var (overallResults, divisionResults) = parser.ParseJudging();
+    var resultBearingCarverIds = CollectFallbackCheckedInCarverIds(specialPrizes, overallResults, divisionResults);
 
     if (checkedInColumn == null)
     {
-        var checkedInCarverIds = CollectFallbackCheckedInCarverIds(specialPrizes, overallResults, divisionResults);
         competitorList = competitorList
-            .Where(competitor => checkedInCarverIds.Contains(competitor.CarverId))
+            .Where(competitor => resultBearingCarverIds.Contains(competitor.CarverId))
             .ToList();
 
         Console.WriteLine("  Competitor.xlsx has no checked-in column; using prize/result rows only as a backward-compatible fallback.");
     }
     else
     {
-        Console.WriteLine($"  Using Competitor.xlsx \"{checkedInColumn}\" column as the JSON competitors source of truth.");
+        var integrityCompetitors = competitorList
+            .Where(competitor => !competitor.CheckedIn && resultBearingCarverIds.Contains(competitor.CarverId))
+            .ToList();
+
+        competitorList = competitorList
+            .Where(competitor => competitor.CheckedIn || resultBearingCarverIds.Contains(competitor.CarverId))
+            .ToList();
+
+        Console.WriteLine($"  Using Competitor.xlsx \"{checkedInColumn}\" column as the primary public-list signal.");
+
+        if (integrityCompetitors.Count > 0)
+        {
+            var preview = string.Join(", ", integrityCompetitors
+                .Take(5)
+                .Select(competitor => $"{competitor.CarverId} {competitor.FirstName} {competitor.LastName}".Trim()));
+            var suffix = integrityCompetitors.Count > 5 ? ", ..." : "";
+            Console.WriteLine($"  WARN: keeping {integrityCompetitors.Count} result-bearing competitor(s) in JSON with checked_in=false so Joomla name/detail lookups remain intact: {preview}{suffix}");
+        }
     }
 
     Console.WriteLine($"  {specialPrizes.Count} special prizes");

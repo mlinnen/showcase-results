@@ -106,48 +106,29 @@ public class SpreadsheetParser
     public List<Competitor> ParseCompetitors()
     {
         var rows = ReadSheet(_competitorsPath);
+        var checkInColumn = FindCheckedInColumn(rows);
+
         return rows
             .Where(r => r.GetValueOrDefault("Carver ID") != null)
-            .Select(r => new Competitor(
-                int.Parse(r["Carver ID"]!),
-                r.GetValueOrDefault("First Name")?.Trim() ?? "",
-                r.GetValueOrDefault("Last Name")?.Trim() ?? "",
-                NormalizeDivision(r.GetValueOrDefault("Division"))))
+            .Select(r => MapCompetitor(r, checkInColumn))
             .ToList();
     }
 
     public (List<Competitor> Competitors, string? CheckedInColumn) ParseCompetitorsForJson()
     {
         var rows = ReadSheet(_competitorsPath);
+        var checkInColumn = FindCheckedInColumn(rows);
         var competitors = rows
             .Where(r => r.GetValueOrDefault("Carver ID") != null)
-            .Select(r => new Competitor(
-                int.Parse(r["Carver ID"]!),
-                r.GetValueOrDefault("First Name")?.Trim() ?? "",
-                r.GetValueOrDefault("Last Name")?.Trim() ?? "",
-                NormalizeDivision(r.GetValueOrDefault("Division"))))
+            .Select(r => MapCompetitor(r, checkInColumn))
             .ToList();
-
-        var checkInColumn = FindCheckedInColumn(rows);
 
         if (checkInColumn == null)
         {
             return (competitors, null);
         }
 
-        var checkedInCompetitors = rows
-            .Where(r =>
-                r.GetValueOrDefault("Carver ID") != null &&
-                TryParseCheckInValue(r.GetValueOrDefault(checkInColumn), out var isCheckedIn) &&
-                isCheckedIn)
-            .Select(r => new Competitor(
-                int.Parse(r["Carver ID"]!),
-                r.GetValueOrDefault("First Name")?.Trim() ?? "",
-                r.GetValueOrDefault("Last Name")?.Trim() ?? "",
-                NormalizeDivision(r.GetValueOrDefault("Division"))))
-            .ToList();
-
-        return (checkedInCompetitors, checkInColumn);
+        return (competitors, checkInColumn);
     }
 
     public List<SpecialPrize> ParseSpecialPrizes()
@@ -288,6 +269,26 @@ public class SpreadsheetParser
         }
 
         return bestScore > 0 ? bestColumn : null;
+    }
+
+    private static Competitor MapCompetitor(Dictionary<string, string?> row, string? checkedInColumn)
+    {
+        return new Competitor(
+            int.Parse(row["Carver ID"]!),
+            row.GetValueOrDefault("First Name")?.Trim() ?? "",
+            row.GetValueOrDefault("Last Name")?.Trim() ?? "",
+            NormalizeDivision(row.GetValueOrDefault("Division")),
+            IsCheckedIn(row, checkedInColumn));
+    }
+
+    private static bool IsCheckedIn(Dictionary<string, string?> row, string? checkedInColumn)
+    {
+        if (checkedInColumn == null)
+        {
+            return true;
+        }
+
+        return TryParseCheckInValue(row.GetValueOrDefault(checkedInColumn), out var isCheckedIn) && isCheckedIn;
     }
 
     private static bool IsPotentialCheckInHeader(string header)

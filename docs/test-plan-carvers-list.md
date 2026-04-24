@@ -25,7 +25,7 @@ This test plan validates the **Carvers List View** for the com_showcaseresults J
   - Carver 5: "Edward <b>Tagged</b>" (Novice) — test XSS escaping with HTML tags
   - Carver 6: "Frank O'Brien" (Intermediate) — test special characters in name
   - Multiple checked-in source registrations with no results (no assigned prize or ranked placement) to verify they still appear in the generated JSON
-- **Note:** The generated `competitors` array should already contain only rows marked checked in by the competitor spreadsheet
+- **Note:** The generated `competitors` array is the lookup directory. Public list rows must have `checked_in: true`, but result-bearing mismatches may also be present with `checked_in: false` so carver detail/name lookups stay intact.
 
 ### `results-2023.json`
 - **Minimum 10 competitors** with at least 3 from different divisions
@@ -56,7 +56,7 @@ This test plan validates the **Carvers List View** for the com_showcaseresults J
 
 **Pass Criteria:**
 - [ ] All test carvers (1–6, plus others) appear in the list
-- [ ] List contains exactly the count of carvers in `results-2024.json`'s `competitors` array
+- [ ] List contains exactly the count of checked-in rows in `results-2024.json`'s `competitors` array
 - [ ] All links are present and functional
 
 ---
@@ -145,13 +145,31 @@ This test plan validates the **Carvers List View** for the com_showcaseresults J
 
 **Expected Output:**
 - Checked-in carvers with no results still appear in the list
-- Only carvers present in the JSON `competitors` array appear
+- Only rows with `checked_in: true` (or legacy rows with no `checked_in` field) appear in the list
 - No placeholder row or warning is shown for checked-in competitors who simply have no placements
 
 **Pass Criteria:**
 - [ ] Checked-in carvers with no results are included in the list
-- [ ] Visible carver count matches the `competitors` array length in the JSON file
+- [ ] Visible carver count matches the number of checked-in rows in the JSON file
 - [ ] No placeholder or warning row appears for checked-in competitors with no placements
+
+---
+
+### 6.5 Result-Bearing Unchecked Competitor Stays Resolvable but Hidden from List
+
+**Input:**
+- Create or use a test event where one competitor has a prize or placement row but the competitor spreadsheet marks them unchecked
+- Generate JSON and navigate to the carvers list for that event
+
+**Expected Output:**
+- The competitor still exists in the JSON `competitors` array with `checked_in: false`
+- The competitor does **not** appear in the public carvers list
+- Their name and `carver_id` remain available to the Joomla detail view and any winner rendering that depends on the competitor directory
+
+**Pass Criteria:**
+- [ ] Result-bearing unchecked competitor remains in `competitors` with `checked_in: false`
+- [ ] Public carvers list excludes that competitor
+- [ ] Carver detail/name lookup can still resolve the winner without a placeholder name
 
 ---
 

@@ -20,7 +20,7 @@ Required top-level properties:
 - `special_prizes`: Array of special prize objects
 - `overall_results`: Array of overall category results
 - `division_results`: Array of division results (Novice, Intermediate, Open)
-- `competitors`: Array of checked-in competitors
+- `competitors`: Array of checked-in competitors plus any result-bearing integrity rows; each entry includes `checked_in`
 
 Refer to `schema/results.schema.json` for complete field definitions and validation rules.
 
@@ -44,7 +44,8 @@ Refer to `schema/results.schema.json` for complete field definitions and validat
 |-----------|------------|-----------|---------|
 | 16 | John | Smith | Has ALL three result types (special prizes, overall, division) |
 | 23 | Jane | Doe | Appears in both 2024 and 2023 (different carver_id: 19 in 2023) |
-| 8 | Bob | Wilson | Checked-in competitor with ZERO results; stays in `competitors` because the source checked-in column says yes |
+| 8 | Bob | Wilson | Checked-in competitor with ZERO results; stays in `competitors` with `checked_in: true` because the source checked-in column says yes |
+| 31 | Irene | Winner | Deliberate mismatch: has a prize/result row but source `Checked In` says no; stays in `competitors` with `checked_in: false` so Joomla lookups still work |
 | 42 | Alice | Brown | Only appears in 2024 (single-year carver) |
 | 5 | Charlie | Green | Only in 2024, has division results only |
 | 11 | Diana | Lee | Has special prizes only |
@@ -482,6 +483,7 @@ ajv validate -s schema/results.schema.json -d output/results-2023.json
 If creating test data manually, use the schema definitions and samples above as templates. Key points:
 
 - Ensure all `carver_id` values in results arrays exist in the `competitors` array
+- Use `checked_in` to decide public list membership; do not drop a result-bearing competitor from `competitors` just because their source check-in value is false
 - Use realistic but fake names (or real names if you have permission)
 - Include variety: some carvers with 1 result, some with 10+ results
 - Test edge cases: entry_number 0, style null, single-place categories
