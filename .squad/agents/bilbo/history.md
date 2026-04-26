@@ -10,6 +10,19 @@
 
 <!-- Append learnings below -->
 
+## 2026-04-24 — Issue #30 explicit checked-in column
+
+- Source data update: `data/example/example_Competitor.xlsx` now includes an explicit `Checked In` column, and I synced that workbook into `data/input/Competitor.xlsx` for generation.
+- Parser/output pattern: `src/ShowcaseResults.Cli/Parsing/SpreadsheetParser.cs` now returns the checked-in column name alongside filtered competitors so `src/ShowcaseResults.Cli/Program.cs` can treat the source column as authoritative and keep the prize/result heuristic only as a backward-compatible fallback.
+- Contract update: checked-in competitors can now appear in `competitors` even with zero placements, so `joomla/com_showcaseresults/media/data/results-2026T.json`, `README.md`, `schema/results.schema.json`, `docs/joomla-extension.md`, and `docs/test-plan-carvers-list.md` all need to describe that explicit-column behavior consistently.
+
+## 2026-04-23 — Issue #30 JSON-layer checked-in filtering
+
+- User preference: enforce checked-in filtering in the generated JSON, not only in Joomla rendering.
+- Key parser path: `src/ShowcaseResults.Cli/Parsing/SpreadsheetParser.cs` now looks for an explicit checked-in signal in `Competitor.xlsx`; if none exists, `src/ShowcaseResults.Cli/Program.cs` falls back to competitors referenced by assigned prizes or ranked judging results before serializing JSON.
+- Downstream contract: `schema/results.schema.json`, `README.md`, and `docs/joomla-extension.md` now describe `competitors` as checked-in-only data for consumers like `joomla/com_showcaseresults/site/src/Service/ResultsService.php`.
+- Current source-data constraint: the checked-in sample workbook in `data/input/Competitor.xlsx` has no explicit checked-in column, so today's generated sample JSON falls back to result-bearing carver IDs (35 competitors in `joomla/com_showcaseresults/media/data/results-2026T.json`).
+
 ## 2026-03-23 — Spreadsheet analysis & data model
 
 Analyzed all four source spreadsheets in `data/input/`:
@@ -146,3 +159,17 @@ var competitors = Path.GetFullPath(competitorsExplicit
 **Build:** `dotnet build src\ShowcaseResults.Cli\ShowcaseResults.Cli.csproj` — 0 errors (2 pre-existing NuGet warnings).
 
 **Deliverable:** PR #25 created on branch `feature/data-root-parameter`.
+
+## Session: Issue #30 — Checked-In Filtering Moved to JSON Generation (2026-04-23)
+
+**Task:** Revise PR #33 after user preference: move checked-in filtering from Joomla rendering to CLI JSON generation.
+
+**Implementation:**
+- Updated `src/ShowcaseResults.Cli/Parsing/SpreadsheetParser.cs` to detect explicit checked-in signal in `Competitor.xlsx`
+- Implemented fallback in `src/ShowcaseResults.Cli/Program.cs`: if no explicit column, filter competitors to only those with assigned prizes or ranked results
+- Updated schema (`schema/results.schema.json`), README, and Joomla docs to describe `competitors` as checked-in-only
+- Regenerated `joomla/com_showcaseresults/media/data/results-2026T.json`: 35 checked-in competitors (IDs 22, 34 excluded from 37 registrations)
+
+**Key insight:** Current workbook has no explicit checked-in column, so the fallback logic (union of special_prizes + ranked results) is the source-driven rule. Downstream Joomla component now trusts the filtered JSON; no redundant filtering needed.
+
+**Status:** ✅ PR #33 approved by Aragorn, ready for merge.

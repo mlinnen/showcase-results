@@ -34,7 +34,7 @@ function escCarvers(string $str): string
 
         <div class="cca-year-selector">
             <h2>Carvers List</h2>
-            <p>Select an event year to view the list of competitors:</p>
+            <p>Select an event year to view the list of checked-in carvers:</p>
             <ul>
                 <?php foreach ($this->carversData['available_events'] as $yr): ?>
                     <li>

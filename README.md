@@ -29,12 +29,12 @@ All options are optional. If the spreadsheet paths are omitted the tool looks fo
 | Option | Default | Description |
 |--------|---------|-------------|
 | `--event-name` | `Showcase of Woodcarvings` | Name of the event |
-| `--event` | Current year | Year of the event |
+| `--event` | Current year | Event identifier |
 | `--competitors` | `data/input/Competitor.xlsx` | Path to the competitors spreadsheet |
 | `--prizes` | `data/input/Prizes.xlsx` | Path to the prizes spreadsheet |
 | `--judging` | `data/input/Judging.xlsx` | Path to the judging results spreadsheet |
 | `--output` | `output/article.html` | Path for the generated HTML file |
-| `--format` | `html` | Output format(s): `html`, `json`. Can be repeated to produce both: `--format html --format json` |
+| `--format` | `html` | Output format(s): `html`, `json`. JSON uses `Competitor.xlsx`'s checked-in column as the primary public-list signal, but still keeps any prize/result-bearing competitors needed for name/detail lookups with `checked_in: false`. Older sheets without that column fall back to competitors referenced by prizes/results. Can be repeated to produce both: `--format html --format json` |
 
 ### Examples
 
@@ -61,6 +61,8 @@ Generate JSON output only (for Joomla component data):
 ```bash
 showcase-results create results --format json
 ```
+
+The JSON `competitors` array is the Joomla lookup directory. In the current source workbook, `Competitor.xlsx` uses the `Checked In` column as the primary source of truth: rows marked checked in get `checked_in: true`, blank/falsey rows get `checked_in: false`, and any result-bearing competitor is still retained so Joomla can resolve real winners by name or ID without orphaned results. A results-based fallback remains only for older spreadsheets that do not have a checked-in column.
 
 Generate both HTML and JSON in a single run:
 
@@ -95,7 +97,7 @@ Each spreadsheet has a merged title in row 1 (skipped), column headers in row 2,
 
 | File | Required columns |
 |------|-----------------|
-| `Competitor.xlsx` | `Carver ID`, `First Name`, `Last Name` |
+| `Competitor.xlsx` | `Carver ID`, `First Name`, `Last Name`, `Checked In` |
 | `Prizes.xlsx` | `Name`, `Carver`, `Order`, `Entry #`, `Prize` |
 | `Judging.xlsx` | `Category`, `Division`, `Style`, `1st`, `2nd`, `3rd`, `#`, `#_1`, `#_2` |
 
