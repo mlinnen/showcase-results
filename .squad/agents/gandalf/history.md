@@ -10,7 +10,9 @@
 
 <!-- Append learnings below -->
 
-- **2026-04-26 — GitHub issue labels (squad assignability).** Configured `.github/workflows/sync-squad-labels.yml` to sync squad labels in the GitHub repository based on the team roster. Key constraint: synced `squad:{member}` labels must match only active assignable roster entries from `.squad/team.md`, excluding non-assignable support roles (Scribe, Ralph) so users have only working label targets for issue assignment. Also syncs `squad` umbrella label and conditional `squad:copilot` label when an active Copilot/Coding Agent entry exists. Rationale: team roster includes role diversity; label sync should target only roles that can own/drive issues. Updated decision in `.squad/decisions/inbox/gandalf-issue-labels.md`.
+- **2026-04-26 — Issue #34 Research Complete (AppSheet API Architecture).** Validated existing five-phase AppSheet integration plan against current architecture. Phase 1 (IDataProvider abstraction) is sound, unblocked, ready for design review. Phases 2–5 depend on user input: AppSheet app ID, table names, column mappings, carver ID format, checked-in column semantics, judging table structure, API rate limits. Architecture maintains zero-change contract to rendering and Joomla layers. Bilbo's feasibility study confirms HIGH feasibility, LOW risk in core design areas. Three-layer checked-in logic (column flag → integrity fallback → lookup directory) applies to AppSheet source same as XLSX. Research summary posted to GitHub issue #34. Next: Phase 1 design review (Bilbo + Aragorn), 48-hour window for user input on seven unknowns. Decision inbox: `.squad/decisions/inbox/gandalf-issue-34-research.md` (merged to active decisions.md by Scribe 2026-04-26).
+
+- **2026-04-26 — GitHub issue labels (squad assignability).**Configured `.github/workflows/sync-squad-labels.yml` to sync squad labels in the GitHub repository based on the team roster. Key constraint: synced `squad:{member}` labels must match only active assignable roster entries from `.squad/team.md`, excluding non-assignable support roles (Scribe, Ralph) so users have only working label targets for issue assignment. Also syncs `squad` umbrella label and conditional `squad:copilot` label when an active Copilot/Coding Agent entry exists. Rationale: team roster includes role diversity; label sync should target only roles that can own/drive issues. Updated decision in `.squad/decisions/inbox/gandalf-issue-labels.md`.
 
 - **2026-04-24 — Issue #30 integrity fix for checked-in carvers.**Revised the JSON/Joomla contract so `competitors` is now a lookup directory, not a pure public roster. C# changes: `src/ShowcaseResults.Cli/Models/Results.cs` adds `Competitor.CheckedIn`; `src/ShowcaseResults.Cli/Parsing/SpreadsheetParser.cs` now parses the `Checked In` column onto every competitor row; `src/ShowcaseResults.Cli/Program.cs` keeps all `checked_in=true` rows plus any result-bearing competitors and warns when a real winner is marked unchecked. Joomla change: `joomla/com_showcaseresults/site/src/Service/ResultsService.php` filters the Carvers List on `checked_in` but still uses the full competitor directory for name/ID lookup integrity. Supporting files updated: `schema/results.schema.json`, `README.md`, `docs/test-plan-carvers-list.md`, `docs/test-data-spec.md`, `docs/joomla-extension.md`, and sample JSON `joomla/com_showcaseresults/media/data/results-2026T.json`. Validation: `dotnet test src\\showcase-results.sln` passed; mismatch simulation confirmed a result-bearing unchecked competitor is retained with `checked_in=false`.
 
@@ -63,3 +65,36 @@ Decision documented in decisions.md ADR-007 entry.
 - Pushed: ✅ Ready for merge
 
 **Lesson:** User input strings need defensive normalization before path construction; help text must document fallback chain clearly
+
+## Session: Issue #34 — AppSheet API Research (2026-04-26)
+
+**Role:** Lead (Architecture Review & Research)  
+**Task:** Validate issue #34 implementation plan against current codebase and decisions  
+**Status:** ✅ COMPLETE — Research summary posted to GitHub
+
+**Key Research Outcomes:**
+
+1. **Architecture Validation:** IDataProvider abstraction plan is sound
+   - SpreadsheetParser.cs is cleanly extractable (11 methods, 1 cohesive class)
+   - Zero impact on rendering or Joomla layers (they consume ShowcaseResultsData only)
+   - Respects all active decisions (ADR-001 pipeline, ADR-007 event ID, Issue #30 checked-in integrity)
+
+2. **Blockers Identified:** Three unknowns prevent Phase 2 implementation
+   - AppSheet table/column names and structure not confirmed by user
+   - Carver ID representation (int vs string, format details) unclear
+   - Checked-in status field name and value format not specified
+   - **Critical dependency:** Issue #30's three-layer checked-in integrity model must apply to AppSheet source
+
+3. **Readiness Assessment:**
+   - Phase 1 (IDataProvider abstraction): ✅ Ready for design review (no user input required)
+   - Phases 2–5: ⏸️ Blocked pending user input on AppSheet schema
+   - Recommended sequence: Begin Phase 1 now; request user schema details for 48-hour turnaround; then proceed Phases 2–5 sequentially
+
+4. **Decision Record:** Created `.squad/decisions/inbox/gandalf-issue-34-research.md` documenting:
+   - Two new constraints (AppSheet carver ID must support integer; checked-in three-layer rule applies)
+   - Blocker list with impact assessment
+   - Sequencing recommendation and timeline estimate
+
+5. **GitHub Comment Posted:** Comprehensive research summary (status table, risk validation, team coordination) posted to issue #34 as public comment for user feedback and squad alignment.
+
+**Lesson:** Early architecture validation prevents Phase 2+ rework; blocking on user input is acceptable when Phase 1 can proceed independently. Explicit constraint documentation (carver ID format, checked-in fallback rules) prevents silent breakage when swapping data sources.
