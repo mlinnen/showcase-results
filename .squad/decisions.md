@@ -82,6 +82,18 @@ Research complete and implementation plan posted to GitHub issue #34 comment: ht
 ### Issue #34 GitHub Comment Posted (2026-04-24, Gandalf)
 Implementation plan posted to issue #34: https://github.com/mlinnen/showcase-results/issues/34#issuecomment-4305517069. Five-phase roadmap documented with full risk assessment and dependency graph. Next action: User (Mike) confirms AppSheet app/table/column structure; squad schedules Phase 1 design review.
 
+### Issue #30 — Checked-in list integrity fix (2026-04-24, Gandalf)
+Treat `competitors` as the shared competitor directory for downstream consumers, not as the public carvers list itself. Rule: If `Competitor.xlsx` has a checked-in column, set `checked_in` on every competitor row. Keep every `checked_in=true` row. Also keep any competitor whose `carver_id` appears in special_prizes, overall_results, or division_results placements, even when `checked_in=false`. Public list views must filter on `checked_in`; lookup code may use the full directory. Rationale: Filtering competitors down to checked-in rows alone can orphan real winners. Implementation: C# `Competitor.CheckedIn` property added; JSON generation merges checked-in rows with result-bearing integrity rows. Joomla `ResultsService::getCarversList()` filters on `checked_in`; other lookup paths use full directory. Schema/docs/sample data updated.
+
+### Issue #30 Decision Record Enhancement (2026-04-25, Gandalf - Audit)
+Issue #30 implementation details (three-layer visibility model, integrity warning behavior, fallback for absent checked-in column) not fully captured in decisions.md. Root cause: decision recorded at high level (outcomes/approvals) but reasoning and implementation constraints not archived. Recommendation: Update decisions.md Issue #30 entry with explicit three-layer rule, fallback behavior, warning condition, and lookup directory framing. Prevents future data sources (AppSheet) from breaking privacy/integrity contract. Context verified: Competitor.xlsx has "Checked In" column, fresh build correctly emits all 37 competitors with `checked_in` field, schema mandates it as required boolean.
+
+### Squad Issue Labels — Assignable Roster Only (2026-04-26, Gandalf)
+Sync `squad:{member}` labels only for active assignable members from `.squad/team.md`, excluding Scribe and Ralph, and create `squad:copilot` only when an active Copilot/Coding Agent roster entry exists. Rationale: Team roster includes non-assignable support roles; label sync should match actual issue-routing targets so users can assign issues cleanly without stale or non-working squad labels. Updated `.github/workflows/sync-squad-labels.yml` to derive labels only from assignable roster entries.
+
+### Issue #30 Checked-in Column — Bilbo Recommendation (2026-04-25, Bilbo)
+Use the competitor spreadsheet's explicit `Checked In` column as the source of truth for the generated JSON `competitors` array. Rationale: Source workbook now carries an explicit attendance signal; inferring check-in from prizes/placements would hide checked-in carvers with zero results. Inference retained as backward-compatible fallback for older workbooks lacking the checked-in field. Impact: `results-{event}.json` may include checked-in competitors with zero results; Joomla should trust filtered JSON instead of re-deriving attendance; sample output and docs must describe `Checked In` / `Yes` as the primary rule.
+
 ## Governance
 - All meaningful changes require team consensus
 - Document architectural decisions here
